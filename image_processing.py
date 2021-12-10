@@ -1,13 +1,9 @@
     #!/usr/bin/env python
 
-
+# Feito por Victor de Mattos Arzolla
 
 import numpy as np
-
-#bgr - rgb
 import cv2
-import matplotlib.pyplot as plt
-
 
 def get_roi(edges):
     height, width = edges.shape
@@ -27,7 +23,21 @@ def get_roi(edges):
     cropped_edges = cv2.bitwise_and(edges, mask)
     return cropped_edges
 
+def get_roi_half(edges):
+    height, width = edges.shape
+    mask = np.zeros_like(edges)
 
+    # only focus bottom half of the screen
+    polygon = np.array([[
+        (0, 390),
+        (0, 720),
+        (720, 720),
+        (720, 390),
+    ]], np.int32)
+
+    cv2.fillPoly(mask, polygon, 255)
+    cropped_edges = cv2.bitwise_and(edges, mask)
+    return cropped_edges
 
 def draw_vanishing_point(img):
     start_point_1 = (97, 720)
@@ -51,69 +61,6 @@ def draw_vanishing_point(img):
 
     return vp_img
 
-# acha o centro da linha
-def centro_linha(linha):
-
-    maxElement = np.amax(linha)
-    print('Max element from Numpy Array : ', maxElement)
-
-    result = np.where(linha == np.amax(linha))
-    print('Returned tuple of arrays :', result)
-    print('List of Indices of maximum element :', result[0])
-    
-    left_sum = 0 # soma do indice dos pixels de valor maximo
-    right_sum = 0
-    len_left = 0
-    len_right = 0
-
-    for value in result[0]:
-        if value < 360:
-            left_sum += value
-            len_left += 1
-        else:
-            right_sum += value
-            len_right += 1
-
-    if len_left == 0:
-        left_1 =0
-    else:
-        left_1 = left_sum/len_left
-
-    if len_right == 0:
-        right_1 = 0
-    else:
-        right_1 = right_sum/len_right
-
-
-    print('Media left', left_1)
-    print('Media right', right_1)
-    return left_1, right_1
-
-# 
-def histo(img_pb, altura_linha):
-
-    linha = img_pb[altura_linha,:]
- 
-
-    '''
-    plt.figure()
-    plt.plot(range(len(linha_1)), linha_1)
-    plt.plot(range(len(linha_2)), linha_2)
-    plt.show()
-    #retorna lista de indices com valor maximo
-    '''
-    return linha
-
-def detect_line_segments(cropped_edges):
-    # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
-    rho = 1  # distance precision in pixel, i.e. 1 pixel
-    angle = np.pi / 180  # angular precision in radian, i.e. 1 degree
-    min_threshold = 10  # minimal of votes
-    cropped_edges = cv2.Canny(cropped_edges, 200, 400)
-    line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, 
-                                    np.array([]), minLineLength=8, maxLineGap=4)
-
-    return line_segments
 
 
 def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
@@ -125,55 +72,7 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
     return line_image
 
-# main para processar imagem
-def image_processing(img_gray):
 
-    
-    roi_img = get_roi(img_gray)
-    linhas = detect_line_segments(roi_img)
-    print(linhas)
-
-    roi_img_rgb = cv2.cvtColor(roi_img, cv2.COLOR_GRAY2BGR)
-    
-
-    vp_img = draw_vanishing_point(np.zeros_like(roi_img_rgb))
-    cv2.imshow('image',vp_img)
-    print(vp_img.shape)
-    #vp_img = get_roi(vp_img)
-
-    y_linha_1 = 560
-    y_linha_2 = 505
-
-    index_linha_1 = histo(img_gray, y_linha_1)
-    index_linha_2 = histo(img_gray, y_linha_2)
-
-    left_x_linha_1, right_x_linha_1 = centro_linha(index_linha_1)
-    left_x_linha_2, right_x_linha_2 = centro_linha(index_linha_2)
-
-
-    left_p_1 = [int(left_x_linha_1), y_linha_1]
-    left_p_2 = [int(left_x_linha_2), y_linha_2]
-
-    right_p_1 = [int(right_x_linha_1), y_linha_1]
-    right_p_2 = [int(right_x_linha_2), y_linha_2]
-
-    vp_pontos_img = cv2.circle(vp_img, (left_p_1), radius=6, color=(0, 0, 255), thickness=-1)
-    vp_pontos_img = cv2.circle(vp_pontos_img, (left_p_2), radius=6, color=(0, 0, 255), thickness=-1)
-
-    vp_pontos_img = cv2.circle(vp_pontos_img, (right_p_1), radius=6, color=(0, 0, 255), thickness=-1)
-    vp_pontos_img = cv2.circle(vp_pontos_img, (right_p_2), radius=6, color=(0, 0, 255), thickness=-1)
-
-
-    vp_pontos_line_img = cv2.line(vp_pontos_img, left_p_1, left_p_2, color=(255, 0, 255), thickness=3)
-    vp_pontos_line_img = cv2.line(vp_pontos_line_img, right_p_1, right_p_2, color=(255, 0, 255), thickness=3)
-
-    #cv2.imshow('image',vp_pontos_line_img)
-    
-
-    #cv2.imshow('image',lane_lines_image)
-    #cv2.waitKey(1)
-
-#entra imagem segmentada, devolve apenas as faixas
 def get_mask(image):
     roadline_color = (50, 234, 157) # in bgr
     image = np.ascontiguousarray(image, dtype=np.uint8)
@@ -202,7 +101,8 @@ def skel(img):
         img = eroded.copy()
     return skel
 
-def detect_lines(image):
+
+def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 90  # angular precision in radian, i.e. 1 degree
@@ -230,10 +130,9 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     return line_image
 
 
-def filter_vertical_lines(lines):
+def filter_vertical_lines(lines, sine_limit=0.9):
 
     ok_lines = []
-    sine_limit = 0.9
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
@@ -258,7 +157,7 @@ def get_avg_line_list(line_list):
         avg.append(np.array([[rho_sum/len(line_list), theta_sum/len(line_list)]], dtype=np.float32))
     return avg
 
-def average_line(lines):
+def average_lines(lines):
 
     left_lines = []
     right_lines = []
@@ -282,8 +181,7 @@ def average_line(lines):
     return  left_avg, right_avg
 
 
-right_line_antes = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
-left_line_antes = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+
 
 left_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 right_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
@@ -291,7 +189,6 @@ right_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
 
 def accumulator(left_line, right_line):
 
-    global right_line_antes, left_line_antes
     global right_line_accum, left_line_accum
     #print('recebido', left_line, right_line)
 
@@ -359,65 +256,131 @@ def intersection(line1, line2):
 
 def image_processing2(img_gray):
     roi_img = get_roi(img_gray)
-    #cv2.imshow('image', roi_img)
-    #cv2.waitKey(0)
+
     skel_img = skel(roi_img) # esqueletiza a imagem
-    #skel_img = skel(img_gray)
 
-    #cv2.imshow('image',skel_img)
-    #cv2.waitKey(0)
 
-    lines = detect_lines(skel_img) # todas as linhas detectadas 
-    #print('lines:', lines)
+
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
+
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
 
-    #lines = [left_lines, right_lines]
-    #print(left_lines, right_lines)
-    #print('lines', lines, 'type', type(lines))
-    #print('lines1', type(lines[1]))
 
-    left_line, right_line  = average_line(lines) # pega média das linhas da esquerda e direita
+    left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
  
 
     left_line, right_line = accumulator(left_line, right_line)
 
-    #print('left', left_line, '\n right', right_line, 'type', type(left_line))
-
-    #print(left_line, right_line)
-
-
 
     #intersecção das duas linhas
     intersec = intersection(left_line[0], right_line[0])
-    #print('intersec_x', intersec[0][0])
+
     Erro = intersec[0][0] - 360
-    #print('Erro = ', Erro)
-    #single_lines = np.concatenate((left_line, right_line), axis=0)
 
-
-    #print('left:', right_line)
 
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
-
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
 
-    #cv2.imshow('image', skel_with_lines)
-    #cv2.waitKey(0)
-    
+
+
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
-    #skel_with_lines = display_lines(skel_with_lines, single_lines)
 
     cv2.imshow('image',skel_with_lines)
     return Erro
 
+from collections import defaultdict
+def segment_by_angle_kmeans(lines, k=2, **kwargs):
+    """Groups lines based on angle with k-means.
 
+    Uses k-means on the coordinates of the angle on the unit circle 
+    to segment `k` angles inside `lines`.
+    """
+
+    # Define criteria = (type, max_iter, epsilon)
+    default_criteria_type = cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER
+    criteria = kwargs.get('criteria', (default_criteria_type, 10, 1.0))
+    flags = kwargs.get('flags', cv2.KMEANS_RANDOM_CENTERS)
+    attempts = kwargs.get('attempts', 10)
+
+    # returns angles in [0, pi] in radians
+    angles = np.array([line[0][1] for line in lines])
+    # multiply the angles by two and find coordinates of that angle
+    pts = np.array([[np.cos(2*angle), np.sin(2*angle)]
+                    for angle in angles], dtype=np.float32)
+
+    # run kmeans on the coords
+    labels, centers = cv2.kmeans(pts, k, None, criteria, attempts, flags)[1:]
+    labels = labels.reshape(-1)  # transpose to row vec
+
+    # segment lines based on their kmeans label
+    segmented = defaultdict(list)
+    for i, line in enumerate(lines):
+        segmented[labels[i]].append(line)
+    segmented = list(segmented.values())
+    return segmented
+
+lines_antes = []
+
+def image_processing_kmeans(img_gray):
+    roi_img = get_roi_half(img_gray)
+
+
+    skel_img = skel(roi_img) # esqueletiza a imagem
+
+
+    #skel_img = skel(img_gray) # sem a roi
+
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
+    #print('lines:', lines)
+
+    #lines = filter_vertical_lines(lines, 0.99)
+    #print(type(lines))
+
+    global lines_antes
+
+    if len(lines) < 4:
+        lines = lines_antes
+    else:
+        lines_antes = lines
+
+    segmented = segment_by_angle_kmeans(lines, k=4)
+    #print("\n primeiro \n:", segmented[0])
+    #print("\n segundo \n:", segmented[1])
+
+    
+
+    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
+
+
+
+    skel_with_lines = skel_img_bgr
+    colors = [(0,255,0), (255,0,0), (0,0,255), (0,255,255)]
+
+    for n, line_group in enumerate(segmented):
+
+
+        skel_with_lines = display_lines(skel_with_lines, line_group, colors[n], line_width=1)
+
+
+    #cv2.imshow('image', skel_with_lines)
+    #cv2.waitKey(0)
+    
+    #skel_with_lines = display_lines(skel_with_lines, left_line)
+    #skel_with_lines = display_lines(skel_with_lines, right_line)
+    #skel_with_lines = display_lines(skel_with_lines, single_lines)
+
+    cv2.imshow('image',skel_with_lines)
+    #return Erro
+
+def show_image_rgb(rgb):
+    cv2.imshow('image', rgb)
 
 if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
-    path = 'D:\CARLA_0.9.12_win\TCC\static_road.png'
+    path = 'static_road.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\line2.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
@@ -427,11 +390,15 @@ if __name__ == '__main__':
     #image_processing(img_gray)
     #cv2.waitKey(0)
        
-    cv2.destroyAllWindows()
-    for n in range(10):
-        image_processing2(img_gray)
+    for n in range(1):
+        image_processing_kmeans(img_gray)
+
+
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+
+
 
 
     #img = get_roi(img_gray)
