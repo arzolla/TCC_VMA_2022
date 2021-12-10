@@ -1,2 +1,2 @@
 # TCC_nav_control
-Trabalho de conclusão de curso do curso de Engenharia Elétrica da EESC/USP com a proposta de desenvolver o controle de navegação de um veículo autônomo (lane-keeping control) a partir da detecção em imagem das faixas da pista. Desenvolvido no simulador CARLA e em linguagem Python 3.7.9.
+Trabalho de Conclusão de Curso da graduação de Engenharia Elétrica pela EESC/USP. Desenvolvido no simulador CARLA e em linguagem Python 3.7.9, sua proposta é desenvolver o controle de navegação de um veículo autônomo (lane-keeping control) a partir da detecção em imagem das faixas da pista. 
