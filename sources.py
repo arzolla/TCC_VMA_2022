@@ -1,4 +1,15 @@
+    #!/usr/bin/env python
 
+# Copyright (c) 2020 Computer Vision Center (CVC) at the Universitat Autonoma de
+# Barcelona (UAB).
+#
+# This work is licensed under the terms of the MIT license.
+# For a copy, see <https://opensource.org/licenses/MIT>.
+
+# Modificado por Victor de Mattos Arzolla
+# Baseado no script "multiple_sensors.py" da PythonAPI 
+# disponível no repositório oficial do CARLA Simulator 
+# <https://github.com/carla-simulator/carla>
 
 import carla
 import time

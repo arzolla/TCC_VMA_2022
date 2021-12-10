@@ -6,13 +6,10 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-Script that render multiple sensors in the same pygame window
-
-By default, it renders four cameras, one LiDAR and one Semantic LiDAR.
-It can easily be configure for any different number of sensors. 
-To do that, check lines 290-308.
-"""
+# Modificado por Victor de Mattos Arzolla
+# Baseado no script "multiple_sensors.py" da PythonAPI 
+# disponível no repositório oficial do CARLA Simulator 
+# <https://github.com/carla-simulator/carla>
 
 import glob
 import os

@@ -1,8 +1,9 @@
+    #!/usr/bin/env python
 
+# Feito por Victor de Mattos Arzolla
 
 import numpy as np
 import cv2
-
 
 def get_roi(edges):
     height, width = edges.shape
