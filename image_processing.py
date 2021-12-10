@@ -102,11 +102,11 @@ def skel(img):
     return skel
 
 
-def detect_lines(image):
+def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 90  # angular precision in radian, i.e. 1 degree
-    min_threshold = 23  # minimal of votes
+    min_threshold = 30  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -261,7 +261,7 @@ def image_processing2(img_gray):
 
 
 
-    lines = detect_lines(skel_img) # todas as linhas detectadas 
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
 
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
@@ -332,7 +332,7 @@ def image_processing_kmeans(img_gray):
 
     #skel_img = skel(img_gray) # sem a roi
 
-    lines = detect_lines(skel_img) # todas as linhas detectadas 
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
     #print('lines:', lines)
 
     #lines = filter_vertical_lines(lines, 0.99)

@@ -59,12 +59,12 @@ def control_main(vehicle, Erro):
         Erro = 0
 
     steering = (0.006*Erro - Estado)
-    #print('Erro = ', Erro)
-    #print('Steering = ', steering)
     
-
-    #vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
-    #vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
+    print('Erro = ', Erro)
+    print('Steering aplicado = ', steering)
+    
+    vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
+    vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
     
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
@@ -127,7 +127,7 @@ def run_simulation(args, client):
         vehicle_list.append(vehicle)
 
 
-        #vehicle.set_autopilot(True)
+        vehicle.set_autopilot(True)
 
 
         # Display Manager organize all the sensors an its display in a window
