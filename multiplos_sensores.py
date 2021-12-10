@@ -45,7 +45,7 @@ def computer_vision(frame):
         #image_processing_kmeans(mask)
 
         cv2.waitKey(1)
-        #return Erro
+        return Erro
 
 
 # Função para executar o controle
@@ -59,7 +59,7 @@ def control_main(vehicle, Erro):
         Erro = 0
 
     steering = (0.006*Erro - Estado)
-    
+
     print('Erro = ', Erro)
     print('Steering aplicado = ', steering)
     
