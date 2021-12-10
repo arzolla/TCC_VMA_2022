@@ -1,0 +1,1 @@
+pipenv run D:\CARLA_0.9.12_win\CarlaUE4.exe -carla-server -quality-level=Epic -ResX 720 -ResY 1440

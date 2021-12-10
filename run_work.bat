@@ -1,0 +1,1 @@
+python D:\CARLA_0.9.12_win\TCC\multiplos_sensores.py
