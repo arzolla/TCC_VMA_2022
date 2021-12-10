@@ -6,7 +6,7 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-# Modificado por Victor de Mattos Arzolla
+# Modificado por Victor de Mattos Arzolla - 2021
 # Baseado no script "multiple_sensors.py" da PythonAPI 
 # disponível no repositório oficial do CARLA Simulator 
 # <https://github.com/carla-simulator/carla>
@@ -110,7 +110,6 @@ class SensorManager:
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
         
-
     def render(self):
         if self.surface is not None:
             offset = self.display_man.get_display_offset(self.display_pos)
@@ -118,7 +117,6 @@ class SensorManager:
 
     def destroy(self):
         self.sensor.destroy()
-
 
 class CustomTimer:
     def __init__(self):

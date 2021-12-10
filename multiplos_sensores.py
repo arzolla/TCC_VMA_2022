@@ -6,7 +6,7 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-# Modificado por Victor de Mattos Arzolla
+# Modificado por Victor de Mattos Arzolla - 2021
 # Baseado no script "multiple_sensors.py" da PythonAPI 
 # disponível no repositório oficial do CARLA Simulator 
 # <https://github.com/carla-simulator/carla>
@@ -15,9 +15,7 @@ import glob
 import os
 import sys
 
-from sources import *
-
-
+from sources import * # funções necessárias para rodar a simulação
 
 try:
     sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
@@ -34,7 +32,8 @@ import argparse
 from image_processing import image_processing2, image_processing_kmeans, get_mask, show_image_rgb
 import cv2
 
-def cv2_main(frame):
+# Função para receber e processar a imagem recebida do simulador
+def computer_vision(frame):
 
     if frame is not None:
         
@@ -42,16 +41,16 @@ def cv2_main(frame):
 
         mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
         
-        #Erro = image_processing2(mask)
-        image_processing_kmeans(mask)
+        Erro = image_processing2(mask)
+        #image_processing_kmeans(mask)
 
         cv2.waitKey(1)
         #return Erro
 
 
-def main_controle(vehicle, frame):
+# Função para executar o controle
+def control_main(vehicle, Erro):
     #print(frame)
-    Erro = cv2_main(frame)
 
     Estado = vehicle.get_control().steer
     if Estado is None:
@@ -64,12 +63,13 @@ def main_controle(vehicle, frame):
     #print('Steering = ', steering)
     
 
-
     #vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
     #vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
     
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
+
+
 
 try:
     import pygame
@@ -77,9 +77,6 @@ try:
     from pygame.locals import K_q
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
-
-
-
 
 
 def run_simulation(args, client):
@@ -130,7 +127,8 @@ def run_simulation(args, client):
         vehicle_list.append(vehicle)
 
 
-        vehicle.set_autopilot(True)
+        #vehicle.set_autopilot(True)
+
 
         # Display Manager organize all the sensors an its display in a window
         # If can easily configure the grid and the total window size
@@ -161,10 +159,12 @@ def run_simulation(args, client):
             # Render received data
             display_manager.render()
 
-            frame = RGBCamera.rgb_frame
 
-            # função minha para processar e mostrar sensor
-            main_controle(vehicle, frame)
+
+            # Envia frame para a função de visão computacional
+            frame = Segment.rgb_frame
+            Erro = computer_vision(frame)
+            control_main(vehicle, Erro)
 
 
             for event in pygame.event.get():
