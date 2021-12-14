@@ -196,32 +196,9 @@ def separe_left_right(lines):
     return left_lines, right_lines
 
 
-def average_lines(lines):
 
-    left_lines = []
-    right_lines = []
-    right_avg = []
-    left_avg = []
-    for line in lines:
-        rho, theta = line[0]
-
-        if np.cos(theta) > 0:
-            right_lines.append(line)
-        else:
-            left_lines.append(line)
-
-    if right_lines != []:
-        right_avg = get_avg_line_list(right_lines)
-
-    if left_lines != []:
-        left_avg = get_avg_line_list(left_lines)
-
-    print('pros2',left_lines, right_lines)
-
-    return  left_avg, right_avg
-
-
-
+# Variáveis para armazenar a média temporal. 
+# São inicializadas com valor de faixa ideal.
 left_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 right_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
 
@@ -231,7 +208,6 @@ def accumulator(left_line, right_line):
     global right_line_accum, left_line_accum
     #print('recebido', left_line, right_line)
 
-
     # Caso faixa seja vazia
     if left_line != []:
         left_line_accum.append(left_line[0])
@@ -239,15 +215,6 @@ def accumulator(left_line, right_line):
     if right_line != []:
         right_line_accum.append(right_line[0])
 
-
-    #print("left line0",left_line, "type", type(left_line))
-
-    #left_line_accum.append(left_line[0]) # adiciona a left line na lista
-    #right_line_accum.append(right_line[0])
-
-
-    #print("left_line_accum",left_line_accum, "type", type(left_line_accum))
-    #left_line_accum.append(np.array([[rho_sum/len(left_lines), theta_sum/len(left_lines)]], dtype=np.float32))
     
     accum_max_size = 5
     
@@ -338,43 +305,6 @@ def image_processing3(img_gray):
     cv2.imshow('processing3',skel_with_lines)
     return Erro
 
-def image_processing2(img_gray):
-    roi_img = get_roi(img_gray)
-
-    skel_img = skel(roi_img) # esqueletiza a imagem
-
-
-
-    lines = hough_transform(skel_img) # todas as linhas detectadas 
-
-
-    lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
-
-
-    left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
- 
-    print('pros2 avg',left_line, right_line)
-
-    #left_line, right_line = accumulator(left_line, right_line)
-
-    #intersecção das duas linhas
-    intersec = intersection(left_line[0], right_line[0])
-
-    print('2 int',intersec)
-
-    Erro = intersec[0][0] - 360
-
-
-    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
-    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
-
-
-
-    skel_with_lines = display_lines(skel_with_lines, left_line)
-    skel_with_lines = display_lines(skel_with_lines, right_line)
-
-    cv2.imshow('processing2',skel_with_lines)
-    return Erro
 
 from collections import defaultdict
 def segment_by_angle_kmeans(lines, k=2, **kwargs):
