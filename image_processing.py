@@ -87,7 +87,7 @@ def get_mask(image):
     return mask
 
 
-def skel(img):
+def skeletize_image(img):
     skel = np.zeros(img.shape, np.uint8)
     element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
     while cv2.countNonZero(img) != 0:
@@ -122,8 +122,8 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
                 b = np.sin(theta)
                 x0 = a * rho
                 y0 = b * rho
-                pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
-                pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
+                pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
+                pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
                 cv2.line(line_image, pt1, pt2, line_color, line_width, cv2.LINE_AA)
     #cv2.line(line_image,(x1,y1),(x2,y2),line_color,line_width)
     line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
@@ -240,7 +240,7 @@ def intersection(line1, line2):
 def image_processing3(img_gray):
     roi_img = get_roi(img_gray)
 
-    skel_img = skel(roi_img) # esqueletiza a imagem
+    skel_img = skeletize_image(roi_img) # esqueletiza a imagem
 
 
 
@@ -258,7 +258,8 @@ def image_processing3(img_gray):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    #print('pros3 avg',left_line, right_line)
+
+    print('pros3 avg',left_line, right_line)
 
     #left_line, right_line = accumulator(left_line, right_line)
 
@@ -321,7 +322,7 @@ def image_processing_kmeans(img_gray):
     roi_img = get_roi_half(img_gray)
 
 
-    skel_img = skel(roi_img) # esqueletiza a imagem
+    skel_img = skeletize_image(roi_img) # esqueletiza a imagem
 
 
     #skel_img = skel(img_gray) # sem a roi
@@ -351,21 +352,18 @@ def image_processing_kmeans(img_gray):
 
     skel_with_lines = skel_img_bgr
     colors = [(0,255,0), (255,0,0), (0,0,255), (0,255,255)]
-
+    #           GREEN       BLUE       RED        YELLOW
     for n, line_group in enumerate(segmented):
 
-        
+
         skel_with_lines = display_lines(skel_with_lines, line_group, colors[n], line_width=1)
+        avg_line = get_average_line(line_group)
+        print('group', n, 'avg: ',avg_line)
+        #skel_with_lines = display_lines(skel_with_lines, avg_line, (255,0,255), line_width=2)
 
 
-    #cv2.imshow('image', skel_with_lines)
-    #cv2.waitKey(0)
-    
-    #skel_with_lines = display_lines(skel_with_lines, left_line)
-    #skel_with_lines = display_lines(skel_with_lines, right_line)
-    #skel_with_lines = display_lines(skel_with_lines, single_lines)
 
-    cv2.imshow('image',skel_with_lines)
+    cv2.imshow('processing_kmeans',skel_with_lines)
     #return Erro
 
 def show_image_rgb(rgb):
@@ -375,6 +373,7 @@ if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
     path = 'static_road.png'
+    path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\line2.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
@@ -386,6 +385,7 @@ if __name__ == '__main__':
        
     for n in range(1):
 
+        image_processing_kmeans(img_gray)
         image_processing3(img_gray)
 
 
