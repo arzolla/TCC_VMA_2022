@@ -343,8 +343,8 @@ def image_processing_kmeans(img_gray):
 
 
     skel_with_lines = skel_img_bgr
-    colors = [(0,255,0), (255,0,0), (0,0,255), (0,255,255)]
-    #           GREEN       BLUE       RED        YELLOW
+    colors = [(0,255,0), (255,0,0), (0,0,255), (0,255,255), (255,255,0)]
+    #           GREEN       BLUE       RED        YELLOW        CYAN
     for n, line_group in enumerate(segmented):
 
 
