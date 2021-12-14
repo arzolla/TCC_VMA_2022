@@ -96,7 +96,7 @@ def skeletize_image(img):
 def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
-    angle = np.pi / 90  # angular precision in radian, i.e. 1 degree
+    angle = np.pi / 180  # angular precision in radian, i.e. 1 degree
     min_threshold = 30  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
@@ -351,6 +351,7 @@ def image_processing_kmeans(img_gray):
         skel_with_lines = display_lines(skel_with_lines, line_group, colors[n], line_width=1)
         avg_line = get_average_line(line_group)
         print('group', n, 'avg: ',avg_line)
+        print('group', n, 'size: ',len(line_group))
         #skel_with_lines = display_lines(skel_with_lines, avg_line, (255,0,255), line_width=2)
 
 
@@ -365,7 +366,7 @@ if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
     path = 'static_road.png'
-    path = 'perfeito.png'
+    #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\line2.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
