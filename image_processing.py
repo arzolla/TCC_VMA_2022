@@ -147,7 +147,7 @@ def get_avg_line_list(line_list):
     theta_sum = 0
     avg = []
     #print('linelist',line_list)
-    if line_list is not None:
+    if line_list != []:
         for line in line_list:
             rho, theta = line[0]
 
@@ -180,6 +180,45 @@ def average_lines(lines):
 
     return  left_avg, right_avg
 
+
+def separe_left_right(lines):
+    left_lines = []
+    right_lines = []
+
+    for line in lines:
+        rho, theta = line[0]
+
+        if np.cos(theta) > 0:
+            right_lines.append(line)
+        else:
+            left_lines.append(line)
+
+    return left_lines, right_lines
+
+
+def average_lines(lines):
+
+    left_lines = []
+    right_lines = []
+    right_avg = []
+    left_avg = []
+    for line in lines:
+        rho, theta = line[0]
+
+        if np.cos(theta) > 0:
+            right_lines.append(line)
+        else:
+            left_lines.append(line)
+
+    if right_lines != []:
+        right_avg = get_avg_line_list(right_lines)
+
+    if left_lines != []:
+        left_avg = get_avg_line_list(left_lines)
+
+    print('pros2',left_lines, right_lines)
+
+    return  left_avg, right_avg
 
 
 
@@ -254,6 +293,48 @@ def intersection(line1, line2):
 
 
 
+def image_processing3(img_gray):
+    roi_img = get_roi(img_gray)
+
+    skel_img = skel(roi_img) # esqueletiza a imagem
+
+
+
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
+
+
+    lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
+
+    left_lines, right_lines = separe_left_right(lines)
+
+    print('pros3',left_lines, right_lines)
+
+    #left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
+ 
+    left_line = get_avg_line_list(left_lines)
+    right_line = get_avg_line_list(right_lines)
+
+    print('pros3 avg',left_line, right_line)
+
+    left_line, right_line = accumulator(left_line, right_line)
+
+    #intersecção das duas linhas
+    intersec = intersection(left_line[0], right_line[0])
+
+    Erro = intersec[0][0] - 360
+
+
+    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
+    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
+
+
+
+    skel_with_lines = display_lines(skel_with_lines, left_line)
+    skel_with_lines = display_lines(skel_with_lines, right_line)
+
+    cv2.imshow('processing3',skel_with_lines)
+    return Erro
+
 def image_processing2(img_gray):
     roi_img = get_roi(img_gray)
 
@@ -269,6 +350,7 @@ def image_processing2(img_gray):
 
     left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
  
+    print('pros2 avg',left_line, right_line)
 
     left_line, right_line = accumulator(left_line, right_line)
 
@@ -287,7 +369,7 @@ def image_processing2(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    cv2.imshow('image',skel_with_lines)
+    cv2.imshow('processing2',skel_with_lines)
     return Erro
 
 from collections import defaultdict
@@ -391,10 +473,12 @@ if __name__ == '__main__':
     #cv2.waitKey(0)
        
     for n in range(1):
-        image_processing_kmeans(img_gray)
+        image_processing2(img_gray)
+        image_processing3(img_gray)
 
 
         cv2.waitKey(0)
+
         cv2.destroyAllWindows()
 
 
