@@ -316,12 +316,15 @@ def image_processing3(img_gray):
 
     print('pros3 avg',left_line, right_line)
 
-    left_line, right_line = accumulator(left_line, right_line)
+    #left_line, right_line = accumulator(left_line, right_line)
 
     #intersecção das duas linhas
     intersec = intersection(left_line[0], right_line[0])
 
+    print('3 int',intersec)
+
     Erro = intersec[0][0] - 360
+
 
 
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
@@ -352,11 +355,12 @@ def image_processing2(img_gray):
  
     print('pros2 avg',left_line, right_line)
 
-    left_line, right_line = accumulator(left_line, right_line)
-
+    #left_line, right_line = accumulator(left_line, right_line)
 
     #intersecção das duas linhas
     intersec = intersection(left_line[0], right_line[0])
+
+    print('2 int',intersec)
 
     Erro = intersec[0][0] - 360
 
