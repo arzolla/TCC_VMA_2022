@@ -142,7 +142,7 @@ def filter_vertical_lines(lines, sine_limit=0.9):
 
     return ok_lines
 
-def get_avg_line_list(line_list):
+def get_average_line(line_list):
     rho_sum = 0
     theta_sum = 0
     avg = []
@@ -156,29 +156,6 @@ def get_avg_line_list(line_list):
         #print('list', list,' len(list)', len(list) )
         avg.append(np.array([[rho_sum/len(line_list), theta_sum/len(line_list)]], dtype=np.float32))
     return avg
-
-def average_lines(lines):
-
-    left_lines = []
-    right_lines = []
-    right_avg = []
-    left_avg = []
-    for line in lines:
-        rho, theta = line[0]
-
-        if np.cos(theta) > 0:
-            right_lines.append(line)
-        else:
-            left_lines.append(line)
-
-    if right_lines != []:
-        right_avg = get_avg_line_list(right_lines)
-
-    if left_lines != []:
-        left_avg = get_avg_line_list(left_lines)
-
-
-    return  left_avg, right_avg
 
 
 def separe_left_right(lines):
@@ -232,9 +209,9 @@ def accumulator(left_line, right_line):
 
     #print('left_accum_avg',left_line_accum)
     #print(left_line_accum)
-    left_accum_avg = get_avg_line_list(left_line_accum)
+    left_accum_avg = get_average_line(left_line_accum)
 
-    right_accum_avg = get_avg_line_list(right_line_accum)
+    right_accum_avg = get_average_line(right_line_accum)
     
     #print('media', left_accum_avg)
     #print("left_line_accum",left_line_accum, "type", type(left_line_accum))
@@ -274,21 +251,21 @@ def image_processing3(img_gray):
 
     left_lines, right_lines = separe_left_right(lines)
 
-    print('pros3',left_lines, right_lines)
+    #print('pros3',left_lines, right_lines)
 
     #left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
  
-    left_line = get_avg_line_list(left_lines)
-    right_line = get_avg_line_list(right_lines)
+    left_line = get_average_line(left_lines)
+    right_line = get_average_line(right_lines)
 
-    print('pros3 avg',left_line, right_line)
+    #print('pros3 avg',left_line, right_line)
 
     #left_line, right_line = accumulator(left_line, right_line)
 
     #intersecção das duas linhas
     intersec = intersection(left_line[0], right_line[0])
 
-    print('3 int',intersec)
+    #print('3 int',intersec)
 
     Erro = intersec[0][0] - 360
 
@@ -337,6 +314,7 @@ def segment_by_angle_kmeans(lines, k=2, **kwargs):
     segmented = list(segmented.values())
     return segmented
 
+
 lines_antes = []
 
 def image_processing_kmeans(img_gray):
@@ -361,14 +339,14 @@ def image_processing_kmeans(img_gray):
     else:
         lines_antes = lines
 
+
+    # Grupos de linhas segmentados
     segmented = segment_by_angle_kmeans(lines, k=4)
     #print("\n primeiro \n:", segmented[0])
     #print("\n segundo \n:", segmented[1])
 
     
-
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
-
 
 
     skel_with_lines = skel_img_bgr
@@ -376,7 +354,7 @@ def image_processing_kmeans(img_gray):
 
     for n, line_group in enumerate(segmented):
 
-
+        
         skel_with_lines = display_lines(skel_with_lines, line_group, colors[n], line_width=1)
 
 
@@ -407,7 +385,7 @@ if __name__ == '__main__':
     #cv2.waitKey(0)
        
     for n in range(1):
-        image_processing2(img_gray)
+
         image_processing3(img_gray)
 
 
