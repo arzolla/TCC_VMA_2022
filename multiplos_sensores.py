@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing2, image_processing_kmeans, get_mask, show_image_rgb, show_lines_rgb_image
+from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, show_lines_rgb_image
 import cv2
 
 # Função para receber e processar a imagem recebida do simulador
@@ -41,7 +41,7 @@ def computer_vision(frame):
 
         mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
         
-        Erro = image_processing2(mask)
+        Erro = image_processing3(mask)
         #image_processing_kmeans(mask)
 
         cv2.waitKey(1)
