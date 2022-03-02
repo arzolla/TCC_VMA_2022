@@ -273,7 +273,14 @@ def image_processing3(img_gray):
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
     cv2.imshow('processing3',skel_with_lines)
-    return Erro
+    return Erro, left_line, right_line
+
+
+def show_lines_rgb_image(frame, left_line, right_line):
+    frame = display_lines(frame, left_line)
+    frame = display_lines(frame, right_line)
+    cv2.imshow('rgb with lines',frame)
+
 
 
 from collections import defaultdict
@@ -378,7 +385,7 @@ if __name__ == '__main__':
        
     for n in range(1):
 
-        image_processing_kmeans(img_gray)
+        #image_processing_kmeans(img_gray)
         image_processing3(img_gray)
 
 

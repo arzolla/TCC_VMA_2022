@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing2, image_processing_kmeans, get_mask, show_image_rgb
+from image_processing import image_processing2, image_processing_kmeans, get_mask, show_image_rgb, show_lines_rgb_image
 import cv2
 
 # Função para receber e processar a imagem recebida do simulador
@@ -163,9 +163,11 @@ def run_simulation(args, client):
 
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
-            Erro = computer_vision(frame)
+            Erro, left_line, right_line = computer_vision(frame)
             control_main(vehicle, Erro)
 
+            rgb_frame = RGBCamera.rgb_frame
+            show_lines_rgb_image(rgb_frame, left_line, right_line)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
