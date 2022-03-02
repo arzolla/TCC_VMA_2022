@@ -251,12 +251,13 @@ def image_processing3(img_gray):
     right_line = get_average_line(right_lines)
 
 
-    print('pros3 avg',left_line, right_line)
+    #print('pros3 avg',left_line, right_line)
 
-    #left_line, right_line = accumulator(left_line, right_line)
+    left_line, right_line = accumulator(left_line, right_line)
 
     #intersecção das duas linhas
     intersec = intersection(left_line[0], right_line[0])
+    #print('intersec bugado',left_line[0], right_line[0])
 
     #print('3 int',intersec)
 
@@ -276,9 +277,19 @@ def image_processing3(img_gray):
     return Erro, left_line, right_line
 
 
-def show_lines_rgb_image(frame, left_line, right_line):
+def show_lines_rgb_image(frame, Erro,  left_line, right_line):
     frame = display_lines(frame, left_line)
     frame = display_lines(frame, right_line)
+    cv2.putText(
+                frame, 
+                ('Erro:'+str(Erro)),
+                (10,500),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255,255,255),
+                1,
+                2
+                )
     cv2.imshow('rgb with lines',frame)
 
 

@@ -33,7 +33,7 @@ from image_processing import image_processing3, image_processing_kmeans, get_mas
 import cv2
 
 # Função para receber e processar a imagem recebida do simulador
-def computer_vision(frame):
+def computer_vision(frame, rgb_frame):
 
     if frame is not None:
         
@@ -41,7 +41,8 @@ def computer_vision(frame):
 
         mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
         
-        Erro = image_processing3(mask)
+        Erro, left_line, right_line = image_processing3(mask)
+        show_lines_rgb_image(rgb_frame, Erro, left_line, right_line)
         #image_processing_kmeans(mask)
 
         cv2.waitKey(1)
@@ -163,11 +164,12 @@ def run_simulation(args, client):
 
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
-            Erro, left_line, right_line = computer_vision(frame)
+            rgb_frame = RGBCamera.rgb_frame
+            Erro = computer_vision(frame, rgb_frame)
             control_main(vehicle, Erro)
 
-            rgb_frame = RGBCamera.rgb_frame
-            show_lines_rgb_image(rgb_frame, left_line, right_line)
+
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
