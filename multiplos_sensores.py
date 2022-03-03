@@ -72,7 +72,7 @@ def control_main(vehicle, left_line, right_line):
     #print('Erro = ', erro)
     #print('Steering aplicado = ', steering)
     
-    vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
+    vehicle.enable_constant_velocity(carla.Vector3D(5, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
     
     #print('steering:', vehicle.get_control().steer)           # lendo steering
@@ -137,7 +137,7 @@ def run_simulation(args, client):
         vehicle_list.append(vehicle)
 
 
-        vehicle.set_autopilot(True)
+        #vehicle.set_autopilot(True)
 
 
         # Display Manager organize all the sensors an its display in a window
@@ -197,6 +197,7 @@ def run_simulation(args, client):
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == K_ESCAPE or event.key == K_q:
+                        print('Saindo ....')
                         call_exit = True
                         break
 
