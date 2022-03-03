@@ -274,12 +274,17 @@ def image_processing3(img_gray):
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
     cv2.imshow('processing3',skel_with_lines)
-    return (left_line[0]), (right_line[0])
+    return left_line, right_line
 
 
 def control_monitor(frame, erro, steering, left_line, right_line):
+    if frame is None:
+        frame = np.zeros((720,720,3))
+    print('aqui',np.shape(frame))
+    print(left_line, right_line)
     frame = display_lines(frame, left_line)
     frame = display_lines(frame, right_line)
+
     cv2.putText(
                 frame, 
                 ('Erro:'+str(erro))+'\n sdfaf',

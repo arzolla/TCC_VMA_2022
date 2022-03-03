@@ -33,10 +33,10 @@ from image_processing import image_processing3, image_processing_kmeans, get_mas
 import cv2
 
 # Função para receber e processar a imagem recebida do simulador
-def computer_vision(frame, rgb_frame):
+def computer_vision(frame):
 
     if frame is None:
-        return None, None
+        frame = np.zeros((720,720,3))
 
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
@@ -46,6 +46,7 @@ def computer_vision(frame, rgb_frame):
     left_line, right_line = image_processing3(mask)
 
     #image_processing_kmeans(mask)
+    #print('asdasd',left_line, right_line)
 
     cv2.waitKey(1)
 
@@ -59,27 +60,24 @@ def computer_vision(frame, rgb_frame):
 def control_main(vehicle, left_line, right_line):
     #print(frame)
 
-    if left_line is None:
-        return
-
     estado = vehicle.get_control().steer
     if estado is None:
         estado = 0
    
    
-        intersec = intersection(left_line, right_line)
-        erro = intersec[0][0] - 360
-        steering = (0.006*erro - estado)
+    intersec = intersection(left_line[0], right_line[0])
+    erro = intersec[0][0] - 360
+    steering = (0.006*erro - estado)
 
-        print('Erro = ', erro)
-        print('Steering aplicado = ', steering)
-        
-        vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
-        vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
-        
-        #print('steering:', vehicle.get_control().steer)           # lendo steering
-        #print('posicao', vehicle.get_transform())
-        return erro, steering
+    print('Erro = ', erro)
+    print('Steering aplicado = ', steering)
+    
+    vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
+    vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
+    
+    #print('steering:', vehicle.get_control().steer)           # lendo steering
+    #print('posicao', vehicle.get_transform())
+    return erro, steering
 
 
 
@@ -182,9 +180,11 @@ def run_simulation(args, client):
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
-            left_line, right_line = computer_vision(frame, rgb_frame)
-            control_main(vehicle, left_line, right_line)
-            #control_monitor(rgb_frame, erro, steering, left_line, right_line)
+            left_line, right_line = computer_vision(frame)
+            erro, steering = control_main(vehicle, left_line, right_line) #precisa retornar erro e steering
+            print('aqui',np.shape(frame))
+            control_monitor(rgb_frame, erro, steering, left_line, right_line)
+
 
 
             ####################################################
