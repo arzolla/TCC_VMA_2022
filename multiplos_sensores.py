@@ -29,46 +29,58 @@ import carla
 import argparse
 
 
-from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, show_lines_rgb_image
+from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, show_lines_rgb_image, intersection
 import cv2
 
 # Função para receber e processar a imagem recebida do simulador
 def computer_vision(frame, rgb_frame):
 
-    if frame is not None:
-        
-        #show_image_rgb(frame) # Mostra imagem RGB
+    if frame is None:
+        return None, None
+        print('frame nulo #######')
 
-        mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
-        
-        Erro, left_line, right_line = image_processing3(mask)
-        show_lines_rgb_image(rgb_frame, Erro, left_line, right_line)
-        #image_processing_kmeans(mask)
+    print('tipo do frame',np.shape(frame))
+    #frame = np.zeros((720,720,3))
+    #show_image_rgb(frame) # Mostra imagem RGB
 
-        cv2.waitKey(1)
-        return Erro
+    mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
+    
+    left_line, right_line = image_processing3(mask)
+    #show_lines_rgb_image(rgb_frame, Erro, left_line, right_line)
+    #image_processing_kmeans(mask)
+
+    cv2.waitKey(1)
+    print('tentou isso')
+    return left_line, right_line
+
+
+    
 
 
 # Função para executar o controle
-def control_main(vehicle, Erro):
+def control_main(vehicle, left_line, right_line):
     #print(frame)
 
-    Estado = vehicle.get_control().steer
-    if Estado is None:
-        Estado = 0
-    if Erro is None:
-        Erro = 0
+    estado = vehicle.get_control().steer
+    if estado is None:
+        estado = 0
+   
+   
+    if left_line is not None:
 
-    steering = (0.006*Erro - Estado)
 
-    print('Erro = ', Erro)
-    print('Steering aplicado = ', steering)
-    
-    vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
-    vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
-    
-    #print('steering:', vehicle.get_control().steer)           # lendo steering
-    #print('posicao', vehicle.get_transform())
+        intersec = intersection(left_line, right_line)
+        erro = intersec[0][0] - 360
+        steering = (0.006*erro - estado)
+
+        print('Erro = ', erro)
+        print('Steering aplicado = ', steering)
+        
+        vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
+        vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
+        
+        #print('steering:', vehicle.get_control().steer)           # lendo steering
+        #print('posicao', vehicle.get_transform())
 
 
 
@@ -162,14 +174,25 @@ def run_simulation(args, client):
 
 
 
+            ####################################################
+            ####################################################
+            ####################################################
+            ####################################################
+           
+           
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
-            Erro = computer_vision(frame, rgb_frame)
-            control_main(vehicle, Erro)
+            left_line, right_line = computer_vision(frame, rgb_frame)
+            print('passou?')
+            control_main(vehicle, left_line, right_line)
 
 
 
+            ####################################################
+            ####################################################
+            ####################################################
+            ####################################################
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

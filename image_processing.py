@@ -256,12 +256,12 @@ def image_processing3(img_gray):
     left_line, right_line = accumulator(left_line, right_line)
 
     #intersecção das duas linhas
-    intersec = intersection(left_line[0], right_line[0])
+
     #print('intersec bugado',left_line[0], right_line[0])
 
     #print('3 int',intersec)
 
-    Erro = intersec[0][0] - 360
+
 
 
 
@@ -274,7 +274,7 @@ def image_processing3(img_gray):
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
     cv2.imshow('processing3',skel_with_lines)
-    return Erro, left_line, right_line
+    return (left_line[0]), (right_line[0])
 
 
 def show_lines_rgb_image(frame, Erro,  left_line, right_line):
