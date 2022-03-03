@@ -69,8 +69,8 @@ def control_main(vehicle, left_line, right_line):
     erro = intersec[0][0] - 360
     steering = (0.006*erro - estado)
 
-    print('Erro = ', erro)
-    print('Steering aplicado = ', steering)
+    #print('Erro = ', erro)
+    #print('Steering aplicado = ', steering)
     
     vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
@@ -182,7 +182,7 @@ def run_simulation(args, client):
             rgb_frame = RGBCamera.rgb_frame
             left_line, right_line = computer_vision(frame)
             erro, steering = control_main(vehicle, left_line, right_line) #precisa retornar erro e steering
-            print('aqui',np.shape(frame))
+            #print('aqui',np.shape(frame))
             control_monitor(rgb_frame, erro, steering, left_line, right_line)
 
 
