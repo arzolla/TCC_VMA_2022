@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, show_lines_rgb_image, intersection
+from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, intersection, control_monitor
 import cv2
 
 # Função para receber e processar a imagem recebida do simulador
@@ -37,20 +37,18 @@ def computer_vision(frame, rgb_frame):
 
     if frame is None:
         return None, None
-        print('frame nulo #######')
 
-    print('tipo do frame',np.shape(frame))
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
 
     mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
     
     left_line, right_line = image_processing3(mask)
-    #show_lines_rgb_image(rgb_frame, Erro, left_line, right_line)
+
     #image_processing_kmeans(mask)
 
     cv2.waitKey(1)
-    print('tentou isso')
+
     return left_line, right_line
 
 
@@ -61,14 +59,14 @@ def computer_vision(frame, rgb_frame):
 def control_main(vehicle, left_line, right_line):
     #print(frame)
 
+    if left_line is None:
+        return
+
     estado = vehicle.get_control().steer
     if estado is None:
         estado = 0
    
    
-    if left_line is not None:
-
-
         intersec = intersection(left_line, right_line)
         erro = intersec[0][0] - 360
         steering = (0.006*erro - estado)
@@ -81,6 +79,7 @@ def control_main(vehicle, left_line, right_line):
         
         #print('steering:', vehicle.get_control().steer)           # lendo steering
         #print('posicao', vehicle.get_transform())
+        return erro, steering
 
 
 
@@ -184,9 +183,8 @@ def run_simulation(args, client):
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
             left_line, right_line = computer_vision(frame, rgb_frame)
-            print('passou?')
             control_main(vehicle, left_line, right_line)
-
+            #control_monitor(rgb_frame, erro, steering, left_line, right_line)
 
 
             ####################################################

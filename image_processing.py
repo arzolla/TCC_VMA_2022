@@ -277,12 +277,12 @@ def image_processing3(img_gray):
     return (left_line[0]), (right_line[0])
 
 
-def show_lines_rgb_image(frame, Erro,  left_line, right_line):
+def control_monitor(frame, erro, steering, left_line, right_line):
     frame = display_lines(frame, left_line)
     frame = display_lines(frame, right_line)
     cv2.putText(
                 frame, 
-                ('Erro:'+str(Erro)),
+                ('Erro:'+str(erro))+'\n sdfaf',
                 (10,500),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
