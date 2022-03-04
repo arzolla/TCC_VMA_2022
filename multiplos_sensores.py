@@ -79,7 +79,7 @@ def control_main(vehicle, controlador, velocidade, left_line, right_line):
 try:
     import pygame
     from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q, K_a, K_s, K_d, K_f
+    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -155,11 +155,11 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0.0011, Kd = -0.00001)
+        controlador = PID(Kp = -0.0030, Kd = -0.00003)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
 
-        velocidade = 10
+        velocidade = 30
 
 
 
@@ -193,7 +193,7 @@ def run_simulation(args, client):
             left_line, right_line = computer_vision(frame)
             erro, steering = control_main(vehicle, controlador, velocidade, left_line, right_line) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd)
+            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd, velocidade)
 
 
 
@@ -222,7 +222,15 @@ def run_simulation(args, client):
                             print('Aumentando Kd para:',controlador.Kd)
                     if event.key == K_f: 
                         controlador.setKd(controlador.Kd-0.00001)
-                        print('Diminuindo Kd para:',controlador.Kd)                        
+                        print('Diminuindo Kd para:',controlador.Kd)
+                    if event.key == K_z:
+                        new_vel =  velocidade-0.5
+                        if new_vel > 0:
+                            velocidade = new_vel
+                            print('Diminuindo velocidade para:',velocidade)
+                    if event.key == K_x: 
+                        velocidade = velocidade + 0.5
+                        print('Aumentando velocidade para:',velocidade)                                                  
 
 
                     if event.key == K_ESCAPE or event.key == K_q:

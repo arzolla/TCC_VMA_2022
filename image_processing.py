@@ -277,7 +277,7 @@ def image_processing3(img_gray):
     return left_line, right_line
 
 
-def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd):
+def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, velocidade):
     if frame is None:
         frame = np.zeros((720,720,3))
  
@@ -323,6 +323,17 @@ def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd):
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (50,50,255),
+                1,
+                2
+                )                
+    cv2.imshow('rgb with lines',frame)
+    cv2.putText(
+                frame, 
+                ('Vel:'+str(velocidade)),
+                (10,250),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (50,255,50),
                 1,
                 2
                 )                
