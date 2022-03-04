@@ -58,7 +58,7 @@ def computer_vision(frame):
 
 
 # Função para executar o controle
-def control_main(vehicle, controlador, left_line, right_line):
+def control_main(vehicle, controlador, velocidade, left_line, right_line):
     #print(frame)
 
    
@@ -67,7 +67,7 @@ def control_main(vehicle, controlador, left_line, right_line):
     steering = controlador.update(estado)
 
 
-    vehicle.enable_constant_velocity(carla.Vector3D(5, 0, 0)) # aplicando velocidade constante
+    vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
     erro = 0
     #print('steering:', vehicle.get_control().steer)           # lendo steering
@@ -154,8 +154,14 @@ def run_simulation(args, client):
 
         #Simulation loop
 
-        controlador = PID(-0.0011)
+        #Configurando controlador
+        controlador = PID(Kp = -0.0011, Kd = -0.00001)
+        controlador.setSampleTime(0.01)
         steering = controlador.update(0)
+
+        velocidade = 10
+
+
 
         call_exit = False
         time_init_sim = timer.time()
@@ -185,9 +191,9 @@ def run_simulation(args, client):
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
             left_line, right_line = computer_vision(frame)
-            erro, steering = control_main(vehicle, controlador, left_line, right_line) #precisa retornar erro e steering
+            erro, steering = control_main(vehicle, controlador, velocidade, left_line, right_line) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp)
+            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd)
 
 
 
@@ -201,12 +207,22 @@ def run_simulation(args, client):
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
 
-                    if event.key == K_a: 
-                        controlador.setKp(controlador.Kp+0.0001)
-                        print('Aumentando Kp para:',controlador.Kp)
+                    if event.key == K_a:
+                        new_kp =  controlador.Kp+0.0001
+                        if new_kp < 0: 
+                            controlador.setKp(new_kp)
+                            print('Aumentando Kp para:',controlador.Kp)
                     if event.key == K_s: 
                         controlador.setKp(controlador.Kp-0.0001)
                         print('Diminuindo Kp para:',controlador.Kp)
+                    if event.key == K_d:
+                        new_kd =  controlador.Kd+0.00001
+                        if new_kd < 0:
+                            controlador.setKd(new_kd)
+                            print('Aumentando Kd para:',controlador.Kd)
+                    if event.key == K_f: 
+                        controlador.setKd(controlador.Kd-0.00001)
+                        print('Diminuindo Kd para:',controlador.Kd)                        
 
 
                     if event.key == K_ESCAPE or event.key == K_q:
