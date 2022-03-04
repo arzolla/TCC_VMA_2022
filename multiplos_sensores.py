@@ -155,7 +155,7 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0.0030, Kd = -0.00003)
+        controlador = PID(Kp = -0.0015, Kd = -0.00003)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
 
