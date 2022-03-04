@@ -202,11 +202,11 @@ def run_simulation(args, client):
                 elif event.type == pygame.KEYDOWN:
 
                     if event.key == K_a: 
-                        print('Aumentando Kp:')
                         controlador.setKp(controlador.Kp+0.0001)
+                        print('Aumentando Kp para:',controlador.Kp)
                     if event.key == K_s: 
-                        print('Diminuindo Kp:')
                         controlador.setKp(controlador.Kp-0.0001)
+                        print('Diminuindo Kp para:',controlador.Kp)
 
 
                     if event.key == K_ESCAPE or event.key == K_q:
