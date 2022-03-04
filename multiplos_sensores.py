@@ -31,6 +31,7 @@ import argparse
 
 from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, intersection, control_monitor
 import cv2
+from vmaPID import PID
 
 # Função para receber e processar a imagem recebida do simulador
 def computer_vision(frame):
@@ -57,34 +58,28 @@ def computer_vision(frame):
 
 
 # Função para executar o controle
-def control_main(vehicle, left_line, right_line):
+def control_main(vehicle, controlador, left_line, right_line):
     #print(frame)
 
-    estado = vehicle.get_control().steer
-    if estado is None:
-        estado = 0
-   
    
     intersec = intersection(left_line[0], right_line[0])
-    erro = intersec[0][0] - 360
-    steering = (0.006*erro - estado)
+    estado = intersec[0][0] - 360
+    steering = controlador.update(estado)
 
-    #print('Erro = ', erro)
-    #print('Steering aplicado = ', steering)
-    
+
     vehicle.enable_constant_velocity(carla.Vector3D(5, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
-    
+    erro = 0
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
-    return erro, steering
+    return estado, steering
 
 
 
 try:
     import pygame
     from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q
+    from pygame.locals import K_q, K_a, K_s, K_d, K_f
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -142,7 +137,8 @@ def run_simulation(args, client):
 
         # Display Manager organize all the sensors an its display in a window
         # If can easily configure the grid and the total window size
-        display_manager = DisplayManager(grid_size=[1, 2], window_size=[args.width, args.height])
+        #display_manager = DisplayManager(grid_size=[1, 2], window_size=[args.width, args.height])
+        display_manager = DisplayManager(grid_size=[1, 1], window_size=[720, args.height])
 
 
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
@@ -157,8 +153,16 @@ def run_simulation(args, client):
 
 
         #Simulation loop
+
+        controlador = PID(-0.0011)
+        steering = controlador.update(0)
+
         call_exit = False
         time_init_sim = timer.time()
+
+        frame = np.zeros((720,720,3))
+        rgb_frame = np.zeros((720,720,3))
+
         while True:
             # Carla Tick
             if args.sync:
@@ -181,9 +185,9 @@ def run_simulation(args, client):
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
             left_line, right_line = computer_vision(frame)
-            erro, steering = control_main(vehicle, left_line, right_line) #precisa retornar erro e steering
+            erro, steering = control_main(vehicle, controlador, left_line, right_line) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, erro, steering, left_line, right_line)
+            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp)
 
 
 
@@ -196,12 +200,21 @@ def run_simulation(args, client):
                 if event.type == pygame.QUIT:
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
+
+                    if event.key == K_a: 
+                        print('Aumentando Kp:')
+                        controlador.setKp(controlador.Kp+0.0001)
+                    if event.key == K_s: 
+                        print('Diminuindo Kp:')
+                        controlador.setKp(controlador.Kp-0.0001)
+
+
                     if event.key == K_ESCAPE or event.key == K_q:
-                        print('Saindo ....')
                         call_exit = True
                         break
 
             if call_exit:
+                print('Saindo ....')
                 break
 
     finally:

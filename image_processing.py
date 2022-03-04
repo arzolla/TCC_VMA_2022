@@ -277,17 +277,27 @@ def image_processing3(img_gray):
     return left_line, right_line
 
 
-def control_monitor(frame, erro, steering, left_line, right_line):
+def control_monitor(frame, erro, steering, left_line, right_line, Kp):
     if frame is None:
         frame = np.zeros((720,720,3))
-    #print('aqui',np.shape(frame))
-    #print(left_line, right_line)
+ 
     frame = display_lines(frame, left_line)
     frame = display_lines(frame, right_line)
 
     cv2.putText(
                 frame, 
-                ('Erro:'+str(erro)),
+                ('Steering:'+str(steering)),
+                (10,50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255,255,255),
+                1,
+                2
+                )
+    cv2.imshow('rgb with lines',frame)
+    cv2.putText(
+                frame, 
+                ('Estado:'+str(erro)),
                 (10,100),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
@@ -298,11 +308,11 @@ def control_monitor(frame, erro, steering, left_line, right_line):
     cv2.imshow('rgb with lines',frame)
     cv2.putText(
                 frame, 
-                ('Steering:'+str(steering)),
-                (10,50),
+                ('Kp:'+str(Kp)),
+                (10,150),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
-                (255,255,255),
+                (50,50,255),
                 1,
                 2
                 )
