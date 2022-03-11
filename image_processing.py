@@ -229,53 +229,6 @@ def intersection(line1, line2):
 
 
 
-def image_processing3(img_gray):
-    roi_img = get_roi(img_gray)
-
-    skel_img = skeletize_image(roi_img) # esqueletiza a imagem
-
-
-
-    lines = hough_transform(skel_img) # todas as linhas detectadas 
-
-
-    lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
-
-    left_lines, right_lines = sort_left_right(lines)
-
-    #print('pros3',left_lines, right_lines)
-
-    #left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
- 
-    left_line = get_average_line(left_lines)
-    right_line = get_average_line(right_lines)
-
-
-    #print('pros3 avg',left_line, right_line)
-
-    left_line, right_line = accumulator(left_line, right_line)
-
-    #intersecção das duas linhas
-
-    #print('intersec bugado',left_line[0], right_line[0])
-
-    #print('3 int',intersec)
-
-
-
-
-
-    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
-    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
-
-
-
-    skel_with_lines = display_lines(skel_with_lines, left_line)
-    skel_with_lines = display_lines(skel_with_lines, right_line)
-
-    cv2.imshow('processing3',skel_with_lines)
-    return left_line, right_line
-
 
 def image_processing4(img_gray):
     roi_img = get_roi(img_gray)
@@ -338,154 +291,26 @@ def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, Ki, ve
     frame = display_lines(frame, left_line)
     frame = display_lines(frame, right_line)
 
-    cv2.putText(
-                frame, 
-                ('Steering:'+str(steering)),
-                (10,50),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (255,255,255),
-                1,
-                2
-                )
-    cv2.imshow('rgb with lines',frame)
-    cv2.putText(
-                frame, 
-                ('Estado:'+str(erro)),
-                (10,100),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (255,255,255),
-                1,
-                2
-                )
-    cv2.imshow('rgb with lines',frame)
-    cv2.putText(
-                frame, 
-                ('Kp:'+str(Kp)),
-                (10,150),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (50,50,255),
-                1,
-                2
-                )
-    cv2.putText(
-                frame, 
-                ('Kd:'+str(Kd)),
-                (10,200),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (50,50,255),
-                1,
-                2
-                )
-    cv2.putText(
-                frame, 
-                ('Ki:'+str(Ki)),
-                (10,250),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (50,50,255),
-                1,
-                2
-                )                                  
-    cv2.putText(
-                frame, 
-                ('Vel:'+str(velocidade)),
-                (10,300),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (50,255,50),
-                1,
-                2
-                )                
+    write_on_screen(frame, ('Steering:'+str(steering)), (10,50), (255,255,255)) 
+    write_on_screen(frame, ('Estado:'+str(erro)), (10,100), (255,255,255)) 
+    write_on_screen(frame, ('Kp:'+str(Kp)), (10,150), (50,50,255))  
+    write_on_screen(frame, ('Kd:'+str(Kd)), (10,200), (50,50,255))    
+    write_on_screen(frame, ('Ki:'+str(Ki)), (10,250), (50,50,255))
+    write_on_screen(frame, ('Vel:'+str(velocidade)), (10,300), (50,255,50))
+      
     cv2.imshow('rgb with lines',frame)
 
-
-
-from collections import defaultdict
-def segment_by_angle_kmeans(lines, k=2, **kwargs):
-    """Groups lines based on angle with k-means.
-
-    Uses k-means on the coordinates of the angle on the unit circle 
-    to segment `k` angles inside `lines`.
-    """
-
-    # Define criteria = (type, max_iter, epsilon)
-    default_criteria_type = cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER
-    criteria = kwargs.get('criteria', (default_criteria_type, 10, 1.0))
-    flags = kwargs.get('flags', cv2.KMEANS_RANDOM_CENTERS)
-    attempts = kwargs.get('attempts', 10)
-
-    # returns angles in [0, pi] in radians
-    angles = np.array([line[0][1] for line in lines])
-    # multiply the angles by two and find coordinates of that angle
-    pts = np.array([[np.cos(2*angle), np.sin(2*angle)]
-                    for angle in angles], dtype=np.float32)
-
-    # run kmeans on the coords
-    labels, centers = cv2.kmeans(pts, k, None, criteria, attempts, flags)[1:]
-    labels = labels.reshape(-1)  # transpose to row vec
-
-    # segment lines based on their kmeans label
-    segmented = defaultdict(list)
-    for i, line in enumerate(lines):
-        segmented[labels[i]].append(line)
-    segmented = list(segmented.values())
-    return segmented
-
-
-lines_antes = []
-
-def image_processing_kmeans(img_gray):
-    roi_img = get_roi_half(img_gray)
-
-
-    skel_img = skeletize_image(roi_img) # esqueletiza a imagem
-
-
-    #skel_img = skel(img_gray) # sem a roi
-
-    lines = hough_transform(skel_img) # todas as linhas detectadas 
-    #print('lines:', lines)
-
-    #lines = filter_vertical_lines(lines, 0.99)
-    #print(type(lines))
-
-    global lines_antes
-
-    if len(lines) < 4:
-        lines = lines_antes
-    else:
-        lines_antes = lines
-
-
-    # Grupos de linhas segmentados
-    segmented = segment_by_angle_kmeans(lines, k=4)
-    #print("\n primeiro \n:", segmented[0])
-    #print("\n segundo \n:", segmented[1])
-
-    
-    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
-
-
-    skel_with_lines = skel_img_bgr
-    colors = [(0,255,0), (255,0,0), (0,0,255), (0,255,255), (255,255,0)]
-    #           GREEN       BLUE       RED        YELLOW        CYAN
-    for n, line_group in enumerate(segmented):
-
-
-        skel_with_lines = display_lines(skel_with_lines, line_group, colors[n], line_width=1)
-        avg_line = get_average_line(line_group)
-        print('group', n, 'avg: ',avg_line)
-        print('group', n, 'size: ',len(line_group))
-        #skel_with_lines = display_lines(skel_with_lines, avg_line, (255,0,255), line_width=2)
-
-
-
-    cv2.imshow('processing_kmeans',skel_with_lines)
-    #return Erro
+def write_on_screen(frame, text, pos, color):
+    cv2.putText(
+            frame, 
+            (text),
+            pos,
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            color,
+            1,
+            2
+            )  
 
 def show_image_rgb(rgb):
     cv2.imshow('image', rgb)
