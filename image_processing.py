@@ -168,8 +168,8 @@ def sort_left_right(lines):
 
 # Variáveis para armazenar a média temporal. 
 # São inicializadas com valor de faixa ideal.
-left_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
-right_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
 
 
 def accumulator(left_line, right_line):
@@ -236,13 +236,12 @@ def image_processing4(img_gray):
     skel_img = skeletize_image(roi_img) # esqueletiza a imagem
 
 
-
     lines = hough_transform(skel_img) # todas as linhas detectadas 
 
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
 
-    left_lines, right_lines = sort_left_right(lines)
+    left_lines, right_lines  = sort_left_right(lines)
 
     #print('pros3',left_lines, right_lines)
 
@@ -267,16 +266,11 @@ def image_processing4(img_gray):
     print('soma',mid_line)
 
 
-
-
-
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
 
-
-
     skel_with_lines = display_lines(skel_with_lines, left_line)
-    #skel_with_lines = display_lines(skel_with_lines, right_line)
+    skel_with_lines = display_lines(skel_with_lines, right_line)
 
     skel_with_lines = display_lines(skel_with_lines, [[[360    ,   0]]], line_color = (0,0,255), line_width=1)
 
