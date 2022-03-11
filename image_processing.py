@@ -150,7 +150,7 @@ def get_average_line(line_list):
     return avg
 
 
-def separe_left_right(lines):
+def sort_left_right(lines):
     left_lines = []
     right_lines = []
 
@@ -158,9 +158,9 @@ def separe_left_right(lines):
         rho, theta = line[0]
 
         if np.cos(theta) > 0:
-            right_lines.append(line)
-        else:
             left_lines.append(line)
+        else:
+            right_lines.append(line)
 
     return left_lines, right_lines
 
@@ -241,7 +241,7 @@ def image_processing3(img_gray):
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
 
-    left_lines, right_lines = separe_left_right(lines)
+    left_lines, right_lines = sort_left_right(lines)
 
     #print('pros3',left_lines, right_lines)
 
@@ -277,7 +277,61 @@ def image_processing3(img_gray):
     return left_line, right_line
 
 
-def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, velocidade):
+def image_processing4(img_gray):
+    roi_img = get_roi(img_gray)
+
+    skel_img = skeletize_image(roi_img) # esqueletiza a imagem
+
+
+
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
+
+
+    lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
+
+    left_lines, right_lines = sort_left_right(lines)
+
+    #print('pros3',left_lines, right_lines)
+
+    #left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
+ 
+    left_line = get_average_line(left_lines)
+    right_line = get_average_line(right_lines)
+
+
+    #print('pros3 avg',left_line, right_line)
+
+    left_line, right_line = accumulator(left_line, right_line)
+
+    #intersecção das duas linhas
+
+    print('left e right o',left_line, right_line)
+    
+    aa = np.divide(left_line,[2,2])
+    bb = np.divide(right_line,[2,2])
+    mid_line = np.sum([aa, bb], axis=0, dtype=np.float32) #left_line + right_line
+    mid_line = get_average_line(left_line+right_line)
+    print('soma',mid_line)
+
+
+
+
+
+    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
+    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
+
+
+
+    skel_with_lines = display_lines(skel_with_lines, left_line)
+    #skel_with_lines = display_lines(skel_with_lines, right_line)
+
+    skel_with_lines = display_lines(skel_with_lines, [[[360    ,   0]]], line_color = (0,0,255), line_width=1)
+
+    cv2.imshow('processing4',skel_with_lines)
+    return left_line, right_line
+
+
+def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, Ki, velocidade):
     if frame is None:
         frame = np.zeros((720,720,3))
  
@@ -325,12 +379,21 @@ def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, veloci
                 (50,50,255),
                 1,
                 2
-                )                
-    cv2.imshow('rgb with lines',frame)
+                )
+    cv2.putText(
+                frame, 
+                ('Ki:'+str(Ki)),
+                (10,250),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (50,50,255),
+                1,
+                2
+                )                                  
     cv2.putText(
                 frame, 
                 ('Vel:'+str(velocidade)),
-                (10,250),
+                (10,300),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (50,255,50),
@@ -444,7 +507,7 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        image_processing3(img_gray)
+        image_processing4(img_gray)
 
 
         cv2.waitKey(0)
