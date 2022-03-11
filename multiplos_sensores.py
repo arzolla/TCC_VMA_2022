@@ -79,7 +79,7 @@ def control_main(vehicle, controlador, velocidade, left_line, right_line):
 try:
     import pygame
     from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x
+    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x, K_l, K_c, K_v
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -122,6 +122,7 @@ def run_simulation(args, client):
         
         ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
         ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
+        #Posição do veículo: Transform(Location(x=383.296326, y=-14.810212, z=-0.016199), Rotation(pitch=-0.029206, yaw=101.082703, roll=-0.915588)) # curva acentuada
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         
         print("Spawn do carro: ",ponto_spawn)
@@ -129,6 +130,7 @@ def run_simulation(args, client):
 
         
         vehicle = world.spawn_actor(bp, ponto_spawn)
+        print(vehicle.get_location())
         vehicle_list.append(vehicle)
 
 
@@ -155,7 +157,7 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0.0015, Kd = -0.00003)
+        controlador = PID(Kp = -0.0018, Ki = 00, Kd = -0.00011)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
 
@@ -193,8 +195,7 @@ def run_simulation(args, client):
             left_line, right_line = computer_vision(frame)
             erro, steering = control_main(vehicle, controlador, velocidade, left_line, right_line) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd, velocidade)
-
+            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
 
 
             ####################################################
@@ -215,6 +216,7 @@ def run_simulation(args, client):
                     if event.key == K_s: 
                         controlador.setKp(controlador.Kp-0.0001)
                         print('Diminuindo Kp para:',controlador.Kp)
+                    
                     if event.key == K_d:
                         new_kd =  controlador.Kd+0.00001
                         if new_kd < 0:
@@ -223,6 +225,16 @@ def run_simulation(args, client):
                     if event.key == K_f: 
                         controlador.setKd(controlador.Kd-0.00001)
                         print('Diminuindo Kd para:',controlador.Kd)
+                    
+                    if event.key == K_c:
+                        new_ki =  controlador.Ki+0.00001
+                        if new_ki < 0:
+                            controlador.setKd(new_ki)
+                            print('Aumentando Ki para:',controlador.Ki)
+                    if event.key == K_v: 
+                        controlador.setKd(controlador.Ki-0.00001)
+                        print('Diminuindo Ki para:',controlador.Ki)                        
+                    
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
                         if new_vel > 0:
@@ -231,7 +243,9 @@ def run_simulation(args, client):
                     if event.key == K_x: 
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)                                                  
-
+                    
+                    if event.key == K_l:
+                        print('Posição do veículo:',vehicle.get_transform())
 
                     if event.key == K_ESCAPE or event.key == K_q:
                         call_exit = True
