@@ -123,22 +123,23 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
 
 
 def filter_vertical_lines(lines, sine_limit=0.9):
-
+    print('lines', np.shape(lines))
     ok_lines = []
     if lines is not None:
         for line in lines:
-            rho, theta = line[0]
-
+            print('line', np.shape(line))
+            rho, theta = line[0] 
+            print('line0', np.shape(line[0]))
             if np.sin(theta) < sine_limit:
-                ok_lines.append(line)
-
+                ok_lines.append(np.array(line))
+    ok_lines = np.array(ok_lines)
     return ok_lines
 
 def get_average_line(line_list):
     rho_sum = 0
     theta_sum = 0
     avg = []
-    #print('linelist',line_list)
+    print('linelist',line_list)
     if line_list != []:
         for line in line_list:
             rho, theta = line[0]
@@ -147,6 +148,7 @@ def get_average_line(line_list):
             theta_sum += theta
         #print('list', list,' len(list)', len(list) )
         avg.append(np.array([[rho_sum/len(line_list), theta_sum/len(line_list)]], dtype=np.float32))
+    print('avg', avg)
     return avg
 
 
@@ -228,7 +230,14 @@ def intersection(line1, line2):
     return [[x0, y0]]
 
 
+def get_bisector(left_line, right_line):
+    print('left', left_line[0])
+    rho1, theta1 = left_line[0]
+    rho2, theta2 = right_line[0]
 
+    rho = rho1*np.sin(theta1) + rho2*np.cos(theta2)
+    theta = theta1 + theta2 + np.pi
+    return [[rho, theta]]
 
 def image_processing4(img_gray):
     roi_img = get_roi(img_gray)
@@ -241,6 +250,13 @@ def image_processing4(img_gray):
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
 
+
+    
+    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
+    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
+    cv2.imshow('processing4',skel_with_lines)
+
+    cv2.waitKey(0)
     left_lines, right_lines  = sort_left_right(lines)
 
     #print('pros3',left_lines, right_lines)
@@ -250,20 +266,19 @@ def image_processing4(img_gray):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
+    
 
     #print('pros3 avg',left_line, right_line)
 
-    left_line, right_line = accumulator(left_line, right_line)
+    #left_line, right_line = accumulator(left_line, right_line)
 
     #intersecção das duas linhas
 
     print('left e right o',left_line, right_line)
     
-    aa = np.divide(left_line,[2,2])
-    bb = np.divide(right_line,[2,2])
-    mid_line = np.sum([aa, bb], axis=0, dtype=np.float32) #left_line + right_line
-    mid_line = get_average_line(left_line+right_line)
-    print('soma',mid_line)
+  
+    #mid_line = get_bisector(left_line,right_line)
+    #print('soma',mid_line)
 
 
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
@@ -272,7 +287,7 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    skel_with_lines = display_lines(skel_with_lines, [[[360    ,   0]]], line_color = (0,0,255), line_width=1)
+    skel_with_lines = display_lines(skel_with_lines, [[[504.25*np.cos(0.6348)-77.5*np.sin(2.5089)    ,   0.6348+2.5089+np.pi]]], line_color = (0,0,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
     return left_line, right_line
@@ -282,8 +297,9 @@ def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, Ki, ve
     if frame is None:
         frame = np.zeros((720,720,3))
  
-    frame = display_lines(frame, left_line)
-    frame = display_lines(frame, right_line)
+    if not(isinstance(left_line, int)):
+        frame = display_lines(frame, left_line)
+        frame = display_lines(frame, right_line)
 
     write_on_screen(frame, ('Steering:'+str(steering)), (10,50), (255,255,255)) 
     write_on_screen(frame, ('Estado:'+str(erro)), (10,100), (255,255,255)) 
@@ -295,16 +311,7 @@ def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, Ki, ve
     cv2.imshow('rgb with lines',frame)
 
 def write_on_screen(frame, text, pos, color):
-    cv2.putText(
-            frame, 
-            (text),
-            pos,
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            color,
-            1,
-            2
-            )  
+    cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 1, 2)  
 
 def show_image_rgb(rgb):
     cv2.imshow('image', rgb)
@@ -319,6 +326,7 @@ if __name__ == '__main__':
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
     #image_processing(img_gray)
     #cv2.waitKey(0)
@@ -327,8 +335,8 @@ if __name__ == '__main__':
 
         #image_processing_kmeans(img_gray)
         image_processing4(img_gray)
-
-
+        #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
+        
         cv2.waitKey(0)
 
         cv2.destroyAllWindows()
