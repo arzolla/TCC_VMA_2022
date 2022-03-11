@@ -123,15 +123,15 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
 
 
 def filter_vertical_lines(lines, sine_limit=0.9):
-    print('lines', np.shape(lines))
+
     ok_lines = []
     if lines is not None:
         for line in lines:
-            print('line', np.shape(line))
             rho, theta = line[0] 
-            print('line0', np.shape(line[0]))
+
             if np.sin(theta) < sine_limit:
                 ok_lines.append(np.array(line))
+
     ok_lines = np.array(ok_lines)
     return ok_lines
 
@@ -164,6 +164,8 @@ def sort_left_right(lines):
         else:
             right_lines.append(line)
 
+    left_lines = np.array(left_lines)
+    right_lines = np.array(right_lines)
     return left_lines, right_lines
 
 
@@ -250,13 +252,9 @@ def image_processing4(img_gray):
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
 
-
-    
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
-    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
-    cv2.imshow('processing4',skel_with_lines)
 
-    cv2.waitKey(0)
+  
     left_lines, right_lines  = sort_left_right(lines)
 
     #print('pros3',left_lines, right_lines)
@@ -266,7 +264,8 @@ def image_processing4(img_gray):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    
+    print('liness', np.shape(left_lines), type(left_lines))
+    print('line', np.shape(left_line), type(left_line))
 
     #print('pros3 avg',left_line, right_line)
 
@@ -281,7 +280,6 @@ def image_processing4(img_gray):
     #print('soma',mid_line)
 
 
-    skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
 
     skel_with_lines = display_lines(skel_with_lines, left_line)
