@@ -139,7 +139,7 @@ def get_average_line(line_list):
     rho_sum = 0
     theta_sum = 0
     avg = []
-    print('linelist',line_list)
+    print('linelist',line_list, np.shape(line_list), type(line_list))
     if line_list != []:
         for line in line_list:
             rho, theta = line[0]
@@ -147,7 +147,9 @@ def get_average_line(line_list):
             rho_sum += rho
             theta_sum += theta
         #print('list', list,' len(list)', len(list) )
-        avg.append(np.array([[rho_sum/len(line_list), theta_sum/len(line_list)]], dtype=np.float32))
+        avg.append([[rho_sum/len(line_list), theta_sum/len(line_list)]])
+
+    avg = np.array(avg)
     print('avg', avg)
     return avg
 
@@ -215,11 +217,7 @@ def accumulator(left_line, right_line):
     return left_accum_avg, right_accum_avg
 
 def intersection(line1, line2):
-    """Finds the intersection of two lines given in Hesse normal form.
 
-    Returns closest integer pixel locations.
-    See https://stackoverflow.com/a/383527/5087436
-    """
     rho1, theta1 = line1[0]
     rho2, theta2 = line2[0]
     A = np.array([
@@ -234,12 +232,12 @@ def intersection(line1, line2):
 
 def get_bisector(left_line, right_line):
     print('left', left_line[0])
-    rho1, theta1 = left_line[0]
-    rho2, theta2 = right_line[0]
+    rho1, theta1 = left_line[0][0]
+    rho2, theta2 = right_line[0][0]
 
     rho = rho1*np.sin(theta1) + rho2*np.cos(theta2)
     theta = theta1 + theta2 + np.pi
-    return [[rho, theta]]
+    return [[[rho, theta]]]
 
 def image_processing4(img_gray):
     roi_img = get_roi(img_gray)
@@ -248,24 +246,24 @@ def image_processing4(img_gray):
 
 
     lines = hough_transform(skel_img) # todas as linhas detectadas 
-
+    print('liens saida hough',lines)
 
     lines = filter_vertical_lines(lines) # discarta linhas com angulo muito horizontal
-
+    print('liens filtrada',lines)
     skel_img_bgr = cv2.cvtColor(skel_img,  cv2.COLOR_GRAY2BGR)
 
   
     left_lines, right_lines  = sort_left_right(lines)
 
-    #print('pros3',left_lines, right_lines)
+    print('lines separadas',left_lines, right_lines)
 
     #left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
  
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    print('liness', np.shape(left_lines), type(left_lines))
-    print('line', np.shape(left_line), type(left_line))
+    #print('liness',left_lines, np.shape(left_lines), type(left_lines))
+    #print('right line', left_line, np.shape(left_line), type(left_line))
 
     #print('pros3 avg',left_line, right_line)
 
@@ -276,8 +274,8 @@ def image_processing4(img_gray):
     print('left e right o',left_line, right_line)
     
   
-    #mid_line = get_bisector(left_line,right_line)
-    #print('soma',mid_line)
+    mid_line = get_bisector(left_line,right_line)
+    print('soma',mid_line)
 
 
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
@@ -285,7 +283,7 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    skel_with_lines = display_lines(skel_with_lines, [[[504.25*np.cos(0.6348)-77.5*np.sin(2.5089)    ,   0.6348+2.5089+np.pi]]], line_color = (0,0,255), line_width=1)
+    skel_with_lines = display_lines(skel_with_lines, [mid_line], line_color = (255,0,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
     return left_line, right_line
