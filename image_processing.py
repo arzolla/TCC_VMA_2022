@@ -258,7 +258,7 @@ def image_processing4(img_gray):
 
     #print('lines separadas',left_lines, right_lines)
 
-    #left_line, right_line  = average_lines(lines) # pega média das linhas da esquerda e direita
+
  
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
@@ -275,7 +275,7 @@ def image_processing4(img_gray):
     #print('left e right o',left_line, right_line)
     
   
-    #mid_line = get_bisector(left_line,right_line)
+    mid_line = get_bisector(left_line,right_line)
     #print('soma',mid_line)
 
 
@@ -284,7 +284,7 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    #skel_with_lines = display_lines(skel_with_lines, mid_line, line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines(skel_with_lines, mid_line, line_color = (255,0,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
     return left_line, right_line
