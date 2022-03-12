@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing3, image_processing_kmeans, get_mask, show_image_rgb, intersection, control_monitor
+from image_processing import image_processing4, get_mask, intersection, control_monitor
 import cv2
 from vmaPID import PID
 
@@ -44,7 +44,7 @@ def computer_vision(frame):
 
     mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
     
-    left_line, right_line = image_processing3(mask)
+    left_line, right_line = image_processing4(mask)
 
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
@@ -61,7 +61,7 @@ def computer_vision(frame):
 def control_main(vehicle, controlador, velocidade, left_line, right_line):
     #print(frame)
 
-   
+    print(left_line, right_line)
     intersec = intersection(left_line[0], right_line[0])
     estado = intersec[0][0] - 360
     steering = controlador.update(estado)
@@ -132,7 +132,7 @@ def run_simulation(args, client):
         vehicle_list.append(vehicle)
 
 
-        #vehicle.set_autopilot(True)
+        vehicle.set_autopilot(True)
 
 
         # Display Manager organize all the sensors an its display in a window
@@ -193,7 +193,7 @@ def run_simulation(args, client):
             left_line, right_line = computer_vision(frame)
             erro, steering = control_main(vehicle, controlador, velocidade, left_line, right_line) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd, velocidade)
+            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
 
 
 
