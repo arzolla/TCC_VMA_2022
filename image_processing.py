@@ -283,7 +283,7 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    skel_with_lines = display_lines(skel_with_lines, [mid_line], line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines(skel_with_lines, mid_line, line_color = (255,0,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
     return left_line, right_line
