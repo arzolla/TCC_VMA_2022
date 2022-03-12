@@ -161,7 +161,7 @@ def sort_left_right(lines):
     for line in lines:
         rho, theta = line[0]
 
-        if np.cos(theta) > 0:
+        if theta < np.pi/2:
             left_lines.append(line)
         else:
             right_lines.append(line)
