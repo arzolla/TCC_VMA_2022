@@ -61,7 +61,7 @@ def computer_vision(frame):
 def control_main(vehicle, controlador, velocidade, left_line, right_line):
     #print(frame)
 
-    print(left_line, right_line)
+    #print(left_line, right_line)
     intersec = intersection(left_line[0], right_line[0])
     estado = intersec[0][0] - 360
     steering = controlador.update(estado)
