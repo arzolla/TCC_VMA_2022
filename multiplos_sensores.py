@@ -44,32 +44,33 @@ def computer_vision(frame):
 
     mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
     
-    left_line, right_line = image_processing4(mask)
+    left_line, right_line, bisector = image_processing4(mask)
 
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
 
     cv2.waitKey(1)
 
-    return left_line, right_line
+    return left_line, right_line, bisector
 
 
     
 
 
 # Função para executar o controle
-def control_main(vehicle, controlador, velocidade, left_line, right_line):
+def control_main(vehicle, controlador, velocidade, bisector):
     #print(frame)
 
     #print(left_line, right_line)
-    intersec = intersection(left_line[0], right_line[0])
-    estado = intersec[0][0] - 360
-    steering = controlador.update(estado)
+    
+    estado = bisector[0][0][1] # obtém angulo da bissetriz
+    print(estado)
+    steering = controlador.update(estado) # envia angulo para controlador
 
 
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
-    erro = 0
+
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
     return estado, steering
@@ -190,10 +191,10 @@ def run_simulation(args, client):
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
-            left_line, right_line = computer_vision(frame)
-            erro, steering = control_main(vehicle, controlador, velocidade, left_line, right_line) #precisa retornar erro e steering
+            left_line, right_line, bisector = computer_vision(frame)
+            estado, steering = control_main(vehicle, controlador, velocidade, bisector) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, erro, steering, left_line, right_line, controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
+            control_monitor(rgb_frame, left_line, right_line, bisector, estado, steering,  controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
 
 
 

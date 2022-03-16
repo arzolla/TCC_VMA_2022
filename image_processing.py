@@ -231,13 +231,13 @@ def intersection(line1, line2):
 
 
 def get_bisector(left_line, right_line):
-    print('left', left_line[0])
+    #print('left', left_line[0])
     if left_line  is not None and right_line is not None:
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
 
-        rho = rho1*np.sin(theta1) + rho2*np.cos(theta2)
-        theta = theta1 + theta2 + np.pi
+        rho = -(rho1*np.sin(theta1) + rho2*np.cos(theta2)) 
+        theta = theta1 + theta2 
         return [[[rho, theta]]]
 
 def image_processing4(img_gray):
@@ -275,31 +275,32 @@ def image_processing4(img_gray):
     #print('left e right o',left_line, right_line)
     
   
-    mid_line = get_bisector(left_line,right_line)
+    bisector = get_bisector(left_line,right_line)
     #print('soma',mid_line)
-
+    #mid_line = [[[-360, np.pi]]]
 
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
 
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    skel_with_lines = display_lines(skel_with_lines, mid_line, line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines(skel_with_lines, bisector, line_color = (255,0,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
-    return left_line, right_line
+    return left_line, right_line, bisector
 
 
-def control_monitor(frame, erro, steering, left_line, right_line, Kp, Kd, Ki, velocidade):
+def control_monitor(frame, left_line, right_line, bisector, estado, steering, Kp, Kd, Ki, velocidade):
     if frame is None:
         frame = np.zeros((720,720,3))
  
     if not(isinstance(left_line, int)):
         frame = display_lines(frame, left_line)
         frame = display_lines(frame, right_line)
+        frame = display_lines(frame, bisector, line_color = (255,0,255))
 
     write_on_screen(frame, ('Steering:'+str(steering)), (10,50), (255,255,255)) 
-    write_on_screen(frame, ('Estado:'+str(erro)), (10,100), (255,255,255)) 
+    write_on_screen(frame, ('Estado:'+str(estado)), (10,100), (255,255,255)) 
     write_on_screen(frame, ('Kp:'+str(Kp)), (10,150), (50,50,255))  
     write_on_screen(frame, ('Kd:'+str(Kd)), (10,200), (50,50,255))    
     write_on_screen(frame, ('Ki:'+str(Ki)), (10,250), (50,50,255))
