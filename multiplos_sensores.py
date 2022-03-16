@@ -154,11 +154,11 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = 0.01, Kd = -0.0000)
+        controlador = PID(Kp = -0.1, Kd = -0.0000)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
 
-        velocidade = 30
+        velocidade = 4
 
         #vehicle.set_autopilot(True)
 
