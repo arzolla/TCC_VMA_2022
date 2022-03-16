@@ -63,7 +63,7 @@ def control_main(vehicle, controlador, velocidade, bisector):
 
     #print(left_line, right_line)
     
-    estado = bisector[0][0][1] # obtém angulo da bissetriz
+    estado = bisector[0][0][1] - np.pi# obtém angulo da bissetriz
     print(estado)
     steering = controlador.update(estado) # envia angulo para controlador
 
@@ -133,8 +133,6 @@ def run_simulation(args, client):
         vehicle_list.append(vehicle)
 
 
-        vehicle.set_autopilot(True)
-
 
         # Display Manager organize all the sensors an its display in a window
         # If can easily configure the grid and the total window size
@@ -156,13 +154,13 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0.0015, Kd = -0.00003)
+        controlador = PID(Kp = 0.01, Kd = -0.0000)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
 
         velocidade = 30
 
-
+        #vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
