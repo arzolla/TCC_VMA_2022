@@ -223,7 +223,7 @@ def accumulator(left_line, right_line):
 
 def filter_strange_line(left_line, right_line):
 
-    print(left_line)
+    #print(left_line)
 
     global left_antiga, right_antiga
 
