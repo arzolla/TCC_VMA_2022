@@ -177,8 +177,8 @@ def sort_left_right(lines):
 right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
 
-left_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
-right_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+left_antiga = None
+right_antiga = None
 
 
 def accumulator(left_line, right_line):
@@ -227,15 +227,22 @@ def filter_strange_line(left_line, right_line):
 
     global left_antiga, right_antiga
 
+    if left_antiga is None:
+        left_antiga = left_line
+
     rho_l, theta_l = left_line[0][0]
     rho_l_a, theta_l_a = left_antiga[0][0]
 
     # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if abs(rho_l - rho_l_a) < 10 and abs(theta_l - theta_l_a) < 0.26:   # Se dif rho for menor q 10 e dif theta for pi/12
+    if abs(rho_l - rho_l_a) < 330 and abs(theta_l - theta_l_a) < 5:   # Se dif rho for menor q 10 e dif theta for pi/12
         left_ok = left_line # usa linha nova
         left_antiga = left_line # armazena linha nova
     else: # se for muito diferente da linha antiga
         left_ok = left_antiga # usa linha antiga
+
+
+    if right_antiga is None:
+        right_antiga = right_line
 
     rho_r, theta_r = right_line[0][0]
     rho_r_a, theta_r_a = right_antiga[0][0]
