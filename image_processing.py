@@ -96,7 +96,7 @@ def skeletize_image(img):
 def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
-    angle = np.pi / 180  # angular precision in radian, i.e. 1 degree
+    angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
     min_threshold = 30  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
@@ -199,7 +199,7 @@ def accumulator(left_line, right_line):
         left_line_accum.pop(0)
         #print('depois do pop',left_line_accum)
 
-    if len(right_line_accum) > 5:
+    if len(right_line_accum) > accum_max_size:
         #print('antes do pop',left_line_accum)
         right_line_accum.pop(0)
         #print('depois do pop',left_line_accum)
@@ -215,6 +215,28 @@ def accumulator(left_line, right_line):
     #print("left_line_accum",left_line_accum, "type", type(left_line_accum))
     #print('lista',left_line_accum,'len',len(left_line_accum))
     return left_accum_avg, right_accum_avg
+
+left_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+right_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+
+def filter_strange_line(left_line, right_line):
+
+    global left_antiga, right_antiga
+
+
+    if left_line: # se for proxima da linha antiga
+        left_ok = left_line # usa linha nova
+        left_antiga = left_line # armazena linha nova
+    else: # se for muito diferente da linha antiga
+        left_ok = left_antiga # usa linha antiga
+
+
+    
+
+
+
+
+    return left_ok#, right_ok
 
 def intersection(line1, line2):
 
@@ -263,8 +285,8 @@ def image_processing4(img_gray):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    #print('liness',left_lines, np.shape(left_lines), type(left_lines))
-    #print('right line', left_line, np.shape(left_line), type(left_line))
+    print('liness',left_lines, np.shape(left_lines), type(left_lines))
+    print('right line', left_line, np.shape(left_line), type(left_line))
 
     #print('pros3 avg',left_line, right_line)
 
