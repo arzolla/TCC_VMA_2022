@@ -177,6 +177,9 @@ def sort_left_right(lines):
 right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
 
+left_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+right_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+
 
 def accumulator(left_line, right_line):
 
@@ -216,10 +219,11 @@ def accumulator(left_line, right_line):
     #print('lista',left_line_accum,'len',len(left_line_accum))
     return left_accum_avg, right_accum_avg
 
-left_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
-right_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+
 
 def filter_strange_line(left_line, right_line):
+
+    print(left_line)
 
     global left_antiga, right_antiga
 
@@ -294,15 +298,17 @@ def image_processing4(img_gray):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    print('liness',left_lines, np.shape(left_lines), type(left_lines))
-    print('right line', left_line, np.shape(left_line), type(left_line))
+    #print('liness',left_lines, np.shape(left_lines), type(left_lines))
+    #print('right line', left_line, np.shape(left_line), type(left_line))
 
     #print('pros3 avg',left_line, right_line)
 
 
-    filter_strange_line(left_line, right_line)
 
     left_line, right_line = accumulator(left_line, right_line)
+
+
+    left_line, right_line = filter_strange_line(left_line, right_line)
 
     #intersecção das duas linhas
 
