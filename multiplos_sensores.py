@@ -63,7 +63,7 @@ def control_main(vehicle, controlador, velocidade, bisector):
 
     #print(left_line, right_line)
     
-    estado = np.sin(bisector[0][0][1]) # obtém angulo da bissetriz
+    estado = bisector[0][0][1] # obtém angulo da bissetriz
     print(estado)
     steering = controlador.update(estado) # envia angulo para controlador
 
@@ -154,13 +154,13 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = 0.1, Kd = -0.00)
+        controlador = PID(Kp = 0.0, Kd = -0.00)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
-
+        controlador.setSetPoint(np.pi) # deve se aproximar de 3.1415
         velocidade = 4
 
-        #vehicle.set_autopilot(True)
+        vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
