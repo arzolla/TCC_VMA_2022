@@ -234,8 +234,8 @@ def filter_strange_line(left_line, right_line):
     rho_l_a, theta_l_a = left_antiga[0][0]
 
 
-    theta_lim = 0.5
-    rho_lim = 50
+    theta_lim = 0.26
+    rho_lim = 30
 
     # Compara a diferença absoluta entre rho e theta da linha antiga e nova
     if abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim:   # Se dif rho for menor q 10 e dif theta for pi/12
