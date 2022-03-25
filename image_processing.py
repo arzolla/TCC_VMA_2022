@@ -233,8 +233,12 @@ def filter_strange_line(left_line, right_line):
     rho_l, theta_l = left_line[0][0]
     rho_l_a, theta_l_a = left_antiga[0][0]
 
+
+    theta_lim = 0.5
+    rho_lim = 50
+
     # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if abs(rho_l - rho_l_a) < 330 and abs(theta_l - theta_l_a) < 5:   # Se dif rho for menor q 10 e dif theta for pi/12
+    if abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim:   # Se dif rho for menor q 10 e dif theta for pi/12
         left_ok = left_line # usa linha nova
         left_antiga = left_line # armazena linha nova
     else: # se for muito diferente da linha antiga
@@ -248,7 +252,7 @@ def filter_strange_line(left_line, right_line):
     rho_r_a, theta_r_a = right_antiga[0][0]
 
     # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if abs(rho_r - rho_r_a) < 10 and abs(theta_r - theta_r_a) < 0.26:   # Se dif rho for menor q 10 e dif theta for pi/12
+    if abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim:   # Se dif rho for menor q 10 e dif theta for pi/12
         right_ok = right_line # usa linha nova
         right_antiga = right_line # armazena linha nova
     else: # se for muito diferente da linha antiga
