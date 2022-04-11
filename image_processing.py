@@ -295,7 +295,7 @@ def get_bisector(left_line, right_line):
         intersec = intersection(left_line, right_line)
         
         #print(intersec)
-        dx = 360 + intersec[0]*np.tan(theta)
+        dx = 360 - intersec[0]*np.tan(theta)
         dy = 720
         
         #print(intersec, [dx, dy])
