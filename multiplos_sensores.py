@@ -44,26 +44,25 @@ def computer_vision(frame):
 
     mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
     
-    left_line, right_line, bisector = image_processing4(mask)
+    left_line, right_line, bi_pt1, bi_pt2 = image_processing4(mask)
 
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
 
     cv2.waitKey(1)
 
-    return left_line, right_line, bisector
+    return left_line, right_line, bi_pt1, bi_pt2
 
 
-    
 
 
 # Função para executar o controle
-def control_main(vehicle, controlador, velocidade, bisector):
+def control_main(vehicle, controlador, velocidade, bi_pt1):
     #print(frame)
 
     #print(left_line, right_line)
     
-    estado = bisector[0][0][1] # obtém angulo da bissetriz
+    estado = bi_pt1[0] # dx do ponto da bissetriz
     print(controlador.last_error)
     steering = controlador.update(estado) # envia angulo para controlador
 
@@ -189,10 +188,10 @@ def run_simulation(args, client):
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
             rgb_frame = RGBCamera.rgb_frame
-            left_line, right_line, bisector = computer_vision(frame)
-            estado, steering = control_main(vehicle, controlador, velocidade, bisector) #precisa retornar erro e steering
+            left_line, right_line, bi_pt1, bi_pt2 = computer_vision(frame)
+            estado, steering = control_main(vehicle, controlador, velocidade, bi_pt1) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, left_line, right_line, bisector, estado, steering,  controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
+            control_monitor(rgb_frame, left_line, right_line, bi_pt1, bi_pt2, estado, steering,  controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
 
 
 

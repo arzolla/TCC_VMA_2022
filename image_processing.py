@@ -121,6 +121,14 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
     return line_image
 
+def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
+    line_image = np.zeros_like(frame)
+
+    cv2.line(line_image, [int(pt1[0]),int(pt1[1])], [int(pt2[0]),int(pt2[1])], line_color, line_width, cv2.LINE_AA)
+    #cv2.line(line_image,(x1,y1),(x2,y2),line_color,line_width)
+    line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
+    return line_image
+
 
 def filter_vertical_lines(lines, sine_limit=0.9):
 
@@ -264,8 +272,8 @@ def filter_strange_line(left_line, right_line):
 
 def intersection(line1, line2):
 
-    rho1, theta1 = line1[0]
-    rho2, theta2 = line2[0]
+    rho1, theta1 = line1[0][0]
+    rho2, theta2 = line2[0][0]
     A = np.array([
         [np.cos(theta1), np.sin(theta1)],
         [np.cos(theta2), np.sin(theta2)]
@@ -273,7 +281,7 @@ def intersection(line1, line2):
     b = np.array([[rho1], [rho2]])
     x0, y0 = np.linalg.solve(A, b)
     #x0, y0 = int(np.round(x0)), int(np.round(y0))
-    return [[x0, y0]]
+    return [x0, y0]
 
 
 def get_bisector(left_line, right_line):
@@ -282,9 +290,19 @@ def get_bisector(left_line, right_line):
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
 
-        rho = -(rho1*np.sin(theta1) + rho2*np.cos(theta2)) 
-        theta = theta1 + theta2 
-        return [[[rho, theta]]]
+        theta = theta1 + theta2
+
+        intersec = intersection(left_line, right_line)
+        
+        #print(intersec)
+        dx = 360 + intersec[0]*np.tan(theta)
+        dy = 720
+        
+        #print(intersec, [dx, dy])
+
+        return [dx, dy], intersec
+
+    
 
 def image_processing4(img_gray):
     roi_img = get_roi(img_gray)
@@ -326,8 +344,8 @@ def image_processing4(img_gray):
     #print('left e right o',left_line, right_line)
     
   
-    bisector = get_bisector(left_line,right_line)
-    #print('soma',mid_line)
+    bi_pt1, bi_pt2 = get_bisector(left_line,right_line)
+    #print(bi_pt1[0])
     #mid_line = [[[-360, np.pi]]]
 
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
@@ -335,20 +353,20 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    skel_with_lines = display_lines(skel_with_lines, bisector, line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines_2pts(skel_with_lines, bi_pt1, bi_pt2, line_color = (255,0,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
-    return left_line, right_line, bisector
+    return left_line, right_line, bi_pt1, bi_pt2
 
 
-def control_monitor(frame, left_line, right_line, bisector, estado, steering, Kp, Kd, Ki, velocidade):
+def control_monitor(frame, left_line, right_line, bi_pt1, bi_pt2, estado, steering, Kp, Kd, Ki, velocidade):
     if frame is None:
         frame = np.zeros((720,720,3))
  
     if not(isinstance(left_line, int)):
         frame = display_lines(frame, left_line)
         frame = display_lines(frame, right_line)
-        frame = display_lines(frame, bisector, line_color = (255,0,255))
+        frame = display_lines_2pts(frame, bi_pt1, bi_pt2, line_color = (255,0,255))
 
     write_on_screen(frame, ('Steering:'+str(steering)), (10,50), (255,255,255)) 
     write_on_screen(frame, ('Estado:'+str(estado)), (10,100), (255,255,255)) 
