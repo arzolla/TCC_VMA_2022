@@ -293,13 +293,13 @@ def get_bisector(left_line, right_line):
         
         delta = np.pi - (theta1 + theta2)
         intersec = intersection(left_line, right_line)
-        print(intersec)
-        print(delta)
+        #print(intersec)
+        #print(delta)
         H = 720-intersec[1]
-        print(H)
+        #print(H)
         dx = H*np.tan(delta)
         x = intersec[0]+dx
-        print(x)
+        #print(x)
         y = 720
         
         #print(intersec, [dx, dy])
