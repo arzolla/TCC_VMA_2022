@@ -153,13 +153,13 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = 0.000, Kd = -0.0)
+        controlador = PID(Kp = -0.002, Kd = -0.0)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
         controlador.setSetPoint(360) # deve se aproximar da coordenada central 360
-        velocidade = 4
+        velocidade = 10
 
-        vehicle.set_autopilot(True)
+        #vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
