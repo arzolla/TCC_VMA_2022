@@ -63,9 +63,9 @@ def control_main(vehicle, controlador, velocidade, bi_pt1):
     #print(left_line, right_line)
     
     estado = bi_pt1[0] # dx do ponto da bissetriz
-    print(controlador.last_error)
+    print('erro=    ', controlador.last_error)
     steering = controlador.update(estado) # envia angulo para controlador
-
+    print('steering=', steering)
 
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
@@ -153,11 +153,11 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0, Kd = -0.0)
+        controlador = PID(Kp = 0.000, Kd = -0.0)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
-        controlador.setSetPoint(np.pi) # deve se aproximar de 3.1415
-        velocidade = 20
+        controlador.setSetPoint(360) # deve se aproximar da coordenada central 360
+        velocidade = 4
 
         vehicle.set_autopilot(True)
 

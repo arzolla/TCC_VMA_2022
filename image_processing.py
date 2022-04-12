@@ -290,17 +290,21 @@ def get_bisector(left_line, right_line):
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
 
-        theta = theta1 + theta2
-
-        intersec = intersection(left_line, right_line)
         
-        #print(intersec)
-        dx = 360 - intersec[0]*np.tan(theta)
-        dy = 720
+        delta = np.pi - (theta1 + theta2)
+        intersec = intersection(left_line, right_line)
+        print(intersec)
+        print(delta)
+        H = 720-intersec[1]
+        print(H)
+        dx = H*np.tan(delta)
+        x = intersec[0]+dx
+        print(x)
+        y = 720
         
         #print(intersec, [dx, dy])
 
-        return [dx, dy], intersec
+        return [x, y], intersec
 
     
 
