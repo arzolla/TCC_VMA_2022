@@ -297,10 +297,10 @@ def get_bisector(left_line, right_line):
         #print(delta)
         H = 720-intersec[1]
         #print(H)
-        dx = H*np.tan(delta)
+        dx = (H/2)*np.tan(delta)
         x = intersec[0]+dx
         #print(x)
-        y = 720
+        y = 702-H/2
         
         #print(intersec, [dx, dy])
 
