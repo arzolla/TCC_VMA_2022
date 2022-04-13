@@ -300,7 +300,7 @@ def get_bisector(left_line, right_line):
         dx = (H/2)*np.tan(delta)
         x = intersec[0]+dx
         #print(x)
-        y = 702-H/2
+        y = 720-H/2
         
         #print(intersec, [dx, dy])
 
@@ -348,7 +348,7 @@ def image_processing4(img_gray):
     #print('left e right o',left_line, right_line)
     
   
-    bi_pt1, bi_pt2 = get_bisector(left_line,right_line)
+    bisec_pt, intersec = get_bisector(left_line,right_line)
     #print(bi_pt1[0])
     #mid_line = [[[-360, np.pi]]]
 
@@ -357,10 +357,13 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    skel_with_lines = display_lines_2pts(skel_with_lines, bi_pt1, bi_pt2, line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines_2pts(skel_with_lines, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
+
+    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, [intersec[0], bisec_pt[1]], line_color = (0,255,255), line_width=2)
 
     cv2.imshow('processing4',skel_with_lines)
-    return left_line, right_line, bi_pt1, bi_pt2
+    return left_line, right_line, bisec_pt, intersec
 
 
 def control_monitor(frame, left_line, right_line, bi_pt1, bi_pt2, estado, steering, Kp, Kd, Ki, velocidade):
@@ -390,7 +393,7 @@ def show_image_rgb(rgb):
 if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
-    path = 'static_road.png'
+    path = 'line2.png'
     #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\line2.png'
