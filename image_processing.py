@@ -375,8 +375,7 @@ def control_monitor(frame, left_line, right_line, bisec_pt, intersec, estado, st
         frame = display_lines(frame, right_line)
         frame = display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255))
         frame = display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-
-    frame = display_lines_2pts(frame, bisec_pt, [intersec[0], bisec_pt[1]], line_color = (51,251,255), line_width=2)
+        frame = display_lines_2pts(frame, bisec_pt, [intersec[0], bisec_pt[1]], line_color = (51,251,255), line_width=2)
 
     write_on_screen(frame, ('Steering:'+str(steering)), (10,50), (255,255,255)) 
     write_on_screen(frame, ('Estado:'+str(estado)), (10,100), (255,255,255)) 
