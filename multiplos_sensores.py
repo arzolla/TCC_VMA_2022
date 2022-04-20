@@ -62,7 +62,7 @@ def control_main(vehicle, controlador, velocidade, bi_pt1):
 
     #print(left_line, right_line)
     
-    estado = bi_pt1[0] # dx do ponto da bissetriz
+    estado = 360 - bi_pt1[0] # dx do ponto da bissetriz
     print('erro=    ', controlador.last_error)
     steering = controlador.update(estado) # envia angulo para controlador
     print('steering=', steering)
@@ -156,7 +156,7 @@ def run_simulation(args, client):
         controlador = PID(Kp = -0.004, Kd = -0.0005)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
-        controlador.setSetPoint(360) # deve se aproximar da coordenada central 360
+        controlador.setSetPoint(0) # deve se aproximar da coordenada central 360
         velocidade = 15
 
         #vehicle.set_autopilot(True)
