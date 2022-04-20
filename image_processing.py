@@ -295,12 +295,13 @@ def get_bisector(left_line, right_line):
         intersec = intersection(left_line, right_line)
         #print(intersec)
         #print(delta)
-        H = 720-intersec[1]
+        hh = 600
+        H = hh-intersec[1]
         #print(H)
-        dx = (H/2)*np.tan(delta)
-        x = intersec[0]+dx
+        dx = (H)*np.tan(delta/2)
+        x = 360+dx
         #print(x)
-        y = 720-H/2
+        y = hh
         
         #print(intersec, [dx, dy])
 
@@ -357,10 +358,17 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
+    # triangulo
     skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
     skel_with_lines = display_lines_2pts(skel_with_lines, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
+    skel_with_lines = display_lines_2pts(skel_with_lines, [360,bisec_pt[1]], [intersec[0], bisec_pt[1]], line_color = (255,0,255), line_width=1)
 
-    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, [intersec[0], bisec_pt[1]], line_color = (51,251,255), line_width=2)
+    #delta relevante
+    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=2)
+
+    # centro da camera
+    skel_with_lines = display_lines_2pts(skel_with_lines, [360,0], [360,720], line_color = (21,21,255), line_width=1)
+    skel_with_lines = display_lines_2pts(skel_with_lines, [0,360], [720,360], line_color = (21,21,255), line_width=1)
 
     cv2.imshow('processing4',skel_with_lines)
     return left_line, right_line, bisec_pt, intersec
@@ -395,7 +403,7 @@ def show_image_rgb(rgb):
 if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
-    path = 'line2.png'
+    path = 'static_road_angle.png'
     #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\line2.png'
