@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing4, get_mask, intersection, control_monitor
+from image_processing import image_processing4, get_mask, intersection, control_monitor, control_data
 import cv2
 from vmaPID import PID
 
@@ -159,6 +159,8 @@ def run_simulation(args, client):
         controlador.setSetPoint(0) # deve se aproximar da coordenada central 360
         velocidade = 15
 
+        data = control_data()
+
         #vehicle.set_autopilot(True)
 
         call_exit = False
@@ -187,11 +189,14 @@ def run_simulation(args, client):
            
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
-            rgb_frame = RGBCamera.rgb_frame
-            left_line, right_line, bi_pt1, bi_pt2 = computer_vision(frame)
-            estado, steering = control_main(vehicle, controlador, velocidade, bi_pt1) #precisa retornar erro e steering
+            data.frame = RGBCamera.rgb_frame
+            data.left_line, data.right_line, data.bisec_pt, data.intersec = computer_vision(frame)
+            estado, steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            control_monitor(rgb_frame, left_line, right_line, bi_pt1, bi_pt2, estado, steering,  controlador.Kp, controlador.Kd, controlador.Ki, velocidade)
+            data.Kp = controlador.Kp
+            data.Kd = controlador.Kd
+            data.Ki = controlador.Ki
+            control_monitor(data)
 
 
 
