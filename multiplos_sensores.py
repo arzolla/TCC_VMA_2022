@@ -29,30 +29,11 @@ import carla
 import argparse
 
 
-from image_processing import image_processing4, get_mask, intersection, control_monitor, control_data
+from image_processing import image_processing4, get_mask, computer_vision, control_monitor, control_data
 import cv2
 from vmaPID import PID
 
 # Função para receber e processar a imagem recebida do simulador
-def computer_vision(frame):
-
-    if frame is None:
-        frame = np.zeros((720,720,3))
-
-    #frame = np.zeros((720,720,3))
-    #show_image_rgb(frame) # Mostra imagem RGB
-
-    mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
-    
-    left_line, right_line, bi_pt1, bi_pt2 = image_processing4(mask)
-
-    #image_processing_kmeans(mask)
-    #print('asdasd',left_line, right_line)
-
-    cv2.waitKey(1)
-
-    return left_line, right_line, bi_pt1, bi_pt2
-
 
 
 
@@ -160,7 +141,10 @@ def run_simulation(args, client):
         velocidade = 15
 
         data = control_data()
-
+        data.Kp = controlador.Kp
+        data.Kd = controlador.Kd
+        data.Ki = controlador.Ki
+        
         #vehicle.set_autopilot(True)
 
         call_exit = False
@@ -191,11 +175,10 @@ def run_simulation(args, client):
             frame = Segment.rgb_frame
             data.frame = RGBCamera.rgb_frame
             data.left_line, data.right_line, data.bisec_pt, data.intersec = computer_vision(frame)
-            estado, steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
+            data.estado, data.steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
             #print('aqui',np.shape(frame))
-            data.Kp = controlador.Kp
-            data.Kd = controlador.Kd
-            data.Ki = controlador.Ki
+
+
             control_monitor(data)
 
 

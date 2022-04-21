@@ -382,6 +382,27 @@ def image_processing4(img_gray):
     return left_line, right_line, bisec_pt, intersec
 
 
+def computer_vision(frame):
+
+    if frame is None:
+        frame = np.zeros((720,720,3))
+
+    #frame = np.zeros((720,720,3))
+    #show_image_rgb(frame) # Mostra imagem RGB
+
+    mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
+    
+    left_line, right_line, bi_pt1, bi_pt2 = image_processing4(mask)
+
+    #image_processing_kmeans(mask)
+    #print('asdasd',left_line, right_line)
+
+    cv2.waitKey(1)
+
+    return left_line, right_line, bi_pt1, bi_pt2
+
+
+
 class control_data:
     def __init__(   self, frame = None, 
                     left_line = None, 
@@ -389,9 +410,11 @@ class control_data:
                     bisec_pt = None, 
                     intersec = None, 
                     estado = None, 
-                    steering = None, Kp = None, 
-                    Kd = None, Ki = None, 
-                    velocidade = None):
+                    steering = 0, 
+                    Kp = 0, 
+                    Kd = 0, 
+                    Ki = 0, 
+                    velocidade = 0):
 
         self.frame = frame
         self.left_line = left_line
