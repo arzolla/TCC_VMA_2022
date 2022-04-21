@@ -284,28 +284,27 @@ def intersection(line1, line2):
     return [x0, y0]
 
 
-def get_bisector(left_line, right_line):
+def get_guide(left_line, right_line):
     #print('left', left_line[0])
     if left_line  is not None and right_line is not None:
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
+  
+        bottom_line = [np.array([[720.       ,   1.5708]])]
+        intersec_mid = intersection(left_line, right_line)
 
-        
-        delta = np.pi - (theta1 + theta2)
-        intersec = intersection(left_line, right_line)
-        #print(intersec)
-        #print(delta)
-        hh = 720
-        H = hh-intersec[1]
-        #print(H)
-        dx = (H)*np.tan(delta/2)
-        x = 360+dx
-        #print(x)
-        y = hh
+        intersec_left = intersection(left_line, bottom_line)
+        print(intersec_left)
+        intersec_right = intersection(right_line, bottom_line)
+        print(intersec_right)
+        x = (intersec_right[0] + intersec_left[0])/2 
+
+        print(x)
+        y = 720
         
         #print(intersec, [dx, dy])
 
-        return [x, y], intersec
+        return [x, y], intersec_mid
 
     
 
@@ -349,29 +348,28 @@ def image_processing4(img_gray):
     #print('left e right o',left_line, right_line)
     
   
-    bisec_pt, intersec = get_bisector(left_line,right_line)
+
     #print(bi_pt1[0])
     #mid_line = [[[-360, np.pi]]]
+
 
     skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
 
     skel_with_lines = display_lines(skel_with_lines, left_line)
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
-    # triangulo
-    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
-    skel_with_lines = display_lines_2pts(skel_with_lines, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-    skel_with_lines = display_lines_2pts(skel_with_lines, [360,bisec_pt[1]], [intersec[0], bisec_pt[1]], line_color = (255,0,255), line_width=1)
+    intersec_mid, intersec_bot = get_guide(left_line, right_line)
 
-    #delta relevante
-    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=2)
+    skel_with_lines = display_lines_2pts(skel_with_lines, intersec_mid, intersec_bot, line_color = (255,55,128), line_width=1)
+
 
     # centro da camera
     skel_with_lines = display_lines_2pts(skel_with_lines, [360,0], [360,720], line_color = (21,21,255), line_width=1)
     skel_with_lines = display_lines_2pts(skel_with_lines, [0,360], [720,360], line_color = (21,21,255), line_width=1)
+    skel_with_lines = display_lines(skel_with_lines, [np.array([[720.       ,   1.5708]], dtype=np.float32)] , line_color = (67,21,99), line_width=5)
 
     cv2.imshow('processing4',skel_with_lines)
-    return left_line, right_line, bisec_pt, intersec
+    return left_line, right_line#, bisec_pt, intersec
 
 
 def control_monitor(frame, left_line, right_line, bisec_pt, intersec, estado, steering, Kp, Kd, Ki, velocidade):
