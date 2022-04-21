@@ -291,21 +291,21 @@ def get_bisector(left_line, right_line):
         rho2, theta2 = right_line[0][0]
 
         
-        delta = np.pi - (theta1 + theta2)
+        theta = (np.pi - (theta1 + theta2))/2 # angulo da bissetriz com a vertical
         intersec = intersection(left_line, right_line)
         #print(intersec)
         #print(delta)
         hh = 720
         H = hh-intersec[1]
         #print(H)
-        dx = (H)*np.tan(delta/2)
+        dx = (H)*np.tan(theta)
         x = 360+dx
         #print(x)
         y = hh
         
         #print(intersec, [dx, dy])
 
-        return [x, y], intersec
+        return [x, y], intersec, theta
 
     
 
@@ -348,8 +348,7 @@ def image_processing4(img_gray):
 
     #print('left e right o',left_line, right_line)
     
-  
-    bisec_pt, intersec = get_bisector(left_line,right_line)
+    
     #print(bi_pt1[0])
     #mid_line = [[[-360, np.pi]]]
 
@@ -359,43 +358,76 @@ def image_processing4(img_gray):
     skel_with_lines = display_lines(skel_with_lines, right_line)
 
     # triangulo
+    bisec_pt, intersec, theta = get_bisector(left_line,right_line)
+    pos = [int(x) for x in intersec]
+    write_on_screen(skel_with_lines, ('Theta: '+str(round(np.rad2deg(theta),2))+' degree'), [pos[0]-40, pos[1]-20], (255,0,255), size = 0.5, thick = 2) 
+
     skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
     skel_with_lines = display_lines_2pts(skel_with_lines, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
     skel_with_lines = display_lines_2pts(skel_with_lines, [360,bisec_pt[1]], [intersec[0], bisec_pt[1]], line_color = (255,0,255), line_width=1)
 
-    #delta relevante
+    #delta_x 
     skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=2)
+    pos_bis = [int(x) for x in bisec_pt]
+    delta_x = bisec_pt[0] - 360
+    print(delta_x)
+    write_on_screen(skel_with_lines, ('D_x: '+str(delta_x)), [pos_bis[0]-40, pos_bis[1]-20], (51,251,255), size = 0.5, thick = 2) 
 
     # centro da camera
     skel_with_lines = display_lines_2pts(skel_with_lines, [360,0], [360,720], line_color = (21,21,255), line_width=1)
     skel_with_lines = display_lines_2pts(skel_with_lines, [0,360], [720,360], line_color = (21,21,255), line_width=1)
 
+
     cv2.imshow('processing4',skel_with_lines)
     return left_line, right_line, bisec_pt, intersec
 
 
-def control_monitor(frame, left_line, right_line, bisec_pt, intersec, estado, steering, Kp, Kd, Ki, velocidade):
-    if frame is None:
-        frame = np.zeros((720,720,3))
+class control_data:
+    def __init__(   self, frame = None, 
+                    left_line = None, 
+                    right_line = None, 
+                    bisec_pt = None, 
+                    intersec = None, 
+                    estado = None, 
+                    steering = None, Kp = None, 
+                    Kd = None, Ki = None, 
+                    velocidade = None):
+
+        self.frame = frame
+        self.left_line = left_line
+        self.right_line = right_line
+        self.bisec_pt = bisec_pt
+        self.intersec = intersec
+        self.estado = estado
+        self.steering = steering
+        self.Kp = Kp
+        self.Kd = Kd
+        self.Ki = Ki
+        self.velocidade = velocidade
+
+
+def control_monitor(data):
+    if data.frame is None:
+        data.frame = np.zeros((720,720,3))
  
-    if not(isinstance(left_line, int)):
-        frame = display_lines(frame, left_line)
-        frame = display_lines(frame, right_line)
-        frame = display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255))
-        frame = display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-        frame = display_lines_2pts(frame, bisec_pt, [intersec[0], bisec_pt[1]], line_color = (51,251,255), line_width=2)
+    if not(isinstance(data.left_line, int)):
+        data.frame = display_lines(data.frame, data.left_line)
+        data.frame = display_lines(data.frame, data.right_line)
+        data.frame = display_lines_2pts(data.frame, data.bisec_pt, data.intersec, line_color = (255,0,255))
+        data.frame = display_lines_2pts(data.frame, [data.intersec[0], data.bisec_pt[1]], data.intersec, line_color = (255,0,255), line_width=1)
+        data.frame = display_lines_2pts(data.frame, data.bisec_pt, [data.intersec[0], data.bisec_pt[1]], line_color = (51,251,255), line_width=2)
 
-    write_on_screen(frame, ('Steering:'+str(steering)), (10,50), (255,255,255)) 
-    write_on_screen(frame, ('Estado:'+str(estado)), (10,100), (255,255,255)) 
-    write_on_screen(frame, ('Kp:'+str(Kp)), (10,150), (50,50,255))  
-    write_on_screen(frame, ('Kd:'+str(Kd)), (10,200), (50,50,255))    
-    write_on_screen(frame, ('Ki:'+str(Ki)), (10,250), (50,50,255))
-    write_on_screen(frame, ('Vel:'+str(velocidade)), (10,300), (50,255,50))
+    write_on_screen(data.frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
+    write_on_screen(data.frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 
+    write_on_screen(data.frame, ('Kp:'+str(data.Kp)), (10,150), (50,50,255))  
+    write_on_screen(data.frame, ('Kd:'+str(data.Kd)), (10,200), (50,50,255))    
+    write_on_screen(data.frame, ('Ki:'+str(data.Ki)), (10,250), (50,50,255))
+    write_on_screen(data.frame, ('Vel:'+str(data.velocidade)), (10,300), (50,255,50))
       
-    cv2.imshow('rgb with lines',frame)
+    cv2.imshow('rgb with lines',data.frame)
 
-def write_on_screen(frame, text, pos, color):
-    cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 1, 2)  
+def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
+    cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
 
 def show_image_rgb(rgb):
     cv2.imshow('image', rgb)
