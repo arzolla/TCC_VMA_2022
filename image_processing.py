@@ -97,7 +97,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 30  # minimal of votes
+    min_threshold = 50  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -295,7 +295,7 @@ def get_bisector(left_line, right_line):
         intersec = intersection(left_line, right_line)
         #print(intersec)
         #print(delta)
-        hh = 600
+        hh = 720
         H = hh-intersec[1]
         #print(H)
         dx = (H)*np.tan(delta/2)
