@@ -180,8 +180,8 @@ def sort_left_right(lines):
 
 # Variáveis para armazenar a média temporal. 
 # São inicializadas com valor de faixa ideal.
-right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 
 
 
@@ -199,7 +199,7 @@ def accumulator(left_line, right_line):
         right_line_accum.append(right_line[0])
 
     
-    accum_max_size = 10
+    accum_max_size = 5
     
     # deleta primeiro termo se tiver mais q 5 linhas
     if len(left_line_accum) > accum_max_size:
@@ -227,56 +227,66 @@ def accumulator(left_line, right_line):
 left_antiga = None
 right_antiga = None
 
+
+left_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+right_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+
+
 # contadores para após x linhas ignoradas ele forçar pegar a nova
 l_count = 0
 r_count = 0
 
 def filter_strange_line(left_line, right_line):
 
-    #print(left_line)
-
     global left_antiga, right_antiga, l_count, r_count
 
-    if left_antiga is None:
-        left_antiga = left_line
-
-    rho_l, theta_l = left_line[0][0]
-    rho_l_a, theta_l_a = left_antiga[0][0]
+    # if left_antiga is None:
+    #     left_antiga = left_line
 
     # thresholds de diferença para excluir a linha nova
     theta_lim = 0.5
     rho_lim = 20
     count_lim = 15
-    
-
-    # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if (abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim) or l_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
-        left_ok = left_line # usa linha nova
-        left_antiga = left_line # armazena linha nova
-        l_count = 0 # zera contador sempre que utilizar linha nova
-    else: # se for muito diferente da linha antiga
-        left_ok = left_antiga # usa linha antiga
-        l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
-        print('pegou LEFT antiga, count',l_count)
 
 
-    if right_antiga is None:
-        right_antiga = right_line
+    # se não estiver vazio
+    if left_line.size != 0:
 
-    rho_r, theta_r = right_line[0][0]
-    rho_r_a, theta_r_a = right_antiga[0][0]
+        rho_l, theta_l = left_line[0][0]
+        rho_l_a, theta_l_a = left_antiga[0][0]
 
-    # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if (abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim) or r_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
-        right_ok = right_line # usa linha nova
-        right_antiga = right_line # armazena linha nova
-        r_count = 0 # zera contador sempre que utilizar linha nova
-    else: # se for muito diferente da linha antiga
-        right_ok = right_antiga # usa linha antiga
-        r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
-        print('pegou RIGHT antiga, count',r_count)
-    
+        # Compara a diferença absoluta entre rho e theta da linha antiga e nova
+        if (abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim) or l_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+            left_ok = left_line # usa linha nova
+            left_antiga = left_line # armazena linha nova
+            l_count = 0 # zera contador sempre que utilizar linha nova
+        else: # se for muito diferente da linha antiga
+            left_ok = left_antiga # usa linha antiga
+            l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
+            print('pegou LEFT antiga, count',l_count)
+    else:
+        left_ok = left_line
 
+    # if right_antiga is None:
+    #     right_antiga = right_line
+
+    # se não estiver vazio
+    if right_line.size != 0:
+
+        rho_r, theta_r = right_line[0][0]
+        rho_r_a, theta_r_a = right_antiga[0][0]
+
+        # Compara a diferença absoluta entre rho e theta da linha antiga e nova
+        if (abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim) or r_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+            right_ok = right_line # usa linha nova
+            right_antiga = right_line # armazena linha nova
+            r_count = 0 # zera contador sempre que utilizar linha nova
+        else: # se for muito diferente da linha antiga
+            right_ok = right_antiga # usa linha antiga
+            r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
+            print('pegou RIGHT antiga, count',r_count)    
+    else:
+        right_ok = right_line
 
     return left_ok, right_ok
 
@@ -341,10 +351,15 @@ def image_processing4(img_gray):
     right_line = get_average_line(right_lines)
 
 
-    left_line, right_line = accumulator(left_line, right_line)
 
+    # filtrar antes de pegar a média?
     left_line, right_line = filter_strange_line(left_line, right_line)
 
+    left_line, right_line = accumulator(left_line, right_line)
+
+
+
+    # encontra os parâmetros
     bisec_pt, intersec, theta, del_x = get_bisector(left_line,right_line)
 
     # converte para rgb
