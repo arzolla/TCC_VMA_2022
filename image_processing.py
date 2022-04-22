@@ -183,8 +183,7 @@ def sort_left_right(lines):
 right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
 
-left_antiga = None
-right_antiga = None
+
 
 
 def accumulator(left_line, right_line):
@@ -225,13 +224,18 @@ def accumulator(left_line, right_line):
     #print('lista',left_line_accum,'len',len(left_line_accum))
     return left_accum_avg, right_accum_avg
 
+left_antiga = None
+right_antiga = None
 
+# contadores para após x linhas ignoradas ele forçar pegar a nova
+l_count = 0
+r_count = 0
 
 def filter_strange_line(left_line, right_line):
 
     #print(left_line)
 
-    global left_antiga, right_antiga
+    global left_antiga, right_antiga, l_count, r_count
 
     if left_antiga is None:
         left_antiga = left_line
@@ -239,16 +243,21 @@ def filter_strange_line(left_line, right_line):
     rho_l, theta_l = left_line[0][0]
     rho_l_a, theta_l_a = left_antiga[0][0]
 
-
-    theta_lim = 0.26
-    rho_lim = 30
+    # thresholds de diferença para excluir a linha nova
+    theta_lim = 0.17
+    rho_lim = 15
+    count_lim = 20
+    
 
     # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim:   # Se dif rho for menor q 10 e dif theta for pi/12
+    if (abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim) or l_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
         left_ok = left_line # usa linha nova
         left_antiga = left_line # armazena linha nova
+        l_count = 0 # zera contador sempre que utilizar linha nova
     else: # se for muito diferente da linha antiga
         left_ok = left_antiga # usa linha antiga
+        l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
+        print('pegou LEFT antiga, count',l_count)
 
 
     if right_antiga is None:
@@ -258,11 +267,14 @@ def filter_strange_line(left_line, right_line):
     rho_r_a, theta_r_a = right_antiga[0][0]
 
     # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-    if abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim:   # Se dif rho for menor q 10 e dif theta for pi/12
+    if (abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim) or r_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
         right_ok = right_line # usa linha nova
         right_antiga = right_line # armazena linha nova
+        r_count = 0 # zera contador sempre que utilizar linha nova
     else: # se for muito diferente da linha antiga
         right_ok = right_antiga # usa linha antiga
+        r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
+        print('pegou RIGHT antiga, count',r_count)
     
 
 
@@ -321,16 +333,12 @@ def image_processing4(img_gray):
     lines = filter_vertical_lines(lines) # descarta linhas com angulo muito horizontal
     
 
+
     left_lines, right_lines  = sort_left_right(lines)
 
 
- 
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
-
-
-    #skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
- 
 
 
     left_line, right_line = accumulator(left_line, right_line)
@@ -338,6 +346,17 @@ def image_processing4(img_gray):
     left_line, right_line = filter_strange_line(left_line, right_line)
 
     bisec_pt, intersec, theta, del_x = get_bisector(left_line,right_line)
+
+    # converte para rgb
+    roi_img_rgb = cv2.cvtColor(roi_img,cv2.COLOR_GRAY2RGB)
+
+    # mostra as linhas
+    display_lines(roi_img_rgb, lines, line_color = (0,0,255), line_width=1)
+    display_lines(roi_img_rgb, left_line)
+    display_lines(roi_img_rgb, right_line)
+ 
+    cv2.imshow('Hough Lines and Lane', roi_img_rgb)
+
 
     return left_line, right_line, bisec_pt, intersec, theta, del_x
 
@@ -436,12 +455,12 @@ def control_monitor(data):
         display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
         write_on_screen(frame, ('D_x: '+str(data.del_x)), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
 
-    write_on_screen(frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
-    write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 
-    write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,150), (50,50,255))  
-    write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,200), (50,50,255))    
-    write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,250), (50,50,255))
-    write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,300), (50,255,50))
+    # write_on_screen(frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
+    # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 
+    # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,150), (50,50,255))  
+    # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,200), (50,50,255))    
+    # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,250), (50,50,255))
+    # write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,300), (50,255,50))
       
     cv2.imshow('rgb with lines', frame)
 
