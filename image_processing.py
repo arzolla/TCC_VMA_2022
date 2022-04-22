@@ -97,7 +97,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 20  # minimal of votes
+    min_threshold = 30  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -125,7 +125,6 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     cv2.line(frame, [int(pt1[0]),int(pt1[1])], [int(pt2[0]),int(pt2[1])], line_color, line_width)
     #cv2.line(line_image,(x1,y1),(x2,y2),line_color,line_width)
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
-
 
 
 def filter_vertical_lines(lines, sine_limit=0.84):
@@ -178,50 +177,50 @@ def sort_left_right(lines):
 
 
 
-# Variáveis para armazenar a média temporal. 
-# São inicializadas com valor de faixa ideal.
-left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
-right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+class Accumulator:
+    def __init__(self, accum_max_size):
+        
+        # Variáveis para armazenar a média temporal. 
+        # São inicializadas com valor de faixa ideal.
+        self.left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+        self.right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+        self.accum_max_size = accum_max_size
+
+    def accumulate(self, left_line, right_line):
 
 
 
+        # Caso faixa seja vazia
+        if left_line != []:
+            self.left_line_accum.append(left_line[0])
 
-def accumulator(left_line, right_line, accum_max_size = 3):
+        if right_line != []:
+            self.right_line_accum.append(right_line[0])
 
-    global right_line_accum, left_line_accum
-    #print('recebido', left_line, right_line)
+        
+        
+        # deleta primeiro termo se tiver mais q 5 linhas
+        if len(self.left_line_accum) > self.accum_max_size:
+            #print('antes do pop',self.left_line_accum)
+            self.left_line_accum.pop(0)
+            #print('depois do pop',self.left_line_accum)
 
-    # Caso faixa seja vazia
-    if left_line != []:
-        left_line_accum.append(left_line[0])
+        if len(self.right_line_accum) > self.accum_max_size:
+            #print('antes do pop',self.left_line_accum)
+            self.right_line_accum.pop(0)
+            #print('depois do pop',self.left_line_accum)
+        #tira a média dos valores na lista do acumulador
 
-    if right_line != []:
-        right_line_accum.append(right_line[0])
+        #print('left_accum_avg',self.left_line_accum)
+        #print(self.left_line_accum)
+        left_accum_avg = get_average_line(self.left_line_accum)
 
-    
-    
-    # deleta primeiro termo se tiver mais q 5 linhas
-    if len(left_line_accum) > accum_max_size:
-        #print('antes do pop',left_line_accum)
-        left_line_accum.pop(0)
-        #print('depois do pop',left_line_accum)
-
-    if len(right_line_accum) > accum_max_size:
-        #print('antes do pop',left_line_accum)
-        right_line_accum.pop(0)
-        #print('depois do pop',left_line_accum)
-    #tira a média dos valores na lista do acumulador
-
-    #print('left_accum_avg',left_line_accum)
-    #print(left_line_accum)
-    left_accum_avg = get_average_line(left_line_accum)
-
-    right_accum_avg = get_average_line(right_line_accum)
-    
-    #print('media', left_accum_avg)
-    #print("left_line_accum",left_line_accum, "type", type(left_line_accum))
-    #print('lista',left_line_accum,'len',len(left_line_accum))
-    return left_accum_avg, right_accum_avg
+        right_accum_avg = get_average_line(self.right_line_accum)
+        
+        #print('media', left_accum_avg)
+        #print("self.left_line_accum",self.left_line_accum, "type", type(self.left_line_accum))
+        #print('lista',self.left_line_accum,'len',len(self.left_line_accum))
+        return left_accum_avg, right_accum_avg
 
 left_antiga = None
 right_antiga = None
@@ -329,6 +328,8 @@ def get_bisector(left_line, right_line):
         return [int(round(bisec_x)), bisec_y], intersec, theta, del_x
 
     
+accum_pre = Accumulator(1)
+accum_pos = Accumulator(5)
 
 def image_processing4(img_gray):
     roi_img = get_roi(img_gray)
@@ -350,6 +351,7 @@ def image_processing4(img_gray):
     right_line = get_average_line(right_lines)
 
 
+    ########## Mostrar as faixas ######
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(roi_img,cv2.COLOR_GRAY2RGB)
 
@@ -359,13 +361,15 @@ def image_processing4(img_gray):
     display_lines(roi_img_rgb, right_line)
  
     cv2.imshow('Hough Lines and Lane', roi_img_rgb)
+    ########## Mostrar as faixas ######
 
-    left_line, right_line = accumulator(left_line, right_line, 5)
+
+    left_line, right_line = accum_pre.accumulate(left_line, right_line)
 
     # filtrar antes de pegar a média?
     left_line, right_line = filter_strange_line(left_line, right_line)
 
-    #left_line, right_line = accumulator(left_line, right_line, 5)
+    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
 
 
@@ -410,7 +414,7 @@ def computer_vision_teste(img_gray, data):
 
     return data
 
-
+# classe para armazenar os dados da simulação e visão
 class SimulationData:
     def __init__(   
                     self, frame = None, 
