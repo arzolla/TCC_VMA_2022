@@ -472,7 +472,7 @@ if __name__ == '__main__':
 
     #image_processing(img_gray)
     #cv2.waitKey(0)
-    data = control_data()
+    data = SimulationData()
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
