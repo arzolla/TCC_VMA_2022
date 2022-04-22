@@ -97,7 +97,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 50  # minimal of votes
+    min_threshold = 40  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -244,8 +244,8 @@ def filter_strange_line(left_line, right_line):
     rho_l_a, theta_l_a = left_antiga[0][0]
 
     # thresholds de diferença para excluir a linha nova
-    theta_lim = 0.17
-    rho_lim = 15
+    theta_lim = 0.26
+    rho_lim = 12
     count_lim = 20
     
 
