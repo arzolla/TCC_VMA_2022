@@ -318,25 +318,21 @@ def image_processing4(img_gray):
 
 
     lines = hough_transform(skel_img) # todas as linhas detectadas 
-    #print('liens saida hough',lines)
+
 
     lines = filter_vertical_lines(lines) # descarta linhas com angulo muito horizontal
-    #print('liens filtrada',lines)
-
+    
 
     left_lines, right_lines  = sort_left_right(lines)
-
-    #print('lines separadas',left_lines, right_lines)
 
 
  
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    #print('liness',left_lines, np.shape(left_lines), type(left_lines))
-    #print('right line', left_line, np.shape(left_line), type(left_line))
 
-    #print('pros3 avg',left_line, right_line)
+    #skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
+ 
 
 
     left_line, right_line = accumulator(left_line, right_line)
@@ -347,49 +343,6 @@ def image_processing4(img_gray):
 
     return left_line, right_line, bisec_pt, intersec, theta, del_x
 
-
-def x(left_line, right_line, theta, del_x):
-    ######### acabou processamento
-
-    #intersecção das duas linhas
-
-    #print('left e right o',left_line, right_line)
-    
-    
-    #print(bi_pt1[0])
-    #mid_line = [[[-360, np.pi]]]
-
-    skel_with_lines = display_lines(skel_img_bgr, lines, line_color = (0,0,255), line_width=1)
-
-    skel_with_lines = display_lines(skel_with_lines, left_line)
-    skel_with_lines = display_lines(skel_with_lines, right_line)
-
-    # centro da camera
-    skel_with_lines = display_lines_2pts(skel_with_lines, [360,0], [360,720], line_color = (200,21,21), line_width=1)
-    skel_with_lines = display_lines_2pts(skel_with_lines, [0,360], [720,360], line_color = (200,21,21), line_width=1)
-
-
-    # triangulo
-    
-    pos = [int(x) for x in intersec]
-     
-
-    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
-    skel_with_lines = display_lines_2pts(skel_with_lines, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-    skel_with_lines = display_lines_2pts(skel_with_lines, [360,bisec_pt[1]], [intersec[0], bisec_pt[1]], line_color = (255,0,255), line_width=1)
-
-    #delta_x 
-    skel_with_lines = display_lines_2pts(skel_with_lines, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
-
-
-    print(del_x)
-    write_on_screen(skel_with_lines, ('D_x: '+str(del_x)), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
-
-
-
-
-    cv2.imshow('processing4',skel_with_lines)
-    return left_line, right_line, bisec_pt, intersec
 
 
 def computer_vision(seg_frame, data):
@@ -426,7 +379,8 @@ def computer_vision_teste(img_gray, data):
 
     return data
 
-class control_data:
+
+class SimulationData:
     def __init__(   
                     self, frame = None, 
                     left_line = None, 
@@ -466,15 +420,24 @@ def control_monitor(data):
     
     
     if not(isinstance(data.left_line, int)):
+
+        # centro da camera (em azul)
+        frame = display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
+        frame = display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
+
+        # linhas (em verde)
         frame = display_lines(frame, data.left_line)
         frame = display_lines(frame, data.right_line)
 
-        frame = display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255))
+        # triangulo (em magenta)
+        frame = display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
+        frame = display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
+        frame = display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
+        write_on_screen(frame, ('Theta: '+str(round(np.rad2deg(data.theta),2))+' degree'), [intersec[0]-40, intersec[1]-20], (255,0,255), size = 0.5, thick = 2)
 
-        frame = display_lines_2pts(frame, [intersec[0], bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-
-        frame = display_lines_2pts(frame, bisec_pt, [intersec[0], bisec_pt[1]], line_color = (51,251,255), line_width=2)
-
+        # del_x
+        frame = display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
+        write_on_screen(frame, ('D_x: '+str(data.del_x)), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
     write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 

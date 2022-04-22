@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing4, get_mask, computer_vision, control_monitor, control_data
+from image_processing import image_processing4, get_mask, computer_vision, control_monitor, SimulationData
 import cv2
 from vmaPID import PID
 
@@ -141,7 +141,7 @@ def run_simulation(args, client):
         velocidade = 15
 
         # classe para gestão dos dados
-        data = control_data()
+        data = SimulationData()
 
 
         vehicle.set_autopilot(True)
@@ -171,10 +171,10 @@ def run_simulation(args, client):
            
            
             # Envia frame para a função de visão computacional
-            frame = Segment.rgb_frame
+            seg_frame = Segment.rgb_frame
             data.frame = RGBCamera.rgb_frame
             
-            data.left_line, data.right_line, data.bisec_pt, data.intersec = computer_vision(frame)
+            data.left_line, data.right_line, data.bisec_pt, data.intersec = computer_vision(seg_frame, data)
             data.estado, data.steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
 
 
