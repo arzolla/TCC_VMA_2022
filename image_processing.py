@@ -97,7 +97,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 30  # minimal of votes
+    min_threshold = 20  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -128,7 +128,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
 
 
 
-def filter_vertical_lines(lines, sine_limit=0.9):
+def filter_vertical_lines(lines, sine_limit=0.84):
 
     ok_lines = []
     if lines is not None:
@@ -186,7 +186,7 @@ right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 
 
 
-def accumulator(left_line, right_line):
+def accumulator(left_line, right_line, accum_max_size = 3):
 
     global right_line_accum, left_line_accum
     #print('recebido', left_line, right_line)
@@ -199,7 +199,6 @@ def accumulator(left_line, right_line):
         right_line_accum.append(right_line[0])
 
     
-    accum_max_size = 5
     
     # deleta primeiro termo se tiver mais q 5 linhas
     if len(left_line_accum) > accum_max_size:
@@ -244,8 +243,8 @@ def filter_strange_line(left_line, right_line):
     #     left_antiga = left_line
 
     # thresholds de diferença para excluir a linha nova
-    theta_lim = 0.5
-    rho_lim = 20
+    theta_lim = 0.2
+    rho_lim = 15
     count_lim = 15
 
 
@@ -351,17 +350,6 @@ def image_processing4(img_gray):
     right_line = get_average_line(right_lines)
 
 
-
-    # filtrar antes de pegar a média?
-    left_line, right_line = filter_strange_line(left_line, right_line)
-
-    left_line, right_line = accumulator(left_line, right_line)
-
-
-
-    # encontra os parâmetros
-    bisec_pt, intersec, theta, del_x = get_bisector(left_line,right_line)
-
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(roi_img,cv2.COLOR_GRAY2RGB)
 
@@ -371,6 +359,19 @@ def image_processing4(img_gray):
     display_lines(roi_img_rgb, right_line)
  
     cv2.imshow('Hough Lines and Lane', roi_img_rgb)
+
+    left_line, right_line = accumulator(left_line, right_line, 5)
+
+    # filtrar antes de pegar a média?
+    left_line, right_line = filter_strange_line(left_line, right_line)
+
+    #left_line, right_line = accumulator(left_line, right_line, 5)
+
+
+
+    # encontra os parâmetros
+    bisec_pt, intersec, theta, del_x = get_bisector(left_line,right_line)
+
 
 
     return left_line, right_line, bisec_pt, intersec, theta, del_x
@@ -498,7 +499,7 @@ if __name__ == '__main__':
     path = 'static_road_angle.png'
     #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
-    #path = 'D:\CARLA_0.9.12_win\TCC\line2.png'
+    path = 'line2.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)

@@ -138,7 +138,7 @@ def run_simulation(args, client):
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
         controlador.setSetPoint(0) # deve se aproximar da coordenada central 360
-        velocidade = 10
+        velocidade = 15
 
         # classe para gestão dos dados
         data = SimulationData()
