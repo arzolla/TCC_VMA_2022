@@ -404,7 +404,8 @@ def computer_vision(frame):
 
 
 class control_data:
-    def __init__(   self, frame = None, 
+    def __init__(   
+                    self, frame = None, 
                     left_line = None, 
                     right_line = None, 
                     bisec_pt = None, 
@@ -414,7 +415,8 @@ class control_data:
                     Kp = 0, 
                     Kd = 0, 
                     Ki = 0, 
-                    velocidade = 0):
+                    velocidade = 0
+                ):
 
         self.frame = frame
         self.left_line = left_line
@@ -440,6 +442,7 @@ def control_monitor(data):
         data.frame = display_lines_2pts(data.frame, [data.intersec[0], data.bisec_pt[1]], data.intersec, line_color = (255,0,255), line_width=1)
         data.frame = display_lines_2pts(data.frame, data.bisec_pt, [data.intersec[0], data.bisec_pt[1]], line_color = (51,251,255), line_width=2)
 
+
     write_on_screen(data.frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
     write_on_screen(data.frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 
     write_on_screen(data.frame, ('Kp:'+str(data.Kp)), (10,150), (50,50,255))  
@@ -448,6 +451,8 @@ def control_monitor(data):
     write_on_screen(data.frame, ('Vel:'+str(data.velocidade)), (10,300), (50,255,50))
       
     cv2.imshow('rgb with lines',data.frame)
+
+    return data.frame
 
 def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  

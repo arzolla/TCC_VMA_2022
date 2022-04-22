@@ -44,9 +44,9 @@ def control_main(vehicle, controlador, velocidade, bi_pt1):
     #print(left_line, right_line)
     
     estado = 360 - bi_pt1[0] # dx do ponto da bissetriz
-    print('erro=    ', controlador.last_error)
+    #print('erro=    ', controlador.last_error)
     steering = controlador.update(estado) # envia angulo para controlador
-    print('steering=', steering)
+    #print('steering=', steering)
 
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
@@ -134,18 +134,17 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0.004, Kd = -0.0005)
+        controlador = PID(Kp = -0.000, Kd = -0.0000)
         controlador.setSampleTime(0.01)
         steering = controlador.update(0)
         controlador.setSetPoint(0) # deve se aproximar da coordenada central 360
         velocidade = 15
 
+        # classe para gestão dos dados
         data = control_data()
-        data.Kp = controlador.Kp
-        data.Kd = controlador.Kd
-        data.Ki = controlador.Ki
-        
-        #vehicle.set_autopilot(True)
+
+
+        vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
@@ -174,8 +173,16 @@ def run_simulation(args, client):
             # Envia frame para a função de visão computacional
             frame = Segment.rgb_frame
             data.frame = RGBCamera.rgb_frame
+            
             data.left_line, data.right_line, data.bisec_pt, data.intersec = computer_vision(frame)
             data.estado, data.steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
+
+
+            data.velocidade = velocidade
+            data.Kp = controlador.Kp
+            data.Kd = controlador.Kd
+            data.Ki = controlador.Ki
+
             #print('aqui',np.shape(frame))
 
 
