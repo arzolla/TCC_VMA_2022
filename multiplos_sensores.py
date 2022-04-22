@@ -174,7 +174,7 @@ def run_simulation(args, client):
             seg_frame = Segment.rgb_frame
             data.frame = RGBCamera.rgb_frame
             
-            data.left_line, data.right_line, data.bisec_pt, data.intersec = computer_vision(seg_frame, data)
+            computer_vision(seg_frame, data)
             data.estado, data.steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
 
 

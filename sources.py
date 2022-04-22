@@ -79,7 +79,7 @@ class SensorManager:
         array = array[:, :, :3]
 
         # Salva frame na variavel rgb_frame da classe
-        self.rgb_frame = array
+        self.rgb_frame = np.ascontiguousarray(array, dtype=np.uint8)
 
         array = array[:, :, ::-1]
 
@@ -99,7 +99,7 @@ class SensorManager:
         array = array[:, :, :3]
         
         # Salva frame na variavel rgb_frame da classe
-        self.rgb_frame = array
+        self.rgb_frame = np.ascontiguousarray(array, dtype=np.uint8)
 
         array = array[:, :, ::-1]
 

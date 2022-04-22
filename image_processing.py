@@ -106,7 +106,6 @@ def hough_transform(image):
 
 
 def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
-    line_image = np.zeros_like(frame)
     if lines is not None:
             for line in lines:
                 rho, theta = line[0]
@@ -116,18 +115,17 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
                 y0 = b * rho
                 pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
                 pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
-                cv2.line(line_image, pt1, pt2, line_color, line_width, cv2.LINE_AA)
+                cv2.line(frame, pt1, pt2, line_color, line_width, cv2.LINE_AA)
     #cv2.line(line_image,(x1,y1),(x2,y2),line_color,line_width)
-    line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
-    return line_image
+
 
 def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
-    line_image = np.zeros_like(frame)
+    #line_image = np.zeros_like(frame)
 
-    cv2.line(line_image, [int(pt1[0]),int(pt1[1])], [int(pt2[0]),int(pt2[1])], line_color, line_width, cv2.LINE_AA)
+    cv2.line(frame, [int(pt1[0]),int(pt1[1])], [int(pt2[0]),int(pt2[1])], line_color, line_width)
     #cv2.line(line_image,(x1,y1),(x2,y2),line_color,line_width)
-    line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
-    return line_image
+    #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
+
 
 
 def filter_vertical_lines(lines, sine_limit=0.9):
@@ -360,9 +358,8 @@ def computer_vision(seg_frame, data):
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
 
-    cv2.waitKey(1)
 
-    return data
+
 
 def computer_vision_teste(img_gray, data):
 
@@ -375,7 +372,6 @@ def computer_vision_teste(img_gray, data):
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
 
-    cv2.waitKey(1)
 
     return data
 
@@ -422,21 +418,22 @@ def control_monitor(data):
     if not(isinstance(data.left_line, int)):
 
         # centro da camera (em azul)
-        frame = display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
-        frame = display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
+    
+        display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
+        display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
         # linhas (em verde)
-        frame = display_lines(frame, data.left_line)
-        frame = display_lines(frame, data.right_line)
+        display_lines(frame, data.left_line)
+        display_lines(frame, data.right_line)
 
         # triangulo (em magenta)
-        frame = display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
-        frame = display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-        frame = display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
+        display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
+        display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
+        display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
         write_on_screen(frame, ('Theta: '+str(round(np.rad2deg(data.theta),2))+' degree'), [intersec[0]-40, intersec[1]-20], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
-        frame = display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
+        display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
         write_on_screen(frame, ('D_x: '+str(data.del_x)), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
@@ -450,7 +447,10 @@ def control_monitor(data):
 
     data.frame = frame
     
-    return data.frame
+    cv2.waitKey(1)
+    #data.frame = frame
+    
+
 
 def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
