@@ -469,11 +469,11 @@ def control_monitor(data):
         display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
         display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
         display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
-        write_on_screen(frame, ('Theta: '+str(round(np.rad2deg(data.theta),2))+' degree'), [intersec[0]-40, intersec[1]-20], (255,0,255), size = 0.5, thick = 2)
+        write_on_screen(frame, ('Theta: '+str(round(np.rad2deg(data.theta),3))+' degree'), [intersec[0]-40, intersec[1]-20], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
         display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(data.del_x)), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
+        write_on_screen(frame, ('D_x: '+str(round(data.del_x,3))), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
 
     # write_on_screen(frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
     # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 
