@@ -97,7 +97,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 30  # minimal of votes
+    min_threshold = 35  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -194,7 +194,7 @@ class Accumulator:
 
         # Caso faixa seja diferente da ultima
         # if left_line[0][0][0] != self.left_line_accum[0][0][0]:
-        
+
         self.left_line_accum.append(left_line[0])
 
         # else:
@@ -252,8 +252,6 @@ class Holder:
         
         return self.left_line, self.right_line
 
-left_antiga = None
-right_antiga = None
 
 
 left_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
@@ -264,6 +262,12 @@ right_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
 l_count = 0
 r_count = 0
 
+# thresholds de diferença para excluir a linha nova
+theta_lim = 0.3
+rho_lim = 10
+count_lim = 8
+
+
 def filter_strange_line(left_line, right_line):
 
     global left_antiga, right_antiga, l_count, r_count
@@ -271,10 +275,7 @@ def filter_strange_line(left_line, right_line):
     # if left_antiga is None:
     #     left_antiga = left_line
 
-    # thresholds de diferença para excluir a linha nova
-    theta_lim = 0.2
-    rho_lim = 15
-    count_lim = 15
+
 
 
 
