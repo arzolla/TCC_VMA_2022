@@ -222,6 +222,29 @@ class Accumulator:
         #print('lista',self.left_line_accum,'len',len(self.left_line_accum))
         return left_accum_avg, right_accum_avg
 
+class Holder:
+    def __init__(self):
+        
+        # Variáveis para armazenar a faixa atual 
+        # São inicializadas com valor de faixa ideal.
+        self.left_line = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
+        self.right_line = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+
+    def hold(self, left_line, right_line):
+
+
+        # Caso faixa não esteja vazia
+        # salva a faixa atual nas variaveis instanciadas na classe
+        if left_line != []:
+            self.left_line = left_line
+
+        if right_line != []:
+            self.right_line = right_line
+
+        
+        
+        return self.left_line, self.right_line
+
 left_antiga = None
 right_antiga = None
 
@@ -247,44 +270,39 @@ def filter_strange_line(left_line, right_line):
     count_lim = 15
 
 
-    # se não estiver vazio
-    if left_line.size != 0:
 
-        rho_l, theta_l = left_line[0][0]
-        rho_l_a, theta_l_a = left_antiga[0][0]
+    rho_l, theta_l = left_line[0][0]
+    rho_l_a, theta_l_a = left_antiga[0][0]
 
-        # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim) or l_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
-            left_ok = left_line # usa linha nova
-            left_antiga = left_line # armazena linha nova
-            l_count = 0 # zera contador sempre que utilizar linha nova
-        else: # se for muito diferente da linha antiga
-            left_ok = left_antiga # usa linha antiga
-            l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
-            print('pegou LEFT antiga, count',l_count)
-    else:
-        left_ok = left_line
+    # Compara a diferença absoluta entre rho e theta da linha antiga e nova
+    if (abs(rho_l - rho_l_a) < rho_lim and abs(theta_l - theta_l_a) < theta_lim) or l_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        left_ok = left_line # usa linha nova
+        left_antiga = left_line # armazena linha nova
+        l_count = 0 # zera contador sempre que utilizar linha nova
+    else: # se for muito diferente da linha antiga
+        left_ok = left_antiga # usa linha antiga
+        l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
+        print('pegou LEFT antiga, count',l_count)
+
 
     # if right_antiga is None:
     #     right_antiga = right_line
 
-    # se não estiver vazio
-    if right_line.size != 0:
 
-        rho_r, theta_r = right_line[0][0]
-        rho_r_a, theta_r_a = right_antiga[0][0]
 
-        # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim) or r_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
-            right_ok = right_line # usa linha nova
-            right_antiga = right_line # armazena linha nova
-            r_count = 0 # zera contador sempre que utilizar linha nova
-        else: # se for muito diferente da linha antiga
-            right_ok = right_antiga # usa linha antiga
-            r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
-            print('pegou RIGHT antiga, count',r_count)    
-    else:
-        right_ok = right_line
+    rho_r, theta_r = right_line[0][0]
+    rho_r_a, theta_r_a = right_antiga[0][0]
+
+    # Compara a diferença absoluta entre rho e theta da linha antiga e nova
+    if (abs(rho_r - rho_r_a) < rho_lim and abs(theta_r - theta_r_a) < theta_lim) or r_count > count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        right_ok = right_line # usa linha nova
+        right_antiga = right_line # armazena linha nova
+        r_count = 0 # zera contador sempre que utilizar linha nova
+    else: # se for muito diferente da linha antiga
+        right_ok = right_antiga # usa linha antiga
+        r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
+        print('pegou RIGHT antiga, count',r_count)    
+
 
     return left_ok, right_ok
 
@@ -328,7 +346,7 @@ def get_bisector(left_line, right_line):
         return [int(round(bisec_x)), bisec_y], intersec, theta, del_x
 
     
-accum_pre = Accumulator(1)
+holder = Holder()
 accum_pos = Accumulator(5)
 
 def image_processing4(img_gray):
@@ -364,7 +382,7 @@ def image_processing4(img_gray):
     ########## Mostrar as faixas ######
 
 
-    left_line, right_line = accum_pre.accumulate(left_line, right_line)
+    left_line, right_line = holder.hold(left_line, right_line)
 
     # filtrar antes de pegar a média?
     left_line, right_line = filter_strange_line(left_line, right_line)
