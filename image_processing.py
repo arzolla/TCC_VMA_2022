@@ -194,14 +194,16 @@ class Accumulator:
 
         # Caso faixa seja diferente da ultima
         # if left_line[0][0][0] != self.left_line_accum[0][0][0]:
-        #     self.left_line_accum.append(left_line[0])
+        
+        self.left_line_accum.append(left_line[0])
 
         # else:
         #     print('sao iguais')
         #     print(left_line[0][0], self.left_line_accum[0][0])
 
         # if right_line[0][0][0] != self.right_line_accum[0][0][0]:
-        #     self.right_line_accum.append(right_line[0])
+
+        self.right_line_accum.append(right_line[0])
 
         
         # deleta primeiro termo se tiver mais q 'accum_max' linhas
