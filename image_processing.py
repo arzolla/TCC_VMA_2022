@@ -189,17 +189,22 @@ class Accumulator:
     def accumulate(self, left_line, right_line):
 
 
+        # print('antes')
+        # print(left_line[0][0], self.left_line_accum[0][0])
 
-        # Caso faixa seja vazia
-        if left_line != []:
-            self.left_line_accum.append(left_line[0])
+        # Caso faixa seja diferente da ultima
+        # if left_line[0][0][0] != self.left_line_accum[0][0][0]:
+        #     self.left_line_accum.append(left_line[0])
 
-        if right_line != []:
-            self.right_line_accum.append(right_line[0])
+        # else:
+        #     print('sao iguais')
+        #     print(left_line[0][0], self.left_line_accum[0][0])
+
+        # if right_line[0][0][0] != self.right_line_accum[0][0][0]:
+        #     self.right_line_accum.append(right_line[0])
 
         
-        
-        # deleta primeiro termo se tiver mais q 5 linhas
+        # deleta primeiro termo se tiver mais q 'accum_max' linhas
         if len(self.left_line_accum) > self.accum_max_size:
             #print('antes do pop',self.left_line_accum)
             self.left_line_accum.pop(0)
@@ -387,7 +392,7 @@ def image_processing4(img_gray):
     # filtrar antes de pegar a média?
     left_line, right_line = filter_strange_line(left_line, right_line)
 
-    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
 
 
