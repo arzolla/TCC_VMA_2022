@@ -265,8 +265,8 @@ r_count = 0
 # thresholds de diferença para excluir a linha nova
 theta_lim = 0.3
 rho_lim = 10
-count_lim = 8
-
+count_lim = 15
+# para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
 def filter_strange_line(left_line, right_line):
 

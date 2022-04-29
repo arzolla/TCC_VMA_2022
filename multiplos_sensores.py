@@ -133,20 +133,21 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        # ganho de dx e theta deve ser negativo
-        controlador = Control(Kp_theta = -0.006, Kp_dx = -0.001, Ki_dx = -0.0001)
-        controlador = Control(Kp_theta = -0, Kp_dx = 0.0, Ki_dx = 0.00)
+        # ganho de dx deve ser positivo e theta deve ser negativo
+        controlador = Control(Kp_theta = -1.4, Kp_dx = 0.03, Ki_dx = 0.01)
+        #controlador = Control(Kp_theta = -0, Kp_dx = 0.0, Ki_dx = 0.00)
         controlador.setSampleTime(0.01)
         controlador.update(0,0)
         controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
         controlador.setWindup(method='Reset')
-        velocidade = 10
+        controlador.setOutputLimit(0.2, -0.2)
+        velocidade = 5
 
         # classe para gestão dos dados
         data = SimulationData()
 
 
-        vehicle.set_autopilot(True)
+        #vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
