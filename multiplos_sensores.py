@@ -31,21 +31,20 @@ import argparse
 
 from image_processing import image_processing4, get_mask, computer_vision, control_monitor, SimulationData
 import cv2
-from vmaPID import PID
+from PI_control import Control
 
 # Função para receber e processar a imagem recebida do simulador
 
 
 
 # Função para executar o controle
-def control_main(vehicle, controlador, velocidade, bi_pt1):
+def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
 
     #print(left_line, right_line)
     
-    estado = 360 - bi_pt1[0] # dx do ponto da bissetriz
     #print('erro=    ', controlador.last_error)
-    steering = controlador.update(estado) # envia angulo para controlador
+    steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
 
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
@@ -53,7 +52,7 @@ def control_main(vehicle, controlador, velocidade, bi_pt1):
 
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
-    return estado, steering
+    return steering
 
 
 
@@ -134,11 +133,14 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        controlador = PID(Kp = -0.000, Kd = -0.0000)
+        # ganho de dx e theta deve ser negativo
+        controlador = Control(Kp_theta = -0.006, Kp_dx = -0.001, Ki_dx = -0.0001)
+        controlador = Control(Kp_theta = -0, Kp_dx = 0.0, Ki_dx = 0.00)
         controlador.setSampleTime(0.01)
-        steering = controlador.update(0)
-        controlador.setSetPoint(0) # deve se aproximar da coordenada central 360
-        velocidade = 30
+        controlador.update(0,0)
+        controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
+        controlador.setWindup(method='Reset')
+        velocidade = 10
 
         # classe para gestão dos dados
         data = SimulationData()
@@ -175,13 +177,12 @@ def run_simulation(args, client):
             data.frame = RGBCamera.rgb_frame
             
             computer_vision(seg_frame, data)
-            data.estado, data.steering = control_main(vehicle, controlador, velocidade, data.bisec_pt) #precisa retornar erro e steering
-
+            data.steering = control_main(vehicle, controlador, velocidade, data.theta, data.dx) #precisa retornar erro e steering
 
             data.velocidade = velocidade
-            data.Kp = controlador.Kp
-            data.Kd = controlador.Kd
-            data.Ki = controlador.Ki
+            data.Kp_theta = controlador.Kp_theta
+            data.Kp_dx = controlador.Kp_dx
+            data.Ki_dx = controlador.Ki_dx
 
             #print('aqui',np.shape(frame))
 
@@ -201,21 +202,21 @@ def run_simulation(args, client):
                 elif event.type == pygame.KEYDOWN:
 
                     if event.key == K_a:
-                        new_kp =  controlador.Kp+0.0001
+                        new_kp =  controlador.Kp_theta+0.0001
                         if new_kp < 0: 
                             controlador.setKp(new_kp)
-                            print('Aumentando Kp para:',controlador.Kp)
+                            print('Aumentando Kp_theta para:',controlador.Kp)
                     if event.key == K_s: 
-                        controlador.setKp(controlador.Kp-0.0001)
-                        print('Diminuindo Kp para:',controlador.Kp)
+                        controlador.setKp(controlador.Kp_theta-0.0001)
+                        print('Diminuindo Kp_theta para:',controlador.Kp)
                     if event.key == K_d:
-                        new_kd =  controlador.Kd+0.00001
+                        new_kd =  controlador.Kp_dx+0.00001
                         if new_kd < 0:
                             controlador.setKd(new_kd)
-                            print('Aumentando Kd para:',controlador.Kd)
+                            print('Aumentando Kp_dx para:',controlador.Kd)
                     if event.key == K_f: 
-                        controlador.setKd(controlador.Kd-0.00001)
-                        print('Diminuindo Kd para:',controlador.Kd)
+                        controlador.setKd(controlador.Kp_dx-0.00001)
+                        print('Diminuindo Kp_dx para:',controlador.Kd)
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
                         if new_vel > 0:

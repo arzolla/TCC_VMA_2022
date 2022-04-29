@@ -418,7 +418,7 @@ def computer_vision(seg_frame, data):
 
     mask = get_mask(seg_frame) # Obtem apenas faixa da imagem segmentada
     
-    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.del_x = image_processing4(mask)
+    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
     control_monitor(data)
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
@@ -430,7 +430,7 @@ def computer_vision_teste(img_gray, data):
 
 
     
-    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.del_x = image_processing4(img_gray)
+    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(img_gray)
     
     data.frame = cv2.cvtColor(img_gray,cv2.COLOR_GRAY2RGB)
     control_monitor(data)
@@ -448,11 +448,12 @@ class SimulationData:
                     right_line = None, 
                     bisec_pt = None, 
                     intersec = None, 
-                    estado = None, 
+                    theta = 0,
+                    dx = 0, 
                     steering = 0, 
-                    Kp = 0, 
-                    Kd = 0, 
-                    Ki = 0, 
+                    Kp_theta = 0,
+                    Kp_dx = 0, 
+                    Ki_dx = 0, 
                     velocidade = 0
                 ):
 
@@ -461,11 +462,12 @@ class SimulationData:
         self.right_line = right_line
         self.bisec_pt = bisec_pt
         self.intersec = intersec
-        self.estado = estado
+        self.theta = theta
+        self.dx = dx
         self.steering = steering
-        self.Kp = Kp
-        self.Kd = Kd
-        self.Ki = Ki
+        self.Kp_theta = Kp_theta
+        self.Kp_dx = Kp_dx
+        self.Ki_dx = Ki_dx
         self.velocidade = velocidade
 
 
@@ -499,14 +501,19 @@ def control_monitor(data):
 
         # del_x
         display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.del_x,3))), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
+        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
 
-    # write_on_screen(frame, ('Steering:'+str(data.steering)), (10,50), (255,255,255)) 
-    # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255)) 
-    # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,150), (50,50,255))  
-    # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,200), (50,50,255))    
-    # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,250), (50,50,255))
-    # write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,300), (50,255,50))
+    write_on_screen(frame, ('Steering:'+str(round(data.steering,5))), (10,50), (255,255,255))
+    if  data.steering > 0:
+        write_on_screen(frame, ('Direita'), (500,50), (255,0,0))
+    else:
+        write_on_screen(frame, ('Esquerda'), (500,50), (0,255,255))
+    # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255))
+    # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,150), (255,255,255)) 
+    # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,200), (50,50,255))  
+    # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,250), (50,50,255))    
+    # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,300), (50,50,255))
+    write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,350), (50,255,50))
       
     cv2.imshow('rgb with lines', frame)
 

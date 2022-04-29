@@ -1,45 +1,47 @@
-#!/usr/bin/python
+ #!/usr/bin/python
 #
 # Controle baseado no ivPID, com algumas modificações e mais recursos para se utilizar na FIRA.
 
 
 import time
 
-class PID:
-    """PID Controller
+class Control:
+    """PI Controller
     """
 
-    def __init__(self, Kp=0.2, Ki=0.0, Kd=0.0):
+    def __init__(self, Kp_theta=0.2, Kp_dx=0.0, Ki_dx=0.0):
 
-        self.Kp = Kp
-        self.Ki = Ki
-        self.Kd = Kd
+        self.Kp_theta = Kp_theta
+        self.Kp_dx = Kp_dx
+        self.Ki_dx = Ki_dx
 
         self.sample_time = 0.01
         
         #self.current_time = time.time()
         self.last_time = time.time()
-        self.last_error = None
+        self.last_error_theta = None
+        self.last_error_dx = None
         self.last_output = None
 
-        # Limpando variaveis
-        self.SetPoint = 0.0
 
-        self.PTerm = 0.0
-        self.ITerm = 0.0
-        self.DTerm = 0.0
-        self.last_error = 0.0
+        # Limpando variaveis
+        self.SetPoint_theta = 0.0
+        self.SetPoint_dx = 0.0
+
+        self.PTerm_theta = 0.0
+        self.PTerm_dx = 0.0
+        self.ITerm_dx = 0.0
+
+
+        # Limites da saída
+        self.cmax = None
+        self.cmin = None
 
         # Windup Guard
         self.windup_max = None
         self.windup_min = None
         self.windup_reset = None
         self.windup_reset_tolerance = 0.001
-
-        # Limites da saída
-        self.cmax = None
-        self.cmin = None
-
 
 
     # Função estática para limitar determinado valor
@@ -54,7 +56,7 @@ class PID:
         return value
             
 
-    def update(self, state, current_time=None):
+    def update(self, theta, dx, current_time=None):
 
         # Se não for inserido tempo atual no update()
         if current_time is None:
@@ -75,56 +77,53 @@ class PID:
             return self.last_output
 
         # Computa o erro
-        error = self.SetPoint - state
+        error_dx = self.SetPoint_dx - dx
+        error_theta = self.SetPoint_theta - theta
 
-        # Computa variação do erro
-        delta_error = error - self.last_error
 
         # Cálculo do termo Proporcional
-        self.PTerm = self.Kp * error
+        self.PTerm_dx = self.Kp_dx * error_dx
+        self.PTerm_theta = self.Kp_theta * error_theta
 
         # Caso metodo de windup reset esteja habilitado e erro menor q tolerância ou erro atravessou o zero
-        if (self.windup_reset is True) and ((abs(error) < self.windup_reset_tolerance) or ((error * self.last_error) < 0)):
-            self.ITerm = 0
+        if (self.windup_reset is True) and ((abs(error_dx) < self.windup_reset_tolerance) or ((error_dx * self.last_error_dx) < 0)):
+            self.ITerm_dx = 0
         else:
             # Cálculo do termo Integral
-            self.ITerm += self.Ki * error * delta_time
+            self.ITerm_dx += self.Ki_dx * error_dx * delta_time
 
-        
-        # Calcula termo Diferencial
-        self.DTerm = self.Kd * delta_error / delta_time
 
         # Aplica limite de windup
-        self.ITerm = self.__saturation(self.ITerm, self.windup_max, self.windup_min)
+        self.ITerm_dx = self.__saturation(self.ITerm_dx, self.windup_max, self.windup_min)
 
         # Calcula resposta do controle
-        output = self.PTerm + self.ITerm + self.DTerm
+        output = self.PTerm_theta + self.PTerm_dx + self.ITerm_dx
 
         # Limita o output do sistema
         output = self.__saturation(output, self.cmax, self.cmin)
 
         # Salva os valores atuais para próxima chamada de atualização
         self.last_time = current_time
-        self.last_error = error
+        self.last_error_dx = error_dx
+        self.last_error_theta = error_theta
         self.last_output = output
 
         return output
 
-    def setSetPoint(self, setpoint):
+    def setSetPoint(self, setpoint_theta, setpoint_dx):
         """Determines how aggressively the PID reacts to the current error with setting Proportional Gain"""
-        self.SetPoint = setpoint
+        self.SetPoint_theta = setpoint_theta
+        self.SetPoint_dx = setpoint_dx
 
-    def setKp(self, proportional_gain):
+    def setKp(self, Kp_theta, Kp_dx):
         """Determines how aggressively the PID reacts to the current error with setting Proportional Gain"""
-        self.Kp = proportional_gain
+        self.Kp_theta = Kp_theta
+        self.Kp_dx = Kp_dx
 
-    def setKi(self, integral_gain):
+    def setKi(self, Ki_dx):
         """Determines how aggressively the PID reacts to the current error with setting Integral Gain"""
-        self.Ki = integral_gain
+        self.Ki_dx = Ki_dx
 
-    def setKd(self, derivative_gain):
-        """Determines how aggressively the PID reacts to the current error with setting Derivative Gain"""
-        self.Kd = derivative_gain
 
     def setWindup(self, windup_max=None, windup_min=None, method = None):
         """Integral windup, also known as integrator windup or reset windup,
@@ -159,7 +158,6 @@ class PID:
                 self.windup_reset_tolerance = windup_max
         # Este método limita o valor máximo e mínimo que o termo integral pode ter
         
-
 
     def setOutputLimit(self, cmax, cmin):
         """Define os limites máximo e mínimo da resposta do controle
