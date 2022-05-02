@@ -356,7 +356,7 @@ def image_processing4(img_gray):
 
     skel_img = skeletize_image(roi_img) # esqueletiza a imagem
 
-
+    cv2.imshow('skel img', skel_img)
     lines = hough_transform(skel_img) # todas as linhas detectadas 
 
 
@@ -532,13 +532,13 @@ def adaptive_threshold(rgb_img):
 
     gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
     cv2.imshow('gray image', gray_img)
-    gray_img = cv2.GaussianBlur(gray_img,(9,9),0)
+    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
     roi_img, ROI = get_roi(gray_img, 1)
     cv2.imshow('roi image', roi_img)
 
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    thresh1 = cv2.adaptiveThreshold(roi_img[ROI],255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv2.THRESH_BINARY_INV,11,2)
+    thresh1 = cv2.adaptiveThreshold(gray_img[ROI],254,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+            cv2.THRESH_BINARY_INV,21,6)
     #cv2.imshow('bin image', thresh1)
     mask = np.zeros_like(gray_img)
     mask[ROI] = thresh1.reshape(-1)
@@ -567,7 +567,7 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        computer_vision(img_BGR, data)
+        computer_vision_teste(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         adaptive_threshold(img_BGR)
         cv2.waitKey(0)

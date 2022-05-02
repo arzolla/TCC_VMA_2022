@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing4, get_mask, computer_vision, control_monitor, SimulationData
+from image_processing import image_processing4, get_mask, computer_vision, computer_vision_teste, control_monitor, SimulationData
 import cv2
 from PI_control import Control
 
@@ -177,7 +177,8 @@ def run_simulation(args, client):
             seg_frame = Segment.rgb_frame
             data.frame = RGBCamera.rgb_frame
             
-            computer_vision(seg_frame, data)
+            #computer_vision(seg_frame, data)
+            computer_vision_teste(data.frame, data)
             data.steering = control_main(vehicle, controlador, velocidade, data.theta, data.dx) #precisa retornar erro e steering
 
             data.velocidade = velocidade
