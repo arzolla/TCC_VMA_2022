@@ -6,19 +6,26 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
+
+# only focus bottom half of the screen
+polygon = np.array([[
+    (50, 720),
+    (150,720),
+    (250, 600),
+    (470, 600),
+    (570, 720),
+    (670, 720),
+    (470, 420),
+    (250, 420)
+
+
+]], np.int32)
+
 def get_roi(edges, roi = None):
     height, width = edges.shape
     mask = np.zeros_like(edges)
 
-    # only focus bottom half of the screen
-    polygon = np.array([[
-        (0, 560),
-        (0, 720),
-        (720, 720),
-        (720, 560),
-        (400, 390),
-        (320, 390),
-    ]], np.int32)
+    global polygon
 
     cv2.fillPoly(mask, polygon, 255)
     cropped_edges = cv2.bitwise_and(edges, mask)
@@ -101,7 +108,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 35  # minimal of votes
+    min_threshold = 25  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -544,7 +551,7 @@ def teste_threshold(rgb_img):
     cv2.imshow('roi image', roi_img)
 
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    ret, thresh1 = cv2.threshold(gray_img[ROI], 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret, thresh1 = cv2.threshold(gray_img[ROI], 120, 254, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     cv2.imshow('bin image', thresh1)
     gray_img[ROI] = thresh1.reshape(-1)
     cv2.imshow('bin image', gray_img)
@@ -555,10 +562,11 @@ if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
     #path = 'static_road_angle.png'
+    path = 'static_road.png'
     #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'line2.png'
-    path = 'color_curva.png'
+    path = 'color_curva_suave.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)

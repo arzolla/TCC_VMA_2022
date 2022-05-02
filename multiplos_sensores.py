@@ -141,7 +141,7 @@ def run_simulation(args, client):
         controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
         controlador.setWindup(method='Reset')
         controlador.setOutputLimit(0.2, -0.2)
-        velocidade = 5
+        velocidade = 15
 
         # classe para gestão dos dados
         data = SimulationData()
