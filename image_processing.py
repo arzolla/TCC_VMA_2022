@@ -4,8 +4,9 @@
 
 import numpy as np
 import cv2
+from matplotlib import pyplot as plt
 
-def get_roi(edges):
+def get_roi(edges, roi = None):
     height, width = edges.shape
     mask = np.zeros_like(edges)
 
@@ -21,7 +22,10 @@ def get_roi(edges):
 
     cv2.fillPoly(mask, polygon, 255)
     cropped_edges = cv2.bitwise_and(edges, mask)
-    return cropped_edges
+    if roi is None:
+        return cropped_edges
+    ROI = np.nonzero(mask)
+    return cropped_edges, ROI
 
 def get_roi_half(edges):
     height, width = edges.shape
@@ -523,20 +527,38 @@ def control_monitor(data):
     #data.frame = frame
     
 
-
 def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
 
 def show_image_rgb(rgb):
     cv2.imshow('image', rgb)
 
+def teste_threshold(rgb_img):
+
+    cv2.imshow('rgb image', rgb_img)
+
+    gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
+    cv2.imshow('gray image', gray_img)
+    #gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
+    roi_img, ROI = get_roi(gray_img, 1)
+    cv2.imshow('roi image', roi_img)
+
+    #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret, thresh1 = cv2.threshold(gray_img[ROI], 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    cv2.imshow('bin image', thresh1)
+    gray_img[ROI] = thresh1.reshape(-1)
+    cv2.imshow('bin image', gray_img)
+    #plt.hist(roi_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
+    #plt.show()
+
 if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
-    path = 'static_road_angle.png'
+    #path = 'static_road_angle.png'
     #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
-    path = 'line2.png'
+    #path = 'line2.png'
+    path = 'color_curva.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
@@ -548,9 +570,9 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        computer_vision_teste(img_gray, data)
+        #computer_vision_teste(img_gray, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
-        
+        teste_threshold(img_BGR)
         cv2.waitKey(0)
 
         cv2.destroyAllWindows()
