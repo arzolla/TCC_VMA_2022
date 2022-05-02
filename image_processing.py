@@ -9,12 +9,12 @@ from matplotlib import pyplot as plt
 
 # only focus bottom half of the screen
 polygon = np.array([[
-    (50, 720),
+    (0, 720),
     (150,720),
     (250, 600),
     (470, 600),
     (570, 720),
-    (670, 720),
+    (720, 720),
     (470, 420),
     (250, 420)
 
@@ -93,7 +93,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 25  # minimal of votes
+    min_threshold = 40  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -259,9 +259,9 @@ l_count = 0
 r_count = 0
 
 # thresholds de diferença para excluir a linha nova
-theta_lim = 0.3
-rho_lim = 10
-count_lim = 15
+theta_lim = 0.24
+rho_lim = 50
+count_lim = 12
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
 def filter_strange_line(left_line, right_line):
@@ -348,6 +348,7 @@ def get_bisector(left_line, right_line):
 
     
 holder = Holder()
+accum_pre = Accumulator(2)
 accum_pos = Accumulator(5)
 
 def image_processing4(img_gray):
@@ -383,7 +384,10 @@ def image_processing4(img_gray):
     ########## Mostrar as faixas ######
 
 
+
     left_line, right_line = holder.hold(left_line, right_line)
+
+    #left_line, right_line = accum_pre.accumulate(left_line, right_line)
 
     # filtrar antes de pegar a média?
     left_line, right_line = filter_strange_line(left_line, right_line)
@@ -405,10 +409,10 @@ def computer_vision(seg_frame, data):
 
     if seg_frame is None:
         seg_frame = np.zeros((720,720,3))
-
+    seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
-
+    adaptive_threshold(seg_frame)
     mask = get_mask(seg_frame) # Obtem apenas faixa da imagem segmentada
     
     data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
@@ -419,19 +423,19 @@ def computer_vision(seg_frame, data):
 
 
 
-def computer_vision_teste(img_gray, data):
+def computer_vision_teste(seg_frame, data):
 
-
+    if seg_frame is None:
+        seg_frame = np.zeros((720,720,3))
+    seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
+    #frame = np.zeros((720,720,3))
+    #show_image_rgb(frame) # Mostra imagem RGB
+    mask = adaptive_threshold(seg_frame)
     
-    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(img_gray)
-    
-    data.frame = cv2.cvtColor(img_gray,cv2.COLOR_GRAY2RGB)
+    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
     control_monitor(data)
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
-
-
-    return data
 
 # classe para armazenar os dados da simulação e visão
 class SimulationData:
@@ -522,23 +526,26 @@ def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
 def show_image_rgb(rgb):
     cv2.imshow('image', rgb)
 
-def teste_threshold(rgb_img):
+def adaptive_threshold(rgb_img):
 
-    cv2.imshow('rgb image', rgb_img)
+    #cv2.imshow('rgb image', rgb_img)
 
     gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
     cv2.imshow('gray image', gray_img)
-    gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
+    gray_img = cv2.GaussianBlur(gray_img,(9,9),0)
     roi_img, ROI = get_roi(gray_img, 1)
     cv2.imshow('roi image', roi_img)
 
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    ret, thresh1 = cv2.threshold(gray_img[ROI], 120, 254, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    cv2.imshow('bin image', thresh1)
-    gray_img[ROI] = thresh1.reshape(-1)
-    cv2.imshow('bin image', gray_img)
+    thresh1 = cv2.adaptiveThreshold(roi_img[ROI],255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+            cv2.THRESH_BINARY_INV,11,2)
+    #cv2.imshow('bin image', thresh1)
+    mask = np.zeros_like(gray_img)
+    mask[ROI] = thresh1.reshape(-1)
+    cv2.imshow('bin image', mask)
     #plt.hist(roi_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
     #plt.show()
+    return mask
 
 if __name__ == '__main__':
 
@@ -560,9 +567,9 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        #computer_vision_teste(img_gray, data)
+        computer_vision_teste(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
-        teste_threshold(img_BGR)
+        adaptive_threshold(img_BGR)
         cv2.waitKey(0)
 
         cv2.destroyAllWindows()
