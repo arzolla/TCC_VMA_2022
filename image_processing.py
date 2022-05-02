@@ -412,7 +412,6 @@ def computer_vision(seg_frame, data):
     seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
-    adaptive_threshold(seg_frame)
     mask = get_mask(seg_frame) # Obtem apenas faixa da imagem segmentada
     
     data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
@@ -431,6 +430,7 @@ def computer_vision_teste(seg_frame, data):
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
     mask = adaptive_threshold(seg_frame)
+
     
     data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
     control_monitor(data)
@@ -567,7 +567,7 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        computer_vision_teste(img_BGR, data)
+        computer_vision(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         adaptive_threshold(img_BGR)
         cv2.waitKey(0)
