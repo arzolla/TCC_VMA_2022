@@ -34,21 +34,6 @@ def get_roi(edges, roi = None):
     ROI = np.nonzero(mask)
     return cropped_edges, ROI
 
-def get_roi_half(edges):
-    height, width = edges.shape
-    mask = np.zeros_like(edges)
-
-    # only focus bottom half of the screen
-    polygon = np.array([[
-        (0, 390),
-        (0, 720),
-        (720, 720),
-        (720, 390),
-    ]], np.int32)
-
-    cv2.fillPoly(mask, polygon, 255)
-    cropped_edges = cv2.bitwise_and(edges, mask)
-    return cropped_edges
 
 def draw_vanishing_point(img):
     start_point_1 = (97, 720)
@@ -287,9 +272,6 @@ def filter_strange_line(left_line, right_line):
     #     left_antiga = left_line
 
 
-
-
-
     rho_l, theta_l = left_line[0][0]
     rho_l_a, theta_l_a = left_antiga[0][0]
 
@@ -299,7 +281,7 @@ def filter_strange_line(left_line, right_line):
         left_antiga = left_line # armazena linha nova
         l_count = 0 # zera contador sempre que utilizar linha nova
     else: # se for muito diferente da linha antiga
-        left_ok = left_antiga # usa linha antiga
+        left_ok = get_average_line([left_antiga[0], left_line[0]]) # Pega a média da antiga com a nova
         l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
         print('pegou LEFT antiga, count',l_count)
 
@@ -318,7 +300,7 @@ def filter_strange_line(left_line, right_line):
         right_antiga = right_line # armazena linha nova
         r_count = 0 # zera contador sempre que utilizar linha nova
     else: # se for muito diferente da linha antiga
-        right_ok = right_antiga # usa linha antiga
+        right_ok = get_average_line([right_antiga[0], right_line[0]]) # Pega a média da antiga com a nova
         r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
         print('pegou RIGHT antiga, count',r_count)    
 
@@ -546,7 +528,7 @@ def teste_threshold(rgb_img):
 
     gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
     cv2.imshow('gray image', gray_img)
-    #gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
+    gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
     roi_img, ROI = get_roi(gray_img, 1)
     cv2.imshow('roi image', roi_img)
 
