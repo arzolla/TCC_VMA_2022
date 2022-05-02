@@ -11,8 +11,8 @@ from matplotlib import pyplot as plt
 polygon = np.array([[
     (0, 720),
     (150,720),
-    (250, 600),
-    (470, 600),
+    (240, 600),
+    (480, 600),
     (570, 720),
     (720, 720),
     (470, 420),
@@ -260,8 +260,8 @@ r_count = 0
 
 # thresholds de diferença para excluir a linha nova
 theta_lim = 0.24
-rho_lim = 50
-count_lim = 12
+rho_lim = 20
+count_lim = 15
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
 def filter_strange_line(left_line, right_line):
@@ -351,10 +351,10 @@ holder = Holder()
 accum_pre = Accumulator(2)
 accum_pos = Accumulator(5)
 
-def image_processing4(img_gray):
-    roi_img = get_roi(img_gray)
+def image_processing4(img_bin):
+    #roi_img = get_roi(img_gray)
 
-    skel_img = skeletize_image(roi_img) # esqueletiza a imagem
+    skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
     cv2.imshow('skel img', skel_img)
     lines = hough_transform(skel_img) # todas as linhas detectadas 
@@ -373,7 +373,7 @@ def image_processing4(img_gray):
 
     ########## Mostrar as faixas ######
     # converte para rgb
-    roi_img_rgb = cv2.cvtColor(roi_img,cv2.COLOR_GRAY2RGB)
+    roi_img_rgb = cv2.cvtColor(img_bin,cv2.COLOR_GRAY2RGB)
 
     # mostra as linhas
     display_lines(roi_img_rgb, lines, line_color = (0,0,255), line_width=1)
@@ -514,7 +514,7 @@ def control_monitor(data):
       
     cv2.imshow('rgb with lines', frame)
 
-    data.frame = frame
+    #data.frame = frame
     
     cv2.waitKey(1)
     #data.frame = frame
@@ -532,20 +532,23 @@ def adaptive_threshold(rgb_img):
 
     gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
     cv2.imshow('gray image', gray_img)
-    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
-    roi_img, ROI = get_roi(gray_img, 1)
-    cv2.imshow('roi image', roi_img)
+    gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
+    roi_img_rgb, ROI = get_roi(gray_img, 1)
+    cv2.imshow('roi img rgb', roi_img_rgb)
+    cv2.imshow('gray blurred', gray_img)
 
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    thresh1 = cv2.adaptiveThreshold(gray_img[ROI],254,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+    thresh1 = cv2.adaptiveThreshold(gray_img,254,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
             cv2.THRESH_BINARY_INV,21,6)
     #cv2.imshow('bin image', thresh1)
-    mask = np.zeros_like(gray_img)
-    mask[ROI] = thresh1.reshape(-1)
-    cv2.imshow('bin image', mask)
+    #mask = np.zeros_like(gray_img)
+    #mask[ROI] = thresh1.reshape(-1)
+    cv2.imshow('bin image', thresh1)
+    roi_img, ROI = get_roi(thresh1, 1)
+    cv2.imshow('roi img', roi_img)
     #plt.hist(roi_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
     #plt.show()
-    return mask
+    return roi_img
 
 if __name__ == '__main__':
 
