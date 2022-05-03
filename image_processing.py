@@ -123,7 +123,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_vertical_lines(lines, sine_limit=0.84):
+def filter_vertical_lines(lines, sine_limit=0.6):
 
     ok_lines = []
     if lines is not None:
