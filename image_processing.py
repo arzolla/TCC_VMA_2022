@@ -123,14 +123,14 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_vertical_lines(lines, sine_limit=0.9):
+def filter_vertical_lines(lines, sine_max=0.8, sine_min = 0.4):
 
     ok_lines = []
     if lines is not None:
         for line in lines:
             rho, theta = line[0] 
-
-            if np.sin(theta) < sine_limit:
+            sine = np.sin(theta)
+            if sine < sine_max and sine > sine_min:
                 ok_lines.append(np.array(line))
 
     ok_lines = np.array(ok_lines)
@@ -370,7 +370,7 @@ def image_processing4(rgb_frame):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-
+    print(left_line, right_line)
     ########## Mostrar as faixas ######
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(img_bin,cv2.COLOR_GRAY2RGB)
@@ -557,6 +557,7 @@ if __name__ == '__main__':
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'line2.png'
     path = 'color_curva_suave.png'
+    path = 'color_curva.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
