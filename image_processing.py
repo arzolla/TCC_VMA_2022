@@ -351,8 +351,8 @@ holder = Holder()
 accum_pre = Accumulator(2)
 accum_pos = Accumulator(5)
 
-def image_processing4(img_bin):
-    #roi_img = get_roi(img_gray)
+def image_processing4(rgb_frame):
+    img_bin = adaptive_threshold(rgb_frame)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
@@ -421,18 +421,16 @@ def computer_vision(seg_frame, data):
 
 
 
-
-def computer_vision_teste(seg_frame, data):
-
+def computer_vision_teste(data):
+    seg_frame = data.frame
     if seg_frame is None:
         seg_frame = np.zeros((720,720,3))
     seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
-    mask = adaptive_threshold(seg_frame)
 
     
-    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
+    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(seg_frame)
     control_monitor(data)
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)

@@ -175,13 +175,12 @@ def run_simulation(args, client):
            
             # Envia frame para a função de visão computacional
             seg_frame = Segment.rgb_frame
-            rgb_frame = RGBCamera.rgb_frame
+            data.frame = RGBCamera.rgb_frame
             
             #computer_vision(seg_frame, data)
-            computer_vision_teste(rgb_frame, data)
+            computer_vision_teste(data)
             data.steering = control_main(vehicle, controlador, velocidade, data.theta, data.dx) #precisa retornar erro e steering
 
-            data.frame = rgb_frame
             data.velocidade = velocidade
             data.Kp_theta = controlador.Kp_theta
             data.Kp_dx = controlador.Kp_dx
