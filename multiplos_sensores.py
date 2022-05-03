@@ -59,7 +59,7 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
 try:
     import pygame
     from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x
+    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x, K_i
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -229,6 +229,12 @@ def run_simulation(args, client):
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)                                                  
 
+                    if event.key == K_i: 
+                        
+                        print('Info:')
+                        print('Esquerda:', data.left_line)
+                        print('Direita:', data.right_line)
+                        print('Local do carro:', vehicle.get_transform())
 
                     if event.key == K_ESCAPE or event.key == K_q:
                         call_exit = True
