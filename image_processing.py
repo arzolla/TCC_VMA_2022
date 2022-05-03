@@ -93,7 +93,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 40  # minimal of votes
+    min_threshold = 25  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -123,7 +123,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_vertical_lines(lines, sine_limit=0.6):
+def filter_vertical_lines(lines, sine_limit=0.7):
 
     ok_lines = []
     if lines is not None:
@@ -421,8 +421,8 @@ def computer_vision(seg_frame, data):
 
 
 
-def computer_vision_teste(data):
-    seg_frame = data.frame
+def computer_vision_teste(seg_frame, data):
+    #seg_frame = data.frame
     if seg_frame is None:
         seg_frame = np.zeros((720,720,3))
     seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
@@ -530,14 +530,14 @@ def adaptive_threshold(rgb_img):
 
     gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
     cv2.imshow('gray image', gray_img)
-    gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
+    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
     roi_img_rgb, ROI = get_roi(gray_img, 1)
     cv2.imshow('roi img rgb', roi_img_rgb)
     cv2.imshow('gray blurred', gray_img)
 
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    thresh1 = cv2.adaptiveThreshold(gray_img,254,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv2.THRESH_BINARY_INV,21,6)
+    thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+            cv2.THRESH_BINARY_INV, 21, 8)
     #cv2.imshow('bin image', thresh1)
     #mask = np.zeros_like(gray_img)
     #mask[ROI] = thresh1.reshape(-1)
@@ -570,7 +570,7 @@ if __name__ == '__main__':
         #image_processing_kmeans(img_gray)
         computer_vision_teste(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
-        adaptive_threshold(img_BGR)
+        #adaptive_threshold(img_BGR)
         cv2.waitKey(0)
 
         cv2.destroyAllWindows()
