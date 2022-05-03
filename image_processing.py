@@ -370,7 +370,7 @@ def image_processing4(rgb_frame):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-    print(left_line, right_line)
+#print(left_line, right_line)
     ########## Mostrar as faixas ######
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(img_bin,cv2.COLOR_GRAY2RGB)
