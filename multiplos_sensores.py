@@ -99,9 +99,9 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        
-        ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
-        ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
+        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=-0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
+        #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
+        #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         
         print("Spawn do carro: ",ponto_spawn)
@@ -175,12 +175,13 @@ def run_simulation(args, client):
            
             # Envia frame para a função de visão computacional
             seg_frame = Segment.rgb_frame
-            data.frame = RGBCamera.rgb_frame
+            rgb_frame = RGBCamera.rgb_frame
             
             #computer_vision(seg_frame, data)
-            computer_vision_teste(data)
+            computer_vision_teste(rgb_frame, data)
             data.steering = control_main(vehicle, controlador, velocidade, data.theta, data.dx) #precisa retornar erro e steering
 
+            data.frame = rgb_frame
             data.velocidade = velocidade
             data.Kp_theta = controlador.Kp_theta
             data.Kp_dx = controlador.Kp_dx
