@@ -42,10 +42,15 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
 
     #print(left_line, right_line)
-    
+    k = 0.002
     #print('erro=    ', controlador.last_error)
-    steering = controlador.update(theta, dx) # envia angulo para controlador
+    #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
+    steering = theta + np.arctan(k*(dx/velocidade))
+    if steering > 0.44:
+        steering = 0.44
+    if steering < -0.44:
+        steering = -0.44
 
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
@@ -99,9 +104,9 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
+        #ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
         #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
-        #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
+        ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         
         print("Spawn do carro: ",ponto_spawn)
@@ -141,7 +146,7 @@ def run_simulation(args, client):
         controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
         controlador.setWindup(method='Reset')
         controlador.setOutputLimit(0.44, -0.44) # 1 = 44.93 graus ; 0.44 = 20 graus
-        velocidade = 5
+        velocidade = 10
 
         # classe para gestão dos dados
         data = SimulationData()
