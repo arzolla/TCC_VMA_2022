@@ -31,18 +31,17 @@ import argparse
 
 from image_processing import image_processing4, get_mask, computer_vision, computer_vision_teste, control_monitor, SimulationData
 import cv2
-from PI_control import Control
+from vmaPID import PID
 
-# Função para receber e processar a imagem recebida do simulador
 
-import numpy
+steering = 0
 
 # Função para executar o controle
 def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
-
+    global steering
     #print(left_line, right_line)
-    k = 0.0005
+    k = 0.004
     #print('erro=    ', controlador.last_error)
     #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
@@ -53,17 +52,17 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     print('theta',round(theta))
     theta_n = round(theta*0.025, 5)
     arctan_n = round(np.arctan(k*(dx/velocidade))/1.5, 5)
-    print('theta',theta_n, 'arctan', arctan_n)
-    steering = (theta_n + arctan_n)
+    print('theta_n',theta_n, 'arctan_n', arctan_n)
+    steering_in = (theta_n + arctan_n)
 
-    if steering > 0.5:
-        steering = 0.5
-    if steering < -0.5:
-        steering = -0.5
+    print('steering_in',steering_in)
+    steering = controlador.update(-steering_in)
+    steering = round(steering, 4)
+
+
     print('steering', steering)
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = round(steering, 2))) # aplicando steering 
-
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
 
@@ -148,14 +147,14 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # ganho de dx deve ser positivo e theta deve ser negativo
-        controlador = Control(Kp_theta = 1, Kp_dx = 0.00, Ki_dx = 0.1)
-        #controlador = Control(Kp_theta = -0, Kp_dx = 0.0, Ki_dx = 0.00)
+        controlador = PID(Kp = 0.5, Ki = 0.01, Kd = 0.0001)
+        #controlador = PID(Kp = 0, Ki = 0.00, Kd = 0.00)
         controlador.setSampleTime(0.01)
-        controlador.update(0,0)
-        controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
+        controlador.update(0)
+        controlador.setSetPoint(0) # deve se aproximar do 0
         controlador.setWindup(method='Reset')
-        controlador.setOutputLimit(1, -1) # 1 = 44.93 graus ; 0.4451 = 20 graus
-        velocidade = 1
+        controlador.setOutputLimit(0.5, -0.5) # 1 = 44.93 graus ; 0.4451 = 20 graus
+        velocidade = 8
 
         # classe para gestão dos dados
         data = SimulationData()
@@ -198,9 +197,9 @@ def run_simulation(args, client):
             data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
             data.frame = rgb_frame
             data.velocidade = velocidade
-            data.Kp_theta = controlador.Kp_theta
-            data.Kp_dx = controlador.Kp_dx
-            data.Ki_dx = controlador.Ki_dx
+            # data.Kp_theta = controlador.Kp_theta
+            # data.Kp_dx = controlador.Kp_dx
+            # data.Ki_dx = controlador.Ki_dx
 
             #print('aqui',np.shape(frame))
 
