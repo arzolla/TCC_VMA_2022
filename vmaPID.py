@@ -99,7 +99,7 @@ class PID:
 
         # Calcula resposta do controle
         output = self.PTerm + self.ITerm + self.DTerm
-
+        print('P i D', self.PTerm, self.ITerm, self.DTerm)
         # Limita o output do sistema
         output = self.__saturation(output, self.cmax, self.cmin)
 

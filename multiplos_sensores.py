@@ -51,8 +51,10 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     # steering em fator, para vel = 10, steering 1 => 39.7 graus
     # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
     print('theta',round(theta))
-
-    steering = controlador.update(theta, dx, velocidade)
+    theta_n = round(theta*0.025, 5)
+    arctan_n = round(np.arctan(k*(dx/velocidade))/1.5, 5)
+    print('theta',theta_n, 'arctan', arctan_n)
+    steering = (theta_n + arctan_n)
 
     if steering > 0.5:
         steering = 0.5
@@ -146,11 +148,11 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # ganho de dx deve ser positivo e theta deve ser negativo
-        controlador = Control(Kp_theta = -1, Kp_dx = -1, Ki_dx = 00)
+        controlador = Control(Kp_theta = 1, Kp_dx = 0.00, Ki_dx = 0.1)
         #controlador = Control(Kp_theta = -0, Kp_dx = 0.0, Ki_dx = 0.00)
         controlador.setSampleTime(0.01)
-        controlador.update(0,0,10)
-        controlador.setSetPoint(0, 0) # deve se aproximar de 0
+        controlador.update(0,0)
+        controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
         controlador.setWindup(method='Reset')
         controlador.setOutputLimit(1, -1) # 1 = 44.93 graus ; 0.4451 = 20 graus
         velocidade = 1
