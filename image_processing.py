@@ -529,11 +529,11 @@ def adaptive_threshold(rgb_img):
     #cv2.imshow('rgb image', rgb_img)
 
     gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
-    cv2.imshow('gray image', gray_img)
+    #cv2.imshow('gray image', gray_img)
     gray_img = cv2.GaussianBlur(gray_img,(5,5),0)
     #roi_img_rgb, ROI = get_roi(gray_img, 1)
     #cv2.imshow('roi img rgb', roi_img_rgb)
-    cv2.imshow('gray blurred', gray_img)
+    #cv2.imshow('gray blurred', gray_img)
 
 
 
@@ -548,15 +548,15 @@ def adaptive_threshold(rgb_img):
 
 
 
-    cv2.imshow('gray roi eq', gray_img)
+    #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_roi = cv2.adaptiveThreshold(gray_img[ROI], 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 6)
+    thresh_roi = cv2.adaptiveThreshold(gray_img[ROI], 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 27, 6)
     #cv2.imshow('tresh roii', thresh_roi)
     mask = np.zeros_like(gray_img)
     mask[ROI] = thresh_roi.reshape(-1)
     #cv2.imshow('bin image', thresh1)
-    cv2.imshow('MASK', mask)
+    #cv2.imshow('MASK', mask)
 
     #roi_img, ROI = get_roi(thresh1, 1)
     #cv2.imshow('roi img', roi_img)
@@ -576,7 +576,7 @@ if __name__ == '__main__':
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'line2.png'
     path = 'color_curva_suave.png'
-    #path = 'color_curva.png'
+    path = 'color_curva.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
