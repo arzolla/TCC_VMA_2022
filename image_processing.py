@@ -93,7 +93,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 32  # minimal of votes
+    min_threshold = 35  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -551,12 +551,12 @@ def adaptive_threshold(rgb_img):
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_roi = cv2.adaptiveThreshold(gray_img[ROI], 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
+    thresh_roi = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 6)
     #cv2.imshow('tresh roii', thresh_roi)
     mask = np.zeros_like(gray_img)
-    mask[ROI] = thresh_roi.reshape(-1)
+    mask[ROI] = thresh_roi[ROI]
     #cv2.imshow('bin image', thresh1)
-    #cv2.imshow('MASK', mask)
+    cv2.imshow('MASK', mask)
 
     #roi_img, ROI = get_roi(thresh1, 1)
     #cv2.imshow('roi img', roi_img)
