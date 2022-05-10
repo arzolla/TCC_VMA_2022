@@ -15,8 +15,8 @@ polygon = np.array([[
     (480, 600),
     (570, 720),
     (720, 720),
-    (470, 420),
-    (250, 420)
+    (450, 380),
+    (270, 380)
 
 
 ]], np.int32)
@@ -560,12 +560,11 @@ def adaptive_threshold(rgb_img):
 
     #roi_img, ROI = get_roi(thresh1, 1)
     #cv2.imshow('roi img', roi_img)
-    plt.hist(gray_img[ROI].flatten(),256,[0,256], color = 'r')
-    plt.show()
-    gray_img_eq = cv2.equalizeHist(gray_img[ROI])
-    plt.hist(gray_img_eq.flatten(),256,[0,256], color = 'r')
+    #plt.hist(gray_img[ROI].flatten(),256,[0,256], color = 'r')
+    #plt.show()
+    #plt.hist(gray_img_eq.flatten(),256,[0,256], color = 'r')
 
-    plt.show()
+    #plt.show()
     return mask
 
 if __name__ == '__main__':
