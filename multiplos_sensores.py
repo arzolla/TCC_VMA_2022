@@ -42,16 +42,19 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
 
     #print(left_line, right_line)
-    k = 0.000
+    k = 0.0005
     #print('erro=    ', controlador.last_error)
     #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
 
     # theta em radianos
     # steering em fator, para vel = 10, steering 1 => 39.7 graus
-    # com angulo em graus, fator multiplicativo de 0.025 para converter a 'steering'
+    # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
     print('theta',round(theta))
-    steering = (round(theta) + np.arctan(k*(dx/velocidade)))*0.025
+    theta_n = round(theta*0.025, 5)
+    arctan_n = round(np.arctan(k*(dx/velocidade))/1.5, 5)
+    print('theta',theta_n, 'arctan', arctan_n)
+    steering = (theta_n + arctan_n)
 
     if steering > 0.5:
         steering = 0.5
@@ -59,7 +62,7 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
         steering = -0.5
     print('steering', steering)
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
-    vehicle.apply_control(carla.VehicleControl(steer = steering)) # aplicando steering 
+    vehicle.apply_control(carla.VehicleControl(steer = round(steering, 2))) # aplicando steering 
 
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
@@ -145,14 +148,14 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # ganho de dx deve ser positivo e theta deve ser negativo
-        controlador = Control(Kp_theta = -0.4, Kp_dx = 0.01, Ki_dx = 0.00)
+        controlador = Control(Kp_theta = 1, Kp_dx = 0.00, Ki_dx = 0.1)
         #controlador = Control(Kp_theta = -0, Kp_dx = 0.0, Ki_dx = 0.00)
         controlador.setSampleTime(0.01)
         controlador.update(0,0)
         controlador.setSetPoint(0, 0) # deve se aproximar da coordenada central 360
         controlador.setWindup(method='Reset')
-        controlador.setOutputLimit(0.44, -0.44) # 1 = 44.93 graus ; 0.4451 = 20 graus
-        velocidade = 10
+        controlador.setOutputLimit(1, -1) # 1 = 44.93 graus ; 0.4451 = 20 graus
+        velocidade = 1
 
         # classe para gestão dos dados
         data = SimulationData()
