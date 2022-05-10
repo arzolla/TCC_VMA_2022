@@ -42,23 +42,24 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
 
     #print(left_line, right_line)
-    k = 0.008
+    k = 0.000
     #print('erro=    ', controlador.last_error)
     #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
 
     # theta em radianos
-    # steering em fator, 1 = 44.9 graus
-    print(theta)
-    steering = (0.1*theta + np.arctan(k*(dx/velocidade)))
+    # steering em fator, para vel = 10, steering 1 => 39.7 graus
+    # com angulo em graus, fator multiplicativo de 0.025 para converter a 'steering'
+    print('theta',round(theta))
+    steering = (round(theta) + np.arctan(k*(dx/velocidade)))*0.025
 
-    if steering > 0.44:
-        steering = 0.44
-    if steering < -0.44:
-        steering = -0.44
-
+    if steering > 0.5:
+        steering = 0.5
+    if steering < -0.5:
+        steering = -0.5
+    print('steering', steering)
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
-    vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
+    vehicle.apply_control(carla.VehicleControl(steer = steering)) # aplicando steering 
 
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
@@ -126,7 +127,7 @@ def run_simulation(args, client):
         # Display Manager organize all the sensors an its display in a window
         # If can easily configure the grid and the total window size
         #display_manager = DisplayManager(grid_size=[1, 2], window_size=[args.width, args.height])
-        display_manager = DisplayManager(grid_size=[1, 1], window_size=[args.width, args.height])
+        display_manager = DisplayManager(grid_size=[1, 1], window_size=[720, 720])
 
 
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
