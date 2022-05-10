@@ -4,6 +4,7 @@
 
 
 import time
+import numpy as np
 
 class Control:
     """PI Controller
@@ -56,7 +57,7 @@ class Control:
         return value
             
 
-    def update(self, theta, dx, current_time=None):
+    def update(self, theta, dx, velocidade, current_time=None):
 
         # Se não for inserido tempo atual no update()
         if current_time is None:
@@ -82,8 +83,8 @@ class Control:
 
 
         # Cálculo do termo Proporcional
-        self.PTerm_dx = self.Kp_dx * error_dx
-        self.PTerm_theta = self.Kp_theta * error_theta
+        self.PTerm_dx = np.arctan(0.001*(self.Kp_dx * error_dx/velocidade))/1.5
+        self.PTerm_theta = self.Kp_theta * error_theta * 0.025
 
         # Caso metodo de windup reset esteja habilitado e erro menor q tolerância ou erro atravessou o zero
         if (self.windup_reset is True) and ((abs(error_dx) < self.windup_reset_tolerance) or ((error_dx * self.last_error_dx) < 0)):
