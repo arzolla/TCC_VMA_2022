@@ -112,8 +112,8 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        #ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
-        ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
+        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
+        #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
         #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         
@@ -148,19 +148,19 @@ def run_simulation(args, client):
         #Configurando controlador
         # ganho de dx deve ser positivo e theta deve ser negativo
         controlador = PID(Kp = 0.5, Ki = 0.01, Kd = 0.0001)
-        #controlador = PID(Kp = 0, Ki = 0.00, Kd = 0.00)
+        controlador = PID(Kp = 0, Ki = 0.00, Kd = 0.00)
         controlador.setSampleTime(0.01)
         controlador.update(0)
         controlador.setSetPoint(0) # deve se aproximar do 0
         controlador.setWindup(method='Reset')
         controlador.setOutputLimit(0.5, -0.5) # 1 = 44.93 graus ; 0.4451 = 20 graus
-        velocidade = 8
+        velocidade = 15
 
         # classe para gestão dos dados
         data = SimulationData()
 
 
-        #vehicle.set_autopilot(True)
+        vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
