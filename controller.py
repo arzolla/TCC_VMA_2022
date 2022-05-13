@@ -78,7 +78,7 @@ class Controller:
         dx = self.__filter(dx)
 
         # Cálculo dos termos
-        self.Term_dx = np.arctan(0.001*(self.K_arctan * dx/velocidade)) * self.K_dx
+        self.Term_dx = np.arctan(self.K_arctan * (dx/velocidade)) * self.K_dx
         self.Term_theta = self.K_theta * theta
 
 
