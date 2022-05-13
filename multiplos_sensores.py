@@ -49,18 +49,18 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     # theta em radianos
     # steering em fator, para vel = 10, steering 1 => 39.7 graus
     # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-    print('theta',round(theta))
+    #print('theta',round(theta))
     theta_n = round(theta*0.025, 5)
     arctan_n = round(np.arctan(k*(dx/velocidade))/1.5, 5)
-    print('theta_n',theta_n, 'arctan_n', arctan_n)
+    #print('theta_n',theta_n, 'arctan_n', arctan_n)
     steering_in = (theta_n + arctan_n)
 
-    print('steering_in',steering_in)
+    #print('steering_in',steering_in)
     steering = controlador.update(-steering_in)
     steering = round(steering, 4)
 
 
-    print('steering', steering)
+    #print('steering', steering)
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = round(steering, 2))) # aplicando steering 
     #print('steering:', vehicle.get_control().steer)           # lendo steering
@@ -86,8 +86,6 @@ def run_simulation(args, client):
     vehicle = None
     vehicle_list = []
     timer = CustomTimer()
-
-
 
 
     try:
