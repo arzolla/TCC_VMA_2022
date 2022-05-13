@@ -259,9 +259,9 @@ l_count = 0
 r_count = 0
 
 # thresholds de diferença para excluir a linha nova
-theta_lim = 0.24
-rho_lim = 20
-count_lim = 15
+theta_lim = 0.35
+rho_lim = 100
+count_lim = 25
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
 def filter_strange_line(left_line, right_line):
@@ -281,9 +281,9 @@ def filter_strange_line(left_line, right_line):
         left_antiga = left_line # armazena linha nova
         l_count = 0 # zera contador sempre que utilizar linha nova
     else: # se for muito diferente da linha antiga
-        left_ok = get_average_line([left_antiga[0], left_line[0]]) # Pega a média da antiga com a nova
+        left_ok = left_antiga # Pega a faixa antiga
         l_count = l_count + 1 # incrementa contador quando utilizar linha antiga
-        print('pegou LEFT antiga, count',l_count)
+        print('pegou LEFT antiga, count',l_count, left_line, left_antiga)
 
 
     # if right_antiga is None:
@@ -300,9 +300,9 @@ def filter_strange_line(left_line, right_line):
         right_antiga = right_line # armazena linha nova
         r_count = 0 # zera contador sempre que utilizar linha nova
     else: # se for muito diferente da linha antiga
-        right_ok = get_average_line([right_antiga[0], right_line[0]]) # Pega a média da antiga com a nova
+        right_ok = right_antiga # Pega a faixa antiga
         r_count = r_count + 1  # incrementa contador quando utilizar linha antiga
-        print('pegou RIGHT antiga, count',r_count)    
+        print('pegou RIGHT antiga, count',r_count, right_line, right_antiga)    
 
 
     return left_ok, right_ok
