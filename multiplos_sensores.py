@@ -44,9 +44,10 @@ def control_main(vehicle, control, velocidade, theta, dx):
     steering = control.update(theta, dx, velocidade)
 
 
-    print('steering', steering)
+    
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
-    #vehicle.apply_control(carla.VehicleControl(steer = round(steering, 2))) # aplicando steering 
+    vehicle.apply_control(carla.VehicleControl(steer = round(float(steering), 4))) # aplicando steering
+    print('steering', steering, theta, dx)
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
 
@@ -96,7 +97,7 @@ def run_simulation(args, client):
         #bp = veiculo_escolhido
         ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
         #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
-        #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
+        ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         
         print("Spawn do carro: ",ponto_spawn)
@@ -131,11 +132,11 @@ def run_simulation(args, client):
         # theta em radianos
         # steering em fator, para vel = 10, steering 1 => 39.7 graus
         # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-        control = Controller(K_theta=1, K_dx=0.65, K_arctan=0.004)
+        control = Controller(K_theta=0.01, K_dx=0.65, K_arctan=0.003)
         control.setFilter()
         control.setOutputLimit(0.5, -0.5)
 
-        velocidade = 15
+        velocidade = 8
 
         # classe para gestão dos dados
         data = SimulationData()
