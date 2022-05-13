@@ -50,7 +50,7 @@ class Controller:
     def __filter(self, input):
         if self.zi is None:
             return input
-        output, _ = signal.lfilter(self.num, self.den, input, zi=self.zi*input[0])  
+        output, _ = signal.lfilter(self.num, self.den, input, zi=self.zi)  
         return output
 
     def update(self, theta, dx, velocidade, current_time=None):
@@ -97,7 +97,7 @@ class Controller:
     def setFilter(self, n=1, wn=0.02):
         """Define os parâmetros do filtro Butterworth a ser aplicado nas entradas"""
         self.num, self.den = signal.butter(n, wn)
-        self.zi = signal.lfilter_zi(self.num, self.den)
+        self.zi = np.zeros(self.num.size-1)
 
     def setKp(self, Kp_theta, Kp_dx):
         """Determines how aggressively the PID reacts to the current error with setting Proportional Gain"""
