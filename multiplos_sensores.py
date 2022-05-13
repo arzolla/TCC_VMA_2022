@@ -31,41 +31,17 @@ import argparse
 
 from image_processing import image_processing4, get_mask, computer_vision, computer_vision_teste, control_monitor, SimulationData
 import cv2
-from vmaPID import PID
+from controller import Controller
 
 
-steering = 0
-
-f_theta = open("theta.txt", "a")
-f_dx = open("dx.txt", "a")
-f_time = open("time.txt", "a")
 
 # Função para executar o controle
-def control_main(vehicle, controlador, velocidade, theta, dx):
-    #print(frame)
-    global steering, f_theta, f_dx, f_time
-    #print(left_line, right_line)
-    k = 0.004
-    #print('erro=    ', controlador.last_error)
-    #steering = controlador.update(theta, dx) # envia angulo para controlador
-    #print('steering=', steering)
+def control_main(vehicle, control, velocidade, theta, dx):
 
-    f_theta.write(str(theta)+', ')
-    f_dx.write(str(dx)+', ')
-    f_time.write(str(time.time())+', ')
+    #print(left_line, right_line)   
 
-    # theta em radianos
-    # steering em fator, para vel = 10, steering 1 => 39.7 graus
-    # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-    #print('theta',round(theta))
-    theta_n = round(theta*0.025, 5)
-    arctan_n = round(np.arctan(k*(dx/velocidade))/1.5, 5)
-    #print('theta_n',theta_n, 'arctan_n', arctan_n)
-    steering_in = (theta_n + arctan_n)
 
-    #print('steering_in',steering_in)
-    steering = controlador.update(-steering_in)
-    steering = round(steering, 4)
+    steering = control.update(theta, dx, velocidade)
 
 
     #print('steering', steering)
@@ -152,14 +128,13 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        # ganho de dx deve ser positivo e theta deve ser negativo
-        controlador = PID(Kp = 0.5, Ki = 0.01, Kd = 0.0001)
-        controlador = PID(Kp = 0, Ki = 0.00, Kd = 0.00)
-        controlador.setSampleTime(0.01)
-        controlador.update(0)
-        controlador.setSetPoint(0) # deve se aproximar do 0
-        controlador.setWindup(method='Reset')
-        controlador.setOutputLimit(0.5, -0.5) # 1 = 44.93 graus ; 0.4451 = 20 graus
+        # theta em radianos
+        # steering em fator, para vel = 10, steering 1 => 39.7 graus
+        # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
+        control = Controller(K_theta=1, K_dx=0.65, K_arctan=0.004)
+        control.setFilter()
+        control.setOutputLimit(0.5, -0.5)
+
         velocidade = 15
 
         # classe para gestão dos dados
@@ -198,7 +173,7 @@ def run_simulation(args, client):
             
             #computer_vision(seg_frame, data)
             computer_vision_teste(rgb_frame, data)
-            control_main(vehicle, controlador, velocidade, data.theta, data.dx) #precisa retornar erro e steering
+            control_main(vehicle, control, velocidade, data.theta, data.dx) #precisa retornar erro e steering
 
             data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
             data.frame = rgb_frame
@@ -228,7 +203,7 @@ def run_simulation(args, client):
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
 
-                    if event.key == K_a:
+                    '''if event.key == K_a:
                         new_kp =  controlador.Kp_theta+0.0001
                         if new_kp < 0: 
                             controlador.setKp(new_kp)
@@ -248,7 +223,7 @@ def run_simulation(args, client):
                         new_vel =  velocidade-0.5
                         if new_vel > 0:
                             velocidade = new_vel
-                            print('Diminuindo velocidade para:',velocidade)
+                            print('Diminuindo velocidade para:',velocidade)'''
                     if event.key == K_x: 
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)                                                  
