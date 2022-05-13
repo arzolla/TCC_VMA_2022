@@ -50,8 +50,8 @@ def control_main(vehicle, controlador, velocidade, theta, dx):
     #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
 
-    f_theta.write(theta)
-    f_dx.write(theta)
+    f_theta.write(str(theta))
+    f_dx.write(str(dx))
 
     # theta em radianos
     # steering em fator, para vel = 10, steering 1 => 39.7 graus
