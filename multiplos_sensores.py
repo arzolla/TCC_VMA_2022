@@ -38,20 +38,21 @@ steering = 0
 
 f_theta = open("theta.txt", "a")
 f_dx = open("dx.txt", "a")
-
+f_time = open("time.txt", "a")
 
 # Função para executar o controle
 def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
-    global steering, f_theta, f_dx
+    global steering, f_theta, f_dx, f_time
     #print(left_line, right_line)
     k = 0.004
     #print('erro=    ', controlador.last_error)
     #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
 
-    f_theta.write(str(theta))
-    f_dx.write(str(dx))
+    f_theta.write(str(theta)+', ')
+    f_dx.write(str(dx)+', ')
+    f_time.write(str(time.time())+', ')
 
     # theta em radianos
     # steering em fator, para vel = 10, steering 1 => 39.7 graus
@@ -265,8 +266,6 @@ def run_simulation(args, client):
 
             if call_exit:
                 print('Saindo ....')
-                f_theta.close()
-                f_dx.close()
                 break
 
     finally:
