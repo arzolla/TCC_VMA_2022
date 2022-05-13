@@ -74,8 +74,8 @@ class Controller:
             return self.last_output
 
         # Filtra as entradas
-        theta = self.__filter(theta, 6)
-        dx = self.__filter(dx, 6)
+        theta = self.__filter(theta)
+        dx = self.__filter(dx)
 
         # Cálculo dos termos
         self.Term_dx = np.arctan(0.001*(self.K_arctan * dx/velocidade)) * self.K_dx
