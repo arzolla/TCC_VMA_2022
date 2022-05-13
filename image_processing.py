@@ -259,7 +259,7 @@ l_count = 0
 r_count = 0
 
 # thresholds de diferença para excluir a linha nova
-theta_lim = 0.35
+theta_lim = 0.20
 rho_lim = 100
 count_lim = 25
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
