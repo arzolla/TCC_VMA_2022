@@ -142,7 +142,7 @@ def run_simulation(args, client):
         data = SimulationData()
 
 
-        vehicle.set_autopilot(True)
+        #vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
