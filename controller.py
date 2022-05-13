@@ -48,9 +48,9 @@ class Controller:
         return value
 
     def __filter(self, input):
-        if self.zi is None:
+        if self.zi is None or input is None:
             return input
-        output, _ = signal.lfilter(self.num, self.den, input, zi=self.zi)  
+        output, _ = signal.lfilter(self.num, self.den, [input], zi=self.zi)  
         return output
 
     def update(self, theta, dx, velocidade, current_time=None):
@@ -74,12 +74,12 @@ class Controller:
             return self.last_output
 
         # Filtra as entradas
-        theta = self.__filter(theta)
-        dx = self.__filter(dx)
+        theta = self.__filter(theta, 6)
+        dx = self.__filter(dx, 6)
 
         # Cálculo dos termos
         self.Term_dx = np.arctan(0.001*(self.K_arctan * dx/velocidade)) * self.K_dx
-        self.Term_theta = self.Kp_theta * theta
+        self.Term_theta = self.K_theta * theta
 
 
         # Calcula resposta do controle
