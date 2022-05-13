@@ -36,15 +36,22 @@ from vmaPID import PID
 
 steering = 0
 
+f_theta = open("theta.txt", "a")
+f_dx = open("dx.txt", "a")
+
+
 # Função para executar o controle
 def control_main(vehicle, controlador, velocidade, theta, dx):
     #print(frame)
-    global steering
+    global steering, f_theta, f_dx
     #print(left_line, right_line)
     k = 0.004
     #print('erro=    ', controlador.last_error)
     #steering = controlador.update(theta, dx) # envia angulo para controlador
     #print('steering=', steering)
+
+    f_theta.write(theta)
+    f_dx.write(theta)
 
     # theta em radianos
     # steering em fator, para vel = 10, steering 1 => 39.7 graus
@@ -258,6 +265,8 @@ def run_simulation(args, client):
 
             if call_exit:
                 print('Saindo ....')
+                f_theta.close()
+                f_dx.close()
                 break
 
     finally:
