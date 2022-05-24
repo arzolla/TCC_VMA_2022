@@ -91,7 +91,7 @@ class Controller:
         # Salva os valores atuais para próxima chamada de atualização
         self.last_time = current_time
         self.last_output = output
-
+        print('steering', output, self.Term_theta, self.Term_dx)
         return output
 
     def setFilter(self, n=1, wn=0.02):

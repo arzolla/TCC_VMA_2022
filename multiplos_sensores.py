@@ -47,7 +47,7 @@ def control_main(vehicle, control, velocidade, theta, dx):
     
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = round(float(steering), 4))) # aplicando steering
-    print('steering', steering, theta, dx)
+    #print('steering', steering, theta, dx)
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
 
@@ -132,11 +132,12 @@ def run_simulation(args, client):
         # theta em radianos
         # steering em fator, para vel = 10, steering 1 => 39.7 graus
         # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-        control = Controller(K_theta=0.01, K_dx=0.65, K_arctan=0.003)
+        control = Controller(K_theta=0.1, K_dx=0.65, K_arctan=0.08)
+        #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
         control.setFilter()
-        control.setOutputLimit(0.5, -0.5)
+        #control.setOutputLimit(0.5, -0.5)
 
-        velocidade = 8
+        velocidade = 4
 
         # classe para gestão dos dados
         data = SimulationData()
@@ -219,12 +220,12 @@ def run_simulation(args, client):
                             print('Aumentando Kp_dx para:',controlador.Kd)
                     if event.key == K_f: 
                         controlador.setKd(controlador.Kp_dx-0.00001)
-                        print('Diminuindo Kp_dx para:',controlador.Kd)
+                        print('Diminuindo Kp_dx para:',controlador.Kd)'''
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
                         if new_vel > 0:
                             velocidade = new_vel
-                            print('Diminuindo velocidade para:',velocidade)'''
+                            print('Diminuindo velocidade para:',velocidade)
                     if event.key == K_x: 
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)                                                  
