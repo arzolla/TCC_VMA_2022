@@ -117,8 +117,8 @@ def run_simulation(args, client):
 
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
         # and assign each of them to a grid position, 
-        RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
-                      vehicle, {}, display_pos=[0, 0])
+        RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=1.2, z=1.4), carla.Rotation(pitch=-15, yaw=0)), 
+                      vehicle, {'fov' : '30'}, display_pos=[0, 0])
         # Segment = SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)), 
         #               vehicle, {}, display_pos=[0, 1])
         '''SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
@@ -133,7 +133,7 @@ def run_simulation(args, client):
         # steering em fator, para vel = 10, steering 1 => 39.7 graus
         # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
         control = Controller(K_theta=0.1, K_dx=0.65, K_arctan=0.08)
-        #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
+        control = Controller(K_theta=0, K_dx=0, K_arctan=0)
         control.setFilter()
         #control.setOutputLimit(0.5, -0.5)
 
@@ -143,7 +143,7 @@ def run_simulation(args, client):
         data = SimulationData()
 
 
-        #vehicle.set_autopilot(True)
+        vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
