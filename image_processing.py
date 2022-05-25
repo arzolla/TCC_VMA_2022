@@ -352,7 +352,12 @@ accum_pre = Accumulator(2)
 accum_pos = Accumulator(7)
 
 def image_processing4(rgb_frame):
-    img_bin = adaptive_threshold(rgb_frame)
+
+    bird_img = bird_eyes(rgb_frame)
+
+    cv2.imshow('birds', bird_img)
+
+    img_bin = adaptive_threshold(bird_img)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
@@ -360,7 +365,7 @@ def image_processing4(rgb_frame):
     lines = hough_transform(skel_img) # todas as linhas detectadas 
 
 
-    lines = filter_vertical_lines(lines) # descarta linhas com angulo muito horizontal
+    #lines = filter_vertical_lines(lines) # descarta linhas com angulo muito horizontal
     
 
 
@@ -556,8 +561,8 @@ def adaptive_threshold(rgb_img):
     mask = np.zeros_like(gray_img)
     mask[ROI] = thresh_roi[ROI]
     #cv2.imshow('bin image', thresh1)
+    mask = thresh_roi
     cv2.imshow('MASK', mask)
-
     #roi_img, ROI = get_roi(thresh1, 1)
     #cv2.imshow('roi img', roi_img)
     #plt.hist(gray_img[ROI].flatten(),256,[0,256], color = 'r')
@@ -569,10 +574,10 @@ def adaptive_threshold(rgb_img):
 
 def bird_eyes(image):
     # targeted rectangle on original image which needs to be transformed
-    tl = [297, 435]
-    tr = [423, 435]
-    br = [660, 720]
-    bl = [60, 720]
+    tl = [145, 80]
+    tr = [575, 80]
+    br = [720, 175]
+    bl = [0, 175]
 
     corner_points_array = np.float32([tl,tr,br,bl])
 
@@ -590,7 +595,10 @@ def bird_eyes(image):
     # Compute and return the transformation matrix
     matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
     img_transformed = cv2.warpPerspective(image,matrix,(width,height))
-    cv2.imshow('birds', img_transformed)
+    #display_lines_2pts(img_transformed, [360,0], [360,720], line_color = (200,21,21), line_width=1)
+    #display_lines_2pts(img_transformed, [0,360], [720,360], line_color = (200,21,21), line_width=1)
+
+    return img_transformed
 
 
 if __name__ == '__main__':
@@ -601,9 +609,11 @@ if __name__ == '__main__':
     #path = 'perfeito.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
     #path = 'line2.png'
-    path = 'color_curva_suave.png'
-    path = 'color_curva.png'
+    #path = 'color_curva_suave.png'
+    #path = 'color_curva.png'
     #path = 'static_road_color.png'
+    path = 'ideal_fov30.png'
+    path = 'curva_fov30.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
@@ -615,7 +625,7 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        #computer_vision_teste(img_BGR, data)
+        computer_vision_teste(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
         bird_eyes(img_BGR)
