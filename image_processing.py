@@ -567,6 +567,32 @@ def adaptive_threshold(rgb_img):
     #plt.show()
     return mask
 
+def bird_eyes(image):
+    # targeted rectangle on original image which needs to be transformed
+    tl = [297, 435]
+    tr = [423, 435]
+    br = [660, 720]
+    bl = [60, 720]
+
+    corner_points_array = np.float32([tl,tr,br,bl])
+
+    # original image dimensions
+    width = 720
+    height = 720
+
+    # Create an array with the parameters (the dimensions) required to build the matrix
+    imgTl = [0,0]
+    imgTr = [width,0]
+    imgBr = [width,height]
+    imgBl = [0,height]
+    img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
+
+    # Compute and return the transformation matrix
+    matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
+    img_transformed = cv2.warpPerspective(image,matrix,(width,height))
+    cv2.imshow('birds', img_transformed)
+
+
 if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
@@ -577,6 +603,7 @@ if __name__ == '__main__':
     #path = 'line2.png'
     path = 'color_curva_suave.png'
     path = 'color_curva.png'
+    #path = 'static_road_color.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
@@ -588,9 +615,10 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        computer_vision_teste(img_BGR, data)
+        #computer_vision_teste(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
+        bird_eyes(img_BGR)
         cv2.waitKey(0)
 
         cv2.destroyAllWindows()
