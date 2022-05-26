@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing4, get_mask, computer_vision, computer_vision_teste, control_monitor, SimulationData
+from image_processing import image_processing4, get_mask, computer_vision, computer_vision_rgb, control_monitor, SimulationData
 import cv2
 from controller import Controller
 
@@ -175,7 +175,7 @@ def run_simulation(args, client):
             rgb_frame = RGBCamera.rgb_frame
             
             #computer_vision(seg_frame, data)
-            computer_vision_teste(rgb_frame, data)
+            computer_vision_rgb(rgb_frame, data)
             control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
             data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
