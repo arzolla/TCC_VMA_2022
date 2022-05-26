@@ -176,7 +176,7 @@ def run_simulation(args, client):
             
             #computer_vision(seg_frame, data)
             computer_vision_teste(rgb_frame, data)
-            control_main(vehicle, control, velocidade, data.theta, data.dx) #precisa retornar erro e steering
+            control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
             data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
             data.velocidade = velocidade
