@@ -314,25 +314,14 @@ def get_mid_line(left_line, right_line):
     if left_line  is not None and right_line is not None:
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
-
+        print(left_line, right_line)
         
-        theta = (theta1 + theta2)/2 # angulo médio
-        intersec = intersection(left_line, right_line)
-        #print(intersec)
-        #print(delta)
-        hh = 720
-        H = hh-intersec[1]
-        #print(H)
-        dx = (H)*np.tan(theta)
-        bisec_x = 360 + dx
-        #print(x)
-        bisec_y = int(round(hh))
-        
+        psi = (theta1 + theta2)/2 # yaw error
+        rho = (rho1 + rho2)/2
+        del_x = 0
 
-        del_x = bisec_x - 360
-        #print(intersec, [dx, dy])
 
-        return [int(round(bisec_x)), bisec_y], intersec, np.rad2deg(theta), del_x
+        return [[[rho, psi]]], np.rad2deg(psi), del_x
 
     
 holder = Holder()
@@ -399,11 +388,11 @@ def image_processing4(rgb_frame):
 
 
     # encontra os parâmetros
-    bisec_pt, intersec, theta, del_x = get_mid_line(left_line, right_line)
+    mid_line, psi, del_x = get_mid_line(left_line, right_line)
 
 
 
-    return bird_img, left_line, right_line, bisec_pt, intersec, theta, del_x
+    return bird_img, left_line, right_line, mid_line, psi, del_x
 
 
 
@@ -431,7 +420,7 @@ def computer_vision_teste(rgb_frame, data):
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
 
-    data.frame, data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(rgb_frame)
+    data.frame, data.left_line, data.right_line, data.mid_line, data.psi, data.dx = image_processing4(rgb_frame)
     control_monitor(data)
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
@@ -442,9 +431,8 @@ class SimulationData:
                     self, frame = None, 
                     left_line = None, 
                     right_line = None, 
-                    bisec_pt = None, 
-                    intersec = None, 
-                    theta = 0,
+                    mid_line = None, 
+                    psi = 0,
                     dx = 0, 
                     steering = 0, 
                     Kp_theta = 0,
@@ -456,9 +444,8 @@ class SimulationData:
         self.frame = frame
         self.left_line = left_line
         self.right_line = right_line
-        self.bisec_pt = bisec_pt
-        self.intersec = intersec
-        self.theta = theta
+        self.mid_line = mid_line
+        self.psi = psi
         self.dx = dx
         self.steering = steering
         self.Kp_theta = Kp_theta
@@ -470,8 +457,7 @@ class SimulationData:
 def control_monitor(data):
 
     frame = data.frame
-    bisec_pt = data.bisec_pt
-    intersec = data.intersec
+    mid_line = data.mid_line
 
 
     if frame is None:
@@ -488,16 +474,16 @@ def control_monitor(data):
         # linhas (em verde)
         display_lines(frame, data.left_line)
         display_lines(frame, data.right_line)
-
+        display_lines(frame, data.mid_line, line_color = (255,0,255))
         # triangulo (em magenta)
-        display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
-        display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-        display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
-        write_on_screen(frame, ('Theta: '+str(round(data.theta,3))+' degree'), [intersec[0]-40, intersec[1]-20], (255,0,255), size = 0.5, thick = 2)
+        #display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
+        #display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
+        #display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
+        write_on_screen(frame, ('Theta: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
-        display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [bisec_pt[0]-40, bisec_pt[1]-20], (51,251,255), size = 0.5, thick = 2) 
+        #display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
+        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [40, 20], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,5))), (10,50), (255,255,255))
     if  data.steering > 0:
