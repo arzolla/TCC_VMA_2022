@@ -2,37 +2,25 @@
 
 # Feito por Victor de Mattos Arzolla
 
+from msilib.schema import Class
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
 
-# only focus bottom half of the screen
-polygon = np.array([[
-    (0, 720),
-    (150,720),
-    (240, 600),
-    (480, 600),
-    (570, 720),
-    (720, 720),
-    (450, 400),
-    (270, 400)
+def get_roi(image):
 
+    height, width = image.shape
+    half = np.zeros_like
+    left_img = image[0:int(height), 0:int(width/2)]
+    right_img = image[0:height, int(width/2):width]
+    half = np.zeros_like(left_img)
+    left_img = np.concatenate((left_img, half), axis=1)
+    right_img = np.concatenate((half, right_img), axis=1)
 
-]], np.int32)
+    return left_img, right_img
 
-def get_roi(edges, roi = None):
-    height, width = edges.shape
-    mask = np.zeros_like(edges)
-
-    global polygon
-
-    cv2.fillPoly(mask, polygon, 255)
-    cropped_edges = cv2.bitwise_and(edges, mask)
-    if roi is None:
-        return cropped_edges
-    ROI = np.nonzero(mask)
-    return cropped_edges, ROI
+ 
 
 
 def draw_vanishing_point(img):
@@ -351,6 +339,8 @@ holder = Holder()
 accum_pre = Accumulator(2)
 accum_pos = Accumulator(7)
 
+
+
 def image_processing4(rgb_frame):
 
     bird_img = bird_eyes(rgb_frame)
@@ -361,27 +351,34 @@ def image_processing4(rgb_frame):
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
-    cv2.imshow('skel img', skel_img)
-    lines = hough_transform(skel_img) # todas as linhas detectadas 
+    left_img, right_img = get_roi(skel_img)
 
+    #vis = np.concatenate((left_img, right_img), axis=1)
+
+    cv2.imshow('skel img', skel_img)
+
+
+    left_lines = hough_transform(left_img) # todas as linhas detectadas 
+    right_lines = hough_transform(right_img)
 
     #lines = filter_vertical_lines(lines) # descarta linhas com angulo muito horizontal
     
 
 
-    left_lines, right_lines  = sort_left_right(lines)
+    #left_lines, right_lines  = sort_left_right(lines)
 
 
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
 
-#print(left_line, right_line)
+    #print(left_line, right_line)
     ########## Mostrar as faixas ######
     # converte para rgb
-    roi_img_rgb = cv2.cvtColor(img_bin,cv2.COLOR_GRAY2RGB)
+    roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # mostra as linhas
-    display_lines(roi_img_rgb, lines, line_color = (0,0,255), line_width=1)
+    display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
+    display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
  
@@ -395,18 +392,18 @@ def image_processing4(rgb_frame):
     #left_line, right_line = accum_pre.accumulate(left_line, right_line)
 
     # filtrar antes de pegar a média?
-    left_line, right_line = filter_strange_line(left_line, right_line)
+    #left_line, right_line = filter_strange_line(left_line, right_line)
 
-    left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
 
 
     # encontra os parâmetros
-    bisec_pt, intersec, theta, del_x = get_bisector(left_line,right_line)
+    bisec_pt, intersec, theta, del_x = get_bisector(left_line, right_line)
 
 
 
-    return left_line, right_line, bisec_pt, intersec, theta, del_x
+    return bird_img, left_line, right_line, bisec_pt, intersec, theta, del_x
 
 
 
@@ -426,16 +423,15 @@ def computer_vision(seg_frame, data):
 
 
 
-def computer_vision_teste(seg_frame, data):
+def computer_vision_teste(rgb_frame, data):
     #seg_frame = data.frame
-    if seg_frame is None:
-        seg_frame = np.zeros((720,720,3))
-    seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
+    if rgb_frame is None:
+        rgb_frame = np.zeros((720,720,3))
+    rgb_frame = np.ascontiguousarray(rgb_frame, dtype=np.uint8)
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
 
-    
-    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(seg_frame)
+    data.frame, data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(rgb_frame)
     control_monitor(data)
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
@@ -541,9 +537,7 @@ def adaptive_threshold(rgb_img):
     #cv2.imshow('gray blurred', gray_img)
 
 
-
-    roi_img, ROI = get_roi(gray_img, 1)
-    cv2.imshow('roi img', roi_img)
+    cv2.imshow('roi img', gray_img)
 
     # gray_img_eq = cv2.equalizeHist(gray_img[ROI])
     # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
@@ -556,21 +550,13 @@ def adaptive_threshold(rgb_img):
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_roi = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 6)
-    #cv2.imshow('tresh roii', thresh_roi)
-    mask = np.zeros_like(gray_img)
-    mask[ROI] = thresh_roi[ROI]
-    #cv2.imshow('bin image', thresh1)
-    mask = thresh_roi
-    cv2.imshow('MASK', mask)
-    #roi_img, ROI = get_roi(thresh1, 1)
-    #cv2.imshow('roi img', roi_img)
-    #plt.hist(gray_img[ROI].flatten(),256,[0,256], color = 'r')
-    #plt.show()
-    #plt.hist(gray_img_eq.flatten(),256,[0,256], color = 'r')
+    thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 6)
+    cv2.imshow('tresh img', thresh_img)
+
+
 
     #plt.show()
-    return mask
+    return thresh_img
 
 def bird_eyes(image):
     # targeted rectangle on original image which needs to be transformed
@@ -581,20 +567,17 @@ def bird_eyes(image):
 
     corner_points_array = np.float32([tl,tr,br,bl])
 
-    # original image dimensions
-    width = 720
-    height = 720
 
     # Create an array with the parameters (the dimensions) required to build the matrix
-    imgTl = [0,0]
-    imgTr = [width,0]
-    imgBr = [width,height]
-    imgBl = [0,height]
+    imgTl = [0, 0]
+    imgTr = [720, 0]
+    imgBr = [720, 720]
+    imgBl = [0, 720]
     img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
 
     # Compute and return the transformation matrix
     matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
-    img_transformed = cv2.warpPerspective(image,matrix,(width,height))
+    img_transformed = cv2.warpPerspective(image,matrix,(720, 720))
     #display_lines_2pts(img_transformed, [360,0], [360,720], line_color = (200,21,21), line_width=1)
     #display_lines_2pts(img_transformed, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
