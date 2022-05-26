@@ -129,7 +129,7 @@ def get_average_line(line_list):
     theta_sum = 0
     avg = []
     #print('linelist',line_list, np.shape(line_list), type(line_list))
-    if line_list != []:
+    if len(line_list) != 0:
         for line in line_list:
             rho, theta = line[0]
 
@@ -226,10 +226,10 @@ class Holder:
 
         # Caso faixa não esteja vazia
         # salva a faixa atual nas variaveis instanciadas na classe
-        if left_line != []:
+        if len(left_line) != 0:
             self.left_line = left_line
 
-        if right_line != []:
+        if len(right_line) != 0:
             self.right_line = right_line
 
         
@@ -309,14 +309,14 @@ def intersection(line1, line2):
     return [x0, y0]
 
 
-def get_bisector(left_line, right_line):
+def get_mid_line(left_line, right_line):
     #print('left', left_line[0])
     if left_line  is not None and right_line is not None:
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
 
         
-        theta = (np.pi - (theta1 + theta2))/2 # angulo da bissetriz com a vertical
+        theta = (theta1 + theta2)/2 # angulo médio
         intersec = intersection(left_line, right_line)
         #print(intersec)
         #print(delta)
@@ -399,7 +399,7 @@ def image_processing4(rgb_frame):
 
 
     # encontra os parâmetros
-    bisec_pt, intersec, theta, del_x = get_bisector(left_line, right_line)
+    bisec_pt, intersec, theta, del_x = get_mid_line(left_line, right_line)
 
 
 
