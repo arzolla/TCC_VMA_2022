@@ -70,14 +70,15 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_vertical_lines(lines, sine_max=0.8, sine_min = 0.4):
+def filter_vertical_lines(lines, deg_max = 20):
 
     ok_lines = []
     if lines is not None:
         for line in lines:
-            rho, theta = line[0] 
-            sine = np.sin(theta)
-            if sine < sine_max and sine > sine_min:
+            rho, theta = line[0]
+            print(theta) 
+            deg_var = abs(np.rad2deg(theta)-180)
+            if deg_max > deg_var:
                 ok_lines.append(np.array(line))
 
     ok_lines = np.array(ok_lines)
@@ -265,7 +266,7 @@ def get_mid_line(left_line, right_line):
         del_x = 0
 
 
-        return [[[rho, psi]]], np.rad2deg(psi), del_x
+        return [[[rho, psi]]], np.rad2deg(psi) - 180, del_x
 
     
 holder = Holder()
@@ -294,8 +295,8 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    #lines = filter_vertical_lines(lines) # descarta linhas com angulo muito horizontal
-    
+    left_lines = filter_vertical_lines(left_lines) # descarta linhas com angulo muito horizontal
+    right_lines = filter_vertical_lines(right_lines) # descarta linhas com angulo muito horizontal
 
 
     #left_lines, right_lines  = sort_left_right(lines)
@@ -408,7 +409,7 @@ def control_monitor(data):
         #display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
         #display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
         #display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
-        write_on_screen(frame, ('Theta: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
+        write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
         #display_lines_2pts(frame, bisec_pt, [360, bisec_pt[1]], line_color = (51,251,255), line_width=3)
@@ -508,7 +509,7 @@ if __name__ == '__main__':
     #path = 'color_curva_suave.png'
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
-    path = 'ideal_fov30.png'
+    #path = 'ideal_fov30.png'
     path = 'curva_fov30.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
