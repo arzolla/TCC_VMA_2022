@@ -77,7 +77,7 @@ def filter_by_angle(lines, deg_max = 20):
         for line in lines:
             rho, theta = line[0]
             print(theta) 
-            deg_var = abs(np.rad2deg(theta)-180)
+            deg_var = abs(np.rad2deg(theta))-180
             if deg_max > deg_var:
                 ok_lines.append(np.array(line))
 
@@ -510,7 +510,8 @@ if __name__ == '__main__':
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
     #path = 'ideal_fov30.png'
-    path = 'curva_fov30.png'
+    path = 'curva_fov30_left.png'
+    path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
