@@ -179,7 +179,6 @@ def run_simulation(args, client):
             control_main(vehicle, control, velocidade, data.theta, data.dx) #precisa retornar erro e steering
 
             data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
-            data.frame = rgb_frame
             data.velocidade = velocidade
             # data.Kp_theta = controlador.Kp_theta
             # data.Kp_dx = controlador.Kp_dx
