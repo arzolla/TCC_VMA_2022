@@ -2,7 +2,6 @@
 
 # Feito por Victor de Mattos Arzolla
 
-from msilib.schema import Class
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
@@ -21,46 +20,6 @@ def get_roi(image):
     return left_img, right_img
 
  
-
-
-def draw_vanishing_point(img):
-    start_point_1 = (97, 720)
-    end_point_1 = (623, 0)
-
-    start_point_2 = (623, 720)
-    end_point_2 = (97, 0)
-    
-
-    # linhas 505 e 560
-
-    # Green color in BGR
-    color = (255, 255, 255)
-    
-    # Line thickness of 9 px
-    thickness = 1
-
-
-    vp_img = cv2.line(img, start_point_1, end_point_1, color, thickness)
-    vp_img = cv2.line(vp_img, start_point_2, end_point_2, color, thickness)
-
-    return vp_img
-
-
-
-
-def get_mask(image):
-    roadline_color = (50, 234, 157) # in bgr
-    image = np.ascontiguousarray(image, dtype=np.uint8)
-    mask = cv2.inRange(image, roadline_color, roadline_color)
-    #cv2.line(image, (0, 0), (200, 400), (0, 255, 0), thickness=2)
-    #r_chan = image[:, :,2]
-    #mask = cv2.inRange(r_chan, 6, 6)
-    #print(r_chan)
-    #vehicle.andar_para_o_lado
-    #cv2.imshow("", mask)
-    #cv2.waitKey(1)
-    return mask
-
 
 def skeletize_image(img):
     skel = np.zeros(img.shape, np.uint8)
@@ -143,22 +102,6 @@ def get_average_line(line_list):
     #print('avg', avg)
     return avg
 
-
-def sort_left_right(lines):
-    left_lines = []
-    right_lines = []
-
-    for line in lines:
-        rho, theta = line[0]
-
-        if theta < np.pi/2:
-            left_lines.append(line)
-        else:
-            right_lines.append(line)
-
-    left_lines = np.array(left_lines)
-    right_lines = np.array(right_lines)
-    return left_lines, right_lines
 
 
 
@@ -397,23 +340,8 @@ def image_processing4(rgb_frame):
 
 
 
-def computer_vision(seg_frame, data):
 
-    if seg_frame is None:
-        seg_frame = np.zeros((720,720,3))
-    seg_frame = np.ascontiguousarray(seg_frame, dtype=np.uint8)
-    #frame = np.zeros((720,720,3))
-    #show_image_rgb(frame) # Mostra imagem RGB
-    mask = get_mask(seg_frame) # Obtem apenas faixa da imagem segmentada
-    
-    data.left_line, data.right_line, data.bisec_pt, data.intersec, data.theta, data.dx = image_processing4(mask)
-    control_monitor(data)
-    #image_processing_kmeans(mask)
-    #print('asdasd',left_line, right_line)
-
-
-
-def computer_vision_teste(rgb_frame, data):
+def computer_vision_rgb(rgb_frame, data):
     #seg_frame = data.frame
     if rgb_frame is None:
         rgb_frame = np.zeros((720,720,3))
@@ -509,8 +437,6 @@ def control_monitor(data):
 def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
 
-def show_image_rgb(rgb):
-    cv2.imshow('image', rgb)
 
 def adaptive_threshold(rgb_img):
 
@@ -595,7 +521,7 @@ if __name__ == '__main__':
     for n in range(1):
 
         #image_processing_kmeans(img_gray)
-        computer_vision_teste(img_BGR, data)
+        computer_vision_rgb(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
         bird_eyes(img_BGR)
