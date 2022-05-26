@@ -70,7 +70,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_vertical_lines(lines, deg_max = 20):
+def filter_by_angle(lines, deg_max = 20):
 
     ok_lines = []
     if lines is not None:
@@ -295,8 +295,8 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    left_lines = filter_vertical_lines(left_lines) # descarta linhas com angulo muito horizontal
-    right_lines = filter_vertical_lines(right_lines) # descarta linhas com angulo muito horizontal
+    left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
+    right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
 
 
     #left_lines, right_lines  = sort_left_right(lines)
