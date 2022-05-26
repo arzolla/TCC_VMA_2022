@@ -295,6 +295,15 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
+    left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
+    right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
+
+    display_lines(left_img, left_lines, line_color = (0,0,255), line_width=1)
+    display_lines(right_img, right_lines, line_color = (0,0,255), line_width=1)
+
+    cv2.imshow('left', left_img)
+    cv2.imshow('right', right_img)
+
     left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
     right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
 
