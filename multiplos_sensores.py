@@ -29,7 +29,7 @@ import carla
 import argparse
 
 
-from image_processing import image_processing4, get_mask, computer_vision, computer_vision_rgb, control_monitor, SimulationData
+from image_processing import computer_vision_rgb, control_monitor, SimulationData
 import cv2
 from controller import Controller
 
