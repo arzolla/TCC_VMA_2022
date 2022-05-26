@@ -129,14 +129,15 @@ def get_average_line(line_list):
     theta_sum = 0
     avg = []
     #print('linelist',line_list, np.shape(line_list), type(line_list))
-    if len(line_list) != 0:
-        for line in line_list:
-            rho, theta = line[0]
+    if line_list is not None:
+        if len(line_list) != 0:
+            for line in line_list:
+                rho, theta = line[0]
 
-            rho_sum += rho
-            theta_sum += theta
-        #print('list', list,' len(list)', len(list) )
-        avg.append([[rho_sum/len(line_list), theta_sum/len(line_list)]])
+                rho_sum += rho
+                theta_sum += theta
+            #print('list', list,' len(list)', len(list) )
+            avg.append([[rho_sum/len(line_list), theta_sum/len(line_list)]])
 
     avg = np.array(avg)
     #print('avg', avg)
