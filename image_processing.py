@@ -88,8 +88,8 @@ def get_average_line(line_list):
 
     if line_list is not None:
         if len(line_list) != 0:
-            if len(line_list) > 4:
-                avg = [np.mean(line_list[0:4], axis=0, dtype=np.float32)]
+            if len(line_list) > 10:
+                avg = [np.mean(line_list[0:10], axis=0, dtype=np.float32)]
             else:
                 avg = [np.mean(line_list, axis=0, dtype=np.float32)]
             return avg
@@ -189,9 +189,8 @@ class Holder:
 
 
 
-left_antiga = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
-right_antiga = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
-
+left_antiga = [np.array([[85.        ,   0]], dtype=np.float32)]
+right_antiga = [np.array([[635.       ,   0]], dtype=np.float32)]
 
 # contadores para após x linhas ignoradas ele forçar pegar a nova
 l_count = 0
@@ -199,7 +198,7 @@ r_count = 0
 
 # thresholds de diferença para excluir a linha nova
 theta_lim = 0.20
-rho_lim = 100
+rho_lim = 10
 count_lim = 25
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
@@ -325,7 +324,7 @@ def image_processing4(rgb_frame):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
    
-    print('right', right_lines)
+    #print('right', right_lines)
     print('average:',left_line,right_line)
     #left_line_m = get_median_line(left_lines)
     #right_line_m = get_median_line(right_lines)
@@ -341,9 +340,9 @@ def image_processing4(rgb_frame):
     #left_line, right_line = accum_pre.accumulate(left_line, right_line)
 
     # filtrar antes de pegar a média?
-    #left_line, right_line = filter_strange_line(left_line, right_line)
+    left_line, right_line = filter_strange_line(left_line, right_line)
 
-    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
@@ -486,7 +485,7 @@ def adaptive_threshold(rgb_img):
     #cv2.imshow('gray roi eq', gray_img)
     ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 6)
+    thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
     cv2.imshow('tresh img', thresh_img)
 
 
