@@ -301,8 +301,6 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    left_lines = [] # todas as linhas detectadas 
-    right_lines = []
 
     left_lines = normalize_hough(left_lines)
     right_lines = normalize_hough(right_lines)
@@ -537,7 +535,7 @@ if __name__ == '__main__':
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
     path = 'ideal_fov30.png'
-    #path = 'curva_fov30_left.png'
+    path = 'curva_fov30_left.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
