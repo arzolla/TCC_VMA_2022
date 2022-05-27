@@ -11,16 +11,15 @@ class Controller:
     """Controlador não-linear
     """
 
-    def __init__(self, K_theta=0.025, K_dx=0.65, K_arctan=0.004):
+    def __init__(self, K_psi=0.025, K_dx=0.2):
 
         # Parâmetros de ganho
-        self.K_theta = K_theta
+        self.K_psi = K_psi
         self.K_dx = K_dx
-        self.K_arctan = K_arctan
 
         # Variaveis
-        self.Term_theta = 0.0
-        self.Term_dx = 0.0
+        self.Term_psi = 0.0
+        self.Term_arctan = 0.0
         self.sample_time = 0.01
         self.last_time = time.time()
         self.last_output = None
@@ -53,7 +52,7 @@ class Controller:
         output, _ = signal.lfilter(self.num, self.den, [input], zi=self.zi)  
         return output
 
-    def update(self, theta, dx, velocidade, current_time=None):
+    def update(self, psi, dx, velocidade, current_time=None):
 
         # Se não for inserido tempo atual no update()
         if current_time is None:
@@ -74,16 +73,16 @@ class Controller:
             return self.last_output
 
         # Filtra as entradas
-        theta = self.__filter(theta)
+        psi = self.__filter(psi)
         dx = self.__filter(dx)
 
         # Cálculo dos termos
-        self.Term_dx = np.arctan(self.K_arctan * (dx/velocidade)) * self.K_dx
-        self.Term_theta = self.K_theta * theta
+        self.Term_arctan = np.arctan(self.K_dx * (dx/velocidade))/1.57 # arctan é normalizada para intervalo entre -1 e 1
+        self.Term_psi = self.K_psi * psi
 
 
         # Calcula resposta do controle
-        output = self.Term_theta + self.Term_dx
+        output = self.Term_psi + self.Term_arctan
 
         # Limita o output do sistema
         output = self.__saturation(output, self.cmax, self.cmin)
@@ -91,7 +90,7 @@ class Controller:
         # Salva os valores atuais para próxima chamada de atualização
         self.last_time = current_time
         self.last_output = output
-        print('steering', output, self.Term_theta, self.Term_dx)
+        print('steering', output, self.Term_psi, self.Term_arctan)
         return output
 
     def setFilter(self, n=1, wn=0.02):
@@ -99,10 +98,10 @@ class Controller:
         self.num, self.den = signal.butter(n, wn)
         self.zi = np.zeros(self.num.size-1)
 
-    def setKp(self, Kp_theta, Kp_dx):
-        """Determines how aggressively the PID reacts to the current error with setting Proportional Gain"""
-        self.Kp_theta = Kp_theta
-        self.Kp_dx = Kp_dx
+    def setKp(self, K_psi, K_dx):
+        """Determina o ganho proporcional de psi e velocidade da arctan"""
+        self.K_psi = K_psi
+        self.K_dx = K_dx
        
 
     def setOutputLimit(self, cmax, cmin=None):
