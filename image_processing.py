@@ -76,7 +76,6 @@ def filter_by_angle(lines, deg_max = 20):
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
-            print(theta) 
             deg_var = abs(np.rad2deg(theta))-180
             if deg_max > deg_var:
                 ok_lines.append(np.array(line))
@@ -84,26 +83,14 @@ def filter_by_angle(lines, deg_max = 20):
     ok_lines = np.array(ok_lines)
     return ok_lines
 
+
 def get_average_line(line_list):
-    rho_sum = 0
-    theta_sum = 0
-    avg = []
-    #print('linelist',line_list, np.shape(line_list), type(line_list))
-    if line_list is not None:
-        if len(line_list) != 0:
-            for line in line_list:
-                rho, theta = line[0]
 
-                rho_sum += rho
-                theta_sum += theta
-            #print('list', list,' len(list)', len(list) )
-            avg.append([[rho_sum/len(line_list), theta_sum/len(line_list)]])
+    avg = [np.mean(line_list, axis=0,dtype=np.float32)]
 
-    avg = np.array(avg)
-    #print('avg', avg)
+
+    print('avg', avg)
     return avg
-
-
 
 
 class Accumulator:
