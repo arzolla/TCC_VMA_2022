@@ -197,8 +197,8 @@ l_count = 0
 r_count = 0
 
 # thresholds de diferença para excluir a linha nova
-theta_lim = 0.20
-rho_lim = 10
+theta_lim = 0.4
+rho_lim = 50
 count_lim = 25
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
@@ -271,7 +271,7 @@ def get_mid_line(left_line, right_line):
         del_x = 0
 
 
-        return [[[rho, psi]]], np.rad2deg(psi) - 180, del_x
+        return [[[rho, psi]]], np.rad2deg(psi), del_x
     return [[[0, 0]]], 0, 0
     
 holder = Holder()
@@ -418,7 +418,6 @@ def control_monitor(data):
     if not(isinstance(data.left_line, int)):
 
         # centro da camera (em azul)
-    
         display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
         display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
