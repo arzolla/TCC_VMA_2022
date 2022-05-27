@@ -269,7 +269,7 @@ def get_mid_line(left_line, right_line):
         psi = (theta1 + theta2)/2 # yaw error
         rho = (rho1 + rho2)/2
         del_x = 0
-        intersec = intersection([[[rho, psi]]],[[[360, 1.57059]]])
+        intersec = intersection([[[rho, psi]]],[[[720, 1.57059]]])
         print(intersec)
         del_x = 360 - intersec[0]
 
@@ -434,8 +434,8 @@ def control_monitor(data):
         write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
-        display_lines_2pts(frame, [360-data.dx, 360], [360, 360], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [360-data.dx,380], (51,251,255), size = 0.5, thick = 2) 
+        display_lines_2pts(frame, [360-data.dx, 720], [360, 720], line_color = (51,251,255), line_width=3)
+        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [360-data.dx,710], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,5))), (10,50), (255,255,255))
     if  data.steering > 0:
