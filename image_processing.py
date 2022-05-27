@@ -88,10 +88,10 @@ def get_average_line(line_list):
 
     if line_list is not None:
         if len(line_list) != 0:
-            if len(line_list) > 10:
-                avg = [np.mean(line_list[0:10], axis=0, dtype=np.float32)]
-            else:
-                avg = [np.mean(line_list, axis=0, dtype=np.float32)]
+            # if len(line_list) > 10:
+            #     avg = [np.mean(line_list[0:10], axis=0, dtype=np.float32)]
+            # else:
+            avg = [np.mean(line_list, axis=0, dtype=np.float32)]
             return avg
     #print('avg', avg)
     return []
