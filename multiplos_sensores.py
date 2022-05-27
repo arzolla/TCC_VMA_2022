@@ -36,12 +36,12 @@ from controller import Controller
 
 
 # Função para executar o controle
-def control_main(vehicle, control, velocidade, theta, dx):
+def control_main(vehicle, control, velocidade, psi, dx):
 
     #print(left_line, right_line)   
 
 
-    steering = control.update(theta, dx, velocidade)
+    steering = control.update(psi, dx, velocidade)
 
 
     
