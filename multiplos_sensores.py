@@ -137,7 +137,7 @@ def run_simulation(args, client):
         # theta em radianos
         # steering em fator, para vel = 10, steering 1 => 39.7 graus
         # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-        control = Controller(K_theta=0.05, K_dx=-0.65, K_arctan=0.2)
+        control = Controller(K_theta=0.05, K_dx=0.65, K_arctan=0.2)
         #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
         control.setFilter()
         #control.setOutputLimit(0.5, -0.5)
