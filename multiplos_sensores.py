@@ -112,19 +112,23 @@ def run_simulation(args, client):
 
         # Display Manager organize all the sensors an its display in a window
         # If can easily configure the grid and the total window size
-        #display_manager = DisplayManager(grid_size=[1, 2], window_size=[args.width, args.height])
-        display_manager = DisplayManager(grid_size=[1, 1], window_size=[720, 720])
+        display_manager = DisplayManager(grid_size=[1, 2], window_size=[args.width, args.height])
+        #display_manager = DisplayManager(grid_size=[1, 1], window_size=[720, 720])
 
 
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
         # and assign each of them to a grid position, 
         RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=1.2, z=1.4), carla.Rotation(pitch=-15, yaw=0)), 
                       vehicle, {'fov' : '30'}, display_pos=[0, 0])
+
+        RGBCamera2 = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=-3, z=3), carla.Rotation(pitch=-30, yaw=0)), 
+                      vehicle, {'fov' : '90'}, display_pos=[0, 1])
+
         # Segment = SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)), 
         #               vehicle, {}, display_pos=[0, 1])
-        '''SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
-                      vehicle, {}, display_pos=[0, 2])
-'''
+        # SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
+        #               vehicle, {}, display_pos=[0, 2])
+
 
 
         #Simulation loop
@@ -138,7 +142,7 @@ def run_simulation(args, client):
         control.setFilter()
         #control.setOutputLimit(0.5, -0.5)
 
-        velocidade = 4
+        velocidade = 10
 
         # classe para gestão dos dados
         data = SimulationData()
