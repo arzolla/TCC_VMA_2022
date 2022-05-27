@@ -101,7 +101,7 @@ def normalize_hough(lines):
         for line in lines:
             rho, theta = line[0]
             if rho < 0:
-                line[0] = (-rho), (np.pi - theta)
+                line[0] = (-rho), (theta - np.pi)
     return lines
 
 def get_median_line(line_list):
@@ -325,18 +325,15 @@ def image_processing4(rgb_frame):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
    
+    print('right', right_lines)
     print('average:',left_line,right_line)
     #left_line_m = get_median_line(left_lines)
     #right_line_m = get_median_line(right_lines)
 
     #print(left_line, right_line)
-    ########## Mostrar as faixas ######
+
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
-
-
-
-    
 
 
     left_line, right_line = holder.hold(left_line, right_line)
@@ -536,7 +533,7 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'ideal_fov30.png'
     path = 'curva_fov30_left.png'
-    #path = 'curva_fov30_right.png'
+    path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
