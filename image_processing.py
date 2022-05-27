@@ -270,7 +270,7 @@ def get_mid_line(left_line, right_line):
         rho = (rho1 + rho2)/2
         del_x = 0
         intersec = intersection([[[rho, psi]]],[[[720, 1.57059]]])
-        print(intersec)
+        #print(intersec)
         del_x = intersec[0] - 360
 
         return [[[rho, psi]]], np.rad2deg(psi), del_x
@@ -327,7 +327,7 @@ def image_processing4(rgb_frame):
     right_line = get_average_line(right_lines)
    
     #print('right', right_lines)
-    print('average:',left_line,right_line)
+    #print('average:',left_line,right_line)
     #left_line_m = get_median_line(left_lines)
     #right_line_m = get_median_line(right_lines)
 
@@ -434,7 +434,6 @@ def control_monitor(data):
         write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
-        print('datadx', data.dx)
         display_lines_2pts(frame, [data.dx + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
         write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [data.dx + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
@@ -551,7 +550,7 @@ if __name__ == '__main__':
         #adaptive_threshold(img_BGR)
         bird_eyes(img_BGR)
         cv2.waitKey(0)
-
+        print('arctan',np.arctan(-10000000))
         cv2.destroyAllWindows()
 
 
