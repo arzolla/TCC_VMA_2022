@@ -50,15 +50,15 @@ def hough_transform(image):
 
 def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     if lines is not None:
-            for line in lines:
-                rho, theta = line[0]
-                a = np.cos(theta)
-                b = np.sin(theta)
-                x0 = a * rho
-                y0 = b * rho
-                pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
-                pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
-                cv2.line(frame, pt1, pt2, line_color, line_width, cv2.LINE_AA)
+        for line in lines:
+            rho, theta = line[0]
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
+            pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
+            cv2.line(frame, pt1, pt2, line_color, line_width, cv2.LINE_AA)
     #cv2.line(line_image,(x1,y1),(x2,y2),line_color,line_width)
 
 
@@ -86,13 +86,15 @@ def filter_by_angle(lines, deg_max = 20):
 
 def get_average_line(line_list):
 
-    if len(line_list) > 4:
-        avg = [np.mean(line_list[0:4], axis=0, dtype=np.float32)]
-    else:
-        avg = [np.mean(line_list, axis=0, dtype=np.float32)]
-    
+    if line_list is not None:
+        if len(line_list) != 0:
+            if len(line_list) > 4:
+                avg = [np.mean(line_list[0:4], axis=0, dtype=np.float32)]
+            else:
+                avg = [np.mean(line_list, axis=0, dtype=np.float32)]
+            return avg
     #print('avg', avg)
-    return avg
+    return []
 
 def normalize_hough(lines):
     if lines is not None:
@@ -299,6 +301,8 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
+    left_lines = [] # todas as linhas detectadas 
+    right_lines = []
 
     left_lines = normalize_hough(left_lines)
     right_lines = normalize_hough(right_lines)
@@ -322,22 +326,19 @@ def image_processing4(rgb_frame):
 
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
-    
+   
     print('average:',left_line,right_line)
-    left_line_m = get_median_line(left_lines)
-    right_line_m = get_median_line(right_lines)
+    #left_line_m = get_median_line(left_lines)
+    #right_line_m = get_median_line(right_lines)
 
     #print(left_line, right_line)
     ########## Mostrar as faixas ######
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
-    # mostra as linhas
-    #display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
-    #display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
 
-    ########## Mostrar as faixas ######
 
+    
 
 
     left_line, right_line = holder.hold(left_line, right_line)
@@ -349,12 +350,13 @@ def image_processing4(rgb_frame):
 
     #left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
-
+    # mostra as linhas
+    display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
+    display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
+    ########## Mostrar as faixas ######
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
-    display_lines(roi_img_rgb, left_line_m, line_color = (0,255,255))
-    display_lines(roi_img_rgb, right_line_m, line_color = (0,255,255))
- 
+
     cv2.imshow('Hough Lines and Lane', roi_img_rgb)
 
     # encontra os parâmetros
