@@ -86,12 +86,27 @@ def filter_by_angle(lines, deg_max = 20):
 
 def get_average_line(line_list):
 
-    avg = [np.mean(line_list, axis=0,dtype=np.float32)]
+    avg = [np.mean(line_list, axis=0, dtype=np.float32)]
 
-
-    print('avg', avg)
+    
+    #print('avg', avg)
     return avg
 
+def normalize_hough(lines):
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            if rho < 0:
+                line[0] = (-rho), (np.pi - theta)
+    return lines
+
+def get_median_line(line_list):
+
+    avg = [np.median(line_list, axis=0)]
+
+
+    #print('avg', avg)
+    return avg
 
 class Accumulator:
     def __init__(self, accum_max_size):
@@ -282,6 +297,9 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
+    left_lines = normalize_hough(left_lines)
+    right_lines = normalize_hough(right_lines)
+
     left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
     right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
 
@@ -294,12 +312,17 @@ def image_processing4(rgb_frame):
     left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
     right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
 
+    print('left',left_lines)
 
     #left_lines, right_lines  = sort_left_right(lines)
 
 
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
+    
+    
+    left_line_m = get_median_line(left_lines)
+    right_line_m = get_median_line(right_lines)
 
     #print(left_line, right_line)
     ########## Mostrar as faixas ######
@@ -307,10 +330,12 @@ def image_processing4(rgb_frame):
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # mostra as linhas
-    display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
-    display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
+    #display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
+    #display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
+    display_lines(roi_img_rgb, left_line_m, line_color = (0,255,255))
+    display_lines(roi_img_rgb, right_line_m, line_color = (0,255,255))
  
     cv2.imshow('Hough Lines and Lane', roi_img_rgb)
     ########## Mostrar as faixas ######
@@ -458,7 +483,7 @@ def adaptive_threshold(rgb_img):
 
 
     #cv2.imshow('gray roi eq', gray_img)
-    #ret, thresh1 = cv2.threshold(roi_image, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
     thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 6)
     cv2.imshow('tresh img', thresh_img)
@@ -505,9 +530,9 @@ if __name__ == '__main__':
     #path = 'color_curva_suave.png'
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
-    #path = 'ideal_fov30.png'
-    path = 'curva_fov30_left.png'
-    path = 'curva_fov30_right.png'
+    path = 'ideal_fov30.png'
+    #path = 'curva_fov30_left.png'
+    #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
