@@ -40,7 +40,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 35  # minimal of votes
+    min_threshold = 50  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -86,8 +86,10 @@ def filter_by_angle(lines, deg_max = 20):
 
 def get_average_line(line_list):
 
-    avg = [np.mean(line_list, axis=0, dtype=np.float32)]
-
+    if len(line_list) > 4:
+        avg = [np.mean(line_list[0:4], axis=0, dtype=np.float32)]
+    else:
+        avg = [np.mean(line_list, axis=0, dtype=np.float32)]
     
     #print('avg', avg)
     return avg
@@ -113,8 +115,8 @@ class Accumulator:
         
         # Variáveis para armazenar a média temporal. 
         # São inicializadas com valor de faixa ideal.
-        self.left_line_accum = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
-        self.right_line_accum = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+        self.left_line_accum = [np.array([[85.        ,   0]], dtype=np.float32)]
+        self.right_line_accum = [np.array([[635.       ,   0]], dtype=np.float32)]
         self.accum_max_size = accum_max_size
 
     def accumulate(self, left_line, right_line):
@@ -165,8 +167,8 @@ class Holder:
         
         # Variáveis para armazenar a faixa atual 
         # São inicializadas com valor de faixa ideal.
-        self.left_line = [np.array([[502.        ,   0.62831855]], dtype=np.float32)]
-        self.right_line = [np.array([[-81.       ,   2.5132742]], dtype=np.float32)]
+        self.left_line = [np.array([[85.        ,   0]], dtype=np.float32)]
+        self.right_line = [np.array([[635.       ,   0]], dtype=np.float32)]
 
     def hold(self, left_line, right_line):
 
@@ -261,7 +263,7 @@ def get_mid_line(left_line, right_line):
     if left_line  is not None and right_line is not None:
         rho1, theta1 = left_line[0][0]
         rho2, theta2 = right_line[0][0]
-        print(left_line, right_line)
+        #print(left_line, right_line)
         
         psi = (theta1 + theta2)/2 # yaw error
         rho = (rho1 + rho2)/2
@@ -269,7 +271,7 @@ def get_mid_line(left_line, right_line):
 
 
         return [[[rho, psi]]], np.rad2deg(psi) - 180, del_x
-
+    return [[[0, 0]]], 0, 0
     
 holder = Holder()
 accum_pre = Accumulator(2)
@@ -297,6 +299,7 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
+
     left_lines = normalize_hough(left_lines)
     right_lines = normalize_hough(right_lines)
 
@@ -312,7 +315,7 @@ def image_processing4(rgb_frame):
     left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
     right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
 
-    print('left',left_lines)
+    #print('left',left_lines)
 
     #left_lines, right_lines  = sort_left_right(lines)
 
@@ -320,7 +323,7 @@ def image_processing4(rgb_frame):
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
     
-    
+    print('average:',left_line,right_line)
     left_line_m = get_median_line(left_lines)
     right_line_m = get_median_line(right_lines)
 
@@ -332,12 +335,7 @@ def image_processing4(rgb_frame):
     # mostra as linhas
     #display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
     #display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
-    display_lines(roi_img_rgb, left_line)
-    display_lines(roi_img_rgb, right_line)
-    display_lines(roi_img_rgb, left_line_m, line_color = (0,255,255))
-    display_lines(roi_img_rgb, right_line_m, line_color = (0,255,255))
- 
-    cv2.imshow('Hough Lines and Lane', roi_img_rgb)
+
     ########## Mostrar as faixas ######
 
 
@@ -352,6 +350,12 @@ def image_processing4(rgb_frame):
     #left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
 
+    display_lines(roi_img_rgb, left_line)
+    display_lines(roi_img_rgb, right_line)
+    display_lines(roi_img_rgb, left_line_m, line_color = (0,255,255))
+    display_lines(roi_img_rgb, right_line_m, line_color = (0,255,255))
+ 
+    cv2.imshow('Hough Lines and Lane', roi_img_rgb)
 
     # encontra os parâmetros
     mid_line, psi, del_x = get_mid_line(left_line, right_line)
