@@ -70,14 +70,15 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_by_angle(lines, deg_max = 50):
+def filter_by_angle(lines, sin_max = 76):
 
     ok_lines = []
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
-            deg_var = abs(np.rad2deg(theta))
-            if deg_max > deg_var:
+            sin_theta = np.sin(theta)
+            print(sin_theta)
+            if sin_max > sin_theta:
                 ok_lines.append(np.array(line))
 
     ok_lines = np.array(ok_lines)
@@ -348,7 +349,7 @@ def image_processing4(rgb_frame):
     left_line, right_line = diff.filter_strange_line(left_line, right_line)
 
     # média temporal das ultimas faixas
-    left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
