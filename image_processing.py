@@ -96,13 +96,22 @@ def get_average_line(line_list):
     #print('avg', avg)
     return []
 
-def normalize_hough(lines):
-    if lines is not None:
-        for line in lines:
+
+def normalize_hough(left_lines, right_lines):
+    if left_lines is not None:
+        # para as linhas da esquerda
+        for line in left_lines:
+            rho, theta = line[0]
+            if theta < np.pi:
+               line[0] = (-rho), (theta - np.pi)
+        # para as linhas da direita
+    if right_lines is not None:
+        for line in right_lines:
             rho, theta = line[0]
             if rho < 0:
                 line[0] = (-rho), (theta - np.pi)
-    return lines
+
+    return left_lines, right_lines
 
 def get_median_line(line_list):
 
@@ -311,8 +320,7 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    left_lines = normalize_hough(left_lines)
-    right_lines = normalize_hough(right_lines)
+    left_lines, right_lines = normalize_hough(left_lines, right_lines)
 
     left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
     right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
@@ -332,11 +340,13 @@ def image_processing4(rgb_frame):
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
+    # em caso de não detectar faixa, mantém a ultima encontrada
     left_line, right_line = holder.hold(left_line, right_line)
 
-    # filtrar antes de pegar a média?
+    # ignora as faixas muito diferentes da anterior
     left_line, right_line = diff.filter_strange_line(left_line, right_line)
 
+    # média temporal das ultimas faixas
     left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
     # mostra as linhas
@@ -518,6 +528,7 @@ def bird_eyes(image):
     return img_transformed
 
 
+
 if __name__ == '__main__':
 
     #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
@@ -531,11 +542,14 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
     path = 'curva_fov30_left.png'
+    path = 'line.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
+    img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
+    
+    #img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
     #image_processing(img_gray)
     #cv2.waitKey(0)
@@ -546,7 +560,8 @@ if __name__ == '__main__':
         computer_vision_rgb(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
-        bird_eyes(img_BGR)
+        #bird_eyes(img_BGR)
+        #testando(img_gray)
         cv2.waitKey(0)
         print('arctan',np.arctan(-10000000))
         cv2.destroyAllWindows()
