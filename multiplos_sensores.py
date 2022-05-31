@@ -101,6 +101,8 @@ def run_simulation(args, client):
         #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         ponto_spawn = carla.Transform(carla.Location(x=388.704559, y=-141.879608, z=0.01), carla.Rotation(pitch=-0.005649, yaw=90.611755, roll=0.004866)) # proximo da curva, faixa melhor
+        ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil
+        
         print("Spawn do carro: ",ponto_spawn)
        
 
