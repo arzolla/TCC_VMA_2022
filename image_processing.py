@@ -70,7 +70,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_by_angle(lines, deg_max = 20):
+def filter_by_angle(lines, deg_max = 40):
 
     ok_lines = []
     if lines is not None:
@@ -117,8 +117,8 @@ class Accumulator:
         
         # Variáveis para armazenar a média temporal. 
         # São inicializadas com valor de faixa ideal.
-        self.left_line_accum = [np.array([[85.        ,   0]], dtype=np.float32)]
-        self.right_line_accum = [np.array([[635.       ,   0]], dtype=np.float32)]
+        self.left_line_accum = [np.array([[200.        ,   0]], dtype=np.float32)]
+        self.right_line_accum = [np.array([[520.       ,   0]], dtype=np.float32)]
         self.accum_max_size = accum_max_size
 
     def accumulate(self, left_line, right_line):
@@ -169,8 +169,8 @@ class Holder:
         
         # Variáveis para armazenar a faixa atual 
         # São inicializadas com valor de faixa ideal.
-        self.left_line = [np.array([[85.        ,   0]], dtype=np.float32)]
-        self.right_line = [np.array([[635.       ,   0]], dtype=np.float32)]
+        self.left_line = [np.array([[200.        ,   0]], dtype=np.float32)]
+        self.right_line = [np.array([[520.       ,   0]], dtype=np.float32)]
 
     def hold(self, left_line, right_line):
 
@@ -189,8 +189,8 @@ class Holder:
 
 
 
-left_antiga = [np.array([[85.        ,   0]], dtype=np.float32)]
-right_antiga = [np.array([[635.       ,   0]], dtype=np.float32)]
+left_antiga = [np.array([[200.        ,   0]], dtype=np.float32)]
+right_antiga = [np.array([[520.       ,   0]], dtype=np.float32)]
 
 # contadores para após x linhas ignoradas ele forçar pegar a nova
 l_count = 0
@@ -198,7 +198,7 @@ r_count = 0
 
 # thresholds de diferença para excluir a linha nova
 theta_lim = 0.4
-rho_lim = 50
+rho_lim = 400
 count_lim = 25
 # para 10 m/s count_lim é 15, para 30 m/s count_lim é 8
 
@@ -320,7 +320,6 @@ def image_processing4(rgb_frame):
 
     #print('left',left_lines)
 
-    #left_lines, right_lines  = sort_left_right(lines)
 
 
     left_line = get_average_line(left_lines)
@@ -498,8 +497,8 @@ def bird_eyes(image):
     # targeted rectangle on original image which needs to be transformed
     tl = [145, 80]
     tr = [575, 80]
-    br = [720, 175]
-    bl = [0, 175]
+    br = [820, 175]
+    bl = [-100, 175]
 
     corner_points_array = np.float32([tl,tr,br,bl])
 
@@ -513,7 +512,7 @@ def bird_eyes(image):
 
     # Compute and return the transformation matrix
     matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
-    img_transformed = cv2.warpPerspective(image,matrix,(720, 720))
+    img_transformed = cv2.warpPerspective(image,matrix,(720, 720), borderMode=cv2.BORDER_REPLICATE)
     #display_lines_2pts(img_transformed, [360,0], [360,720], line_color = (200,21,21), line_width=1)
     #display_lines_2pts(img_transformed, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
@@ -531,9 +530,9 @@ if __name__ == '__main__':
     #path = 'color_curva_suave.png'
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
-    path = 'ideal_fov30.png'
+    path = 'ideal_fov30_2.png'
     path = 'curva_fov30_left.png'
-    path = 'curva_fov30_right.png'
+    #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
