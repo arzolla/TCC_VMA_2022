@@ -70,13 +70,13 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_by_angle(lines, deg_max = 40):
+def filter_by_angle(lines, deg_max = 50):
 
     ok_lines = []
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
-            deg_var = abs(np.rad2deg(theta))-180
+            deg_var = abs(np.rad2deg(theta))
             if deg_max > deg_var:
                 ok_lines.append(np.array(line))
 
@@ -114,12 +114,13 @@ def normalize_hough(left_lines, right_lines):
     return left_lines, right_lines
 
 def get_median_line(line_list):
-
-    avg = [np.median(line_list, axis=0)]
-
+    if line_list is not None:
+        if len(line_list) != 0:
+            avg = [np.median(line_list, axis=0)]
+            return avg
 
     #print('avg', avg)
-    return avg
+    return []
 
 class Accumulator:
     def __init__(self, accum_max_size):
@@ -291,7 +292,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter()
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=400, count_lim=40)
 
 def image_processing4(rgb_frame):
 
@@ -320,7 +321,7 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    left_lines, right_lines = normalize_hough(left_lines, right_lines)
+    #left_lines, right_lines = normalize_hough(left_lines, right_lines)
 
     left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
     right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
@@ -333,16 +334,16 @@ def image_processing4(rgb_frame):
 
     left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
     right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
-
-    left_line = get_average_line(left_lines)
-    right_line = get_average_line(right_lines)
-   
+    #print('antes',left_lines, right_lines )
+    left_line = get_median_line(left_lines)
+    right_line = get_median_line(right_lines)
+    #print('apos mediana',left_line, right_line )
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
     left_line, right_line = holder.hold(left_line, right_line)
-
+    
     # ignora as faixas muito diferentes da anterior
     left_line, right_line = diff.filter_strange_line(left_line, right_line)
 
@@ -528,6 +529,8 @@ def bird_eyes(image):
     return img_transformed
 
 
+def teste(img):
+    pass
 
 if __name__ == '__main__':
 
@@ -542,7 +545,8 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
     path = 'curva_fov30_left.png'
-    path = 'line.png'
+    path = 'line4.png'
+    path = 'line3.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
