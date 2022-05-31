@@ -282,7 +282,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter()
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=400, count_lim=40)
 
 def image_processing4(rgb_frame):
 
