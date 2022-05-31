@@ -279,12 +279,16 @@ def get_mid_line(left_line, right_line):
     return [[[0, 0]]], 0, 0
     
 holder = Holder()
-accum_pre = Accumulator(2)
+
 accum_pos = Accumulator(7)
 
 diff = DifferenceFilter()
 
 def image_processing4(rgb_frame):
+
+    ################################################
+    #### TRATAMENTO E PROCESSAMENTO DE IMAGENS #####
+    ################################################
 
     bird_img = bird_eyes(rgb_frame)
 
@@ -296,14 +300,16 @@ def image_processing4(rgb_frame):
 
     left_img, right_img = get_roi(skel_img)
 
-    #vis = np.concatenate((left_img, right_img), axis=1)
-
     cv2.imshow('skel img', skel_img)
 
 
+    ################################################
+    ####### ALGORITMO DE VISÃO COMPUTACIONAL #######
+    ########### PARA DETECTAR AS FAIXAS ############
+    ################################################
+
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
-
 
     left_lines = normalize_hough(left_lines)
     right_lines = normalize_hough(right_lines)
@@ -320,27 +326,13 @@ def image_processing4(rgb_frame):
     left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
     right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
 
-    #print('left',left_lines)
-
-
-
     left_line = get_average_line(left_lines)
     right_line = get_average_line(right_lines)
    
-    #print('right', right_lines)
-    #print('average:',left_line,right_line)
-    #left_line_m = get_median_line(left_lines)
-    #right_line_m = get_median_line(right_lines)
-
-    #print(left_line, right_line)
-
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
-
     left_line, right_line = holder.hold(left_line, right_line)
-
-    #left_line, right_line = accum_pre.accumulate(left_line, right_line)
 
     # filtrar antes de pegar a média?
     left_line, right_line = diff.filter_strange_line(left_line, right_line)
@@ -356,7 +348,12 @@ def image_processing4(rgb_frame):
 
     cv2.imshow('Hough Lines and Lane', roi_img_rgb)
 
-    # encontra os parâmetros
+
+    ################################################
+    ########## OBTÉM CENTRO DA FAIXA PARA ##########
+    ########## CALCULAR ERROS O CONTROLE ###########
+    ################################################
+
     mid_line, psi, del_x = get_mid_line(left_line, right_line)
 
 
