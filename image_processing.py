@@ -287,7 +287,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.4, rho_lim=400, count_lim=40)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=300, count_lim=40)
 
 def image_processing4(rgb_frame):
 
@@ -316,8 +316,8 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    #left_lines= normalize_hough(left_lines)
-    #right_lines = normalize_hough(right_lines)
+    left_lines= normalize_hough(left_lines)
+    right_lines = normalize_hough(right_lines)
 
     left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
     right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
@@ -331,8 +331,8 @@ def image_processing4(rgb_frame):
     #left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
     #right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
     #print('antes',left_lines, right_lines )
-    left_line = get_median_line(left_lines)
-    right_line = get_median_line(right_lines)
+    left_line = get_average_line(left_lines)
+    right_line = get_average_line(right_lines)
     #print('apos mediana',left_line, right_line )
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
@@ -344,7 +344,7 @@ def image_processing4(rgb_frame):
     left_line, right_line = diff.filter_strange_line(left_line, right_line)
 
     # média temporal das ultimas faixas
-    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
