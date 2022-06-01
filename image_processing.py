@@ -393,7 +393,7 @@ class SimulationData:
                     psi = 0,
                     dx = 0, 
                     steering = 0, 
-                    Kp_theta = 0,
+                    control_output = 0,
                     Kp_dx = 0, 
                     Ki_dx = 0, 
                     velocidade = 0
@@ -406,7 +406,7 @@ class SimulationData:
         self.psi = psi
         self.dx = dx
         self.steering = steering
-        self.Kp_theta = Kp_theta
+        self.control_output = control_output
         self.Kp_dx = Kp_dx
         self.Ki_dx = Ki_dx
         self.velocidade = velocidade
@@ -447,7 +447,7 @@ def control_monitor(data):
         write_on_screen(frame, ('Direita'), (500,50), (255,0,0))
     else:
         write_on_screen(frame, ('Esquerda'), (500,50), (0,255,255))
-    # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,100), (255,255,255))
+    write_on_screen(frame, ('Controle:'+str(data.control_output)), (10,100), (255,255,255))
     # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,150), (255,255,255)) 
     # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,200), (50,50,255))  
     # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,250), (50,50,255))    
