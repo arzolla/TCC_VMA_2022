@@ -93,7 +93,7 @@ class Controller:
 
         return output
 
-    def setFilter(self, n=1, wn=0.02):
+    def setFilter(self, n=1, wn=0.04):
         """Define os parâmetros do filtro Butterworth a ser aplicado nas entradas"""
         self.num, self.den = signal.butter(n, wn)
         self.zi = np.zeros(self.num.size-1)

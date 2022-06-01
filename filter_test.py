@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     # Declarando filtro
 
-    num, den = signal.butter(1, 0.02)
+    num, den = signal.butter(1, 0.04)
     zi = signal.lfilter_zi(num, den)
     theta_f1, _ = signal.lfilter(num, den, theta, zi=zi*theta[0])
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     plt.plot(time, theta, 'b-', label='Theta')
 
     #plt.plot(time, z, 'g-', label='Theta filtrado lfilter')
-    plt.plot(time, theta_f2, 'y-', label='Theta n=2')
+    #plt.plot(time, theta_f2, 'y-', label='Theta n=2')
     plt.plot(time, theta_f1, 'r-', label='Theta n=1')
 
 
