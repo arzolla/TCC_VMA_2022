@@ -98,7 +98,7 @@ def run_simulation(args, client):
         ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
         #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
         #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
-        ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo)
+        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo)
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
         #ponto_spawn = carla.Transform(carla.Location(x=388.704559, y=-141.879608, z=0.01), carla.Rotation(pitch=-0.005649, yaw=90.611755, roll=0.004866)) # proximo da curva, faixa melhor
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil
@@ -137,9 +137,9 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # theta em radianos
-        # steering em fator, para vel = 10, steering 1 => 39.7 graus
+        # steering em fator, para vel = 10, steering 0.1 => 5.6 graus
         # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-        control = Controller(K_psi=0.08, K_dx=0.1)
+        control = Controller(K_psi=0.04, K_dx=0.08)
         #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
         control.setFilter()
         #control.setOutputLimit(0.5, -0.5)
