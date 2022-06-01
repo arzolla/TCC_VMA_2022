@@ -77,7 +77,7 @@ def filter_by_angle(lines, sin_max = 76):
         for line in lines:
             rho, theta = line[0]
             sin_theta = np.sin(theta)
-            print(sin_theta)
+            #print(sin_theta)
             if sin_max > sin_theta:
                 ok_lines.append(np.array(line))
 
