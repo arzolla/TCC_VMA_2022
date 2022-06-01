@@ -447,7 +447,7 @@ def control_monitor(data):
         write_on_screen(frame, ('Direita'), (500,50), (255,0,0))
     else:
         write_on_screen(frame, ('Esquerda'), (500,50), (0,255,255))
-    write_on_screen(frame, ('Controle:'+str(data.control_output)), (10,100), (255,255,255))
+    write_on_screen(frame, ('Controle:'+str(round(data.control_output, 5))), (10,100), (255,255,255))
     # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,150), (255,255,255)) 
     # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,200), (50,50,255))  
     # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,250), (50,50,255))    
