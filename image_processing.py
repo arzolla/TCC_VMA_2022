@@ -442,12 +442,12 @@ def control_monitor(data):
         display_lines_2pts(frame, [data.dx + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
         write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [data.dx + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
-    write_on_screen(frame, ('Steering:'+str(round(data.steering,5))), (10,50), (255,255,255))
+    write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
     if  data.steering > 0:
         write_on_screen(frame, ('Direita'), (500,50), (255,0,0))
     else:
         write_on_screen(frame, ('Esquerda'), (500,50), (0,255,255))
-    write_on_screen(frame, ('Controle:'+str(round(data.control_output, 5))), (10,100), (255,255,255))
+    write_on_screen(frame, ('Controle:'+str(np.round(data.control_output,4))), (10,100), (255,255,255))
     # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,150), (255,255,255)) 
     # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,200), (50,50,255))  
     # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,250), (50,50,255))    
