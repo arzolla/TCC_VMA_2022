@@ -186,7 +186,7 @@ def run_simulation(args, client):
 
             data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
             data.velocidade = velocidade
-            data.Control_output = control.last_output
+            data.control_output = control.last_output
             # data.Kp_dx = controlador.Kp_dx
             # data.Ki_dx = controlador.Ki_dx
 
