@@ -98,21 +98,15 @@ def get_average_line(line_list):
     return []
 
 
-def normalize_hough(left_lines, right_lines):
-    if left_lines is not None:
-        # para as linhas da esquerda
-        for line in left_lines:
-            rho, theta = line[0]
-            if theta < np.pi:
-               line[0] = (-rho), (theta - np.pi)
-        # para as linhas da direita
-    if right_lines is not None:
-        for line in right_lines:
+def normalize_hough(lines):
+
+    if lines is not None:
+        for line in lines:
             rho, theta = line[0]
             if rho < 0:
                 line[0] = (-rho), (theta - np.pi)
 
-    return left_lines, right_lines
+    return lines
 
 def get_median_line(line_list):
     if line_list is not None:
@@ -200,7 +194,7 @@ class Holder:
 
 class DifferenceFilter:
 
-    def __init__(self, theta_lim = 0.4, rho_lim=400, count_lim=25):
+    def __init__(self, theta_lim = 0.5, rho_lim=400, count_lim=25):
         
         # Valores padrão das linhas
         self.left_antiga = [np.array([[200.        ,   0]], dtype=np.float32)]
@@ -227,7 +221,7 @@ class DifferenceFilter:
         rho_l_a, theta_l_a = self.left_antiga[0][0]
 
         # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_l - rho_l_a) < self.rho_lim and abs(theta_l - theta_l_a) < self.theta_lim) or self.l_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        if (abs(rho_l - rho_l_a) < self.rho_lim and abs(np.sin(theta_l) - np.sin(theta_l_a)) < self.theta_lim) or self.l_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
             left_ok = left_line # usa linha nova
             self.left_antiga = left_line # armazena linha nova
             self.l_count = 0 # zera contador sempre que utilizar linha nova
@@ -246,7 +240,7 @@ class DifferenceFilter:
         rho_r_a, theta_r_a = self.right_antiga[0][0]
 
         # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_r - rho_r_a) < self.rho_lim and abs(theta_r - theta_r_a) < self.theta_lim) or self.r_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        if (abs(rho_r - rho_r_a) < self.rho_lim and abs(np.sin(theta_r) - np.sin(theta_r_a)) < self.theta_lim) or self.r_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
             right_ok = right_line # usa linha nova
             self.right_antiga = right_line # armazena linha nova
             self.r_count = 0 # zera contador sempre que utilizar linha nova
@@ -322,7 +316,8 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    #left_lines, right_lines = normalize_hough(left_lines, right_lines)
+    #left_lines= normalize_hough(left_lines)
+    #right_lines = normalize_hough(right_lines)
 
     left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
     right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
@@ -333,8 +328,8 @@ def image_processing4(rgb_frame):
     cv2.imshow('left', left_img)
     cv2.imshow('right', right_img)
 
-    left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
-    right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
+    #left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
+    #right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
     #print('antes',left_lines, right_lines )
     left_line = get_median_line(left_lines)
     right_line = get_median_line(right_lines)
