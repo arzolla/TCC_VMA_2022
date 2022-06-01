@@ -29,52 +29,35 @@ import carla
 import argparse
 
 
-from image_processing import image_processing2, image_processing_kmeans, get_mask, show_image_rgb
+from image_processing import computer_vision_rgb, control_monitor, SimulationData
 import cv2
+from controller import Controller
 
-# Função para receber e processar a imagem recebida do simulador
-def computer_vision(frame):
-
-    if frame is not None:
-        
-        #show_image_rgb(frame) # Mostra imagem RGB
-
-        mask = get_mask(frame) # Obtem apenas faixa da imagem segmentada
-        
-        Erro = image_processing2(mask)
-        #image_processing_kmeans(mask)
-
-        cv2.waitKey(1)
-        return Erro
 
 
 # Função para executar o controle
-def control_main(vehicle, Erro):
-    #print(frame)
+def control_main(vehicle, control, velocidade, psi, dx):
 
-    Estado = vehicle.get_control().steer
-    if Estado is None:
-        Estado = 0
-    if Erro is None:
-        Erro = 0
+    #print(left_line, right_line)   
 
-    steering = (0.006*Erro - Estado)
 
-    print('Erro = ', Erro)
-    print('Steering aplicado = ', steering)
+    steering = control.update(psi, dx, velocidade)
+
+
     
-    vehicle.enable_constant_velocity(carla.Vector3D(3, 0, 0)) # aplicando velocidade constante
-    vehicle.apply_control(carla.VehicleControl(steer = float(steering))) # aplicando steering 
-    
+    vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
+    vehicle.apply_control(carla.VehicleControl(steer = round(float(steering), 4))) # aplicando steering
+    #print('steering', steering, theta, dx)
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
+
 
 
 
 try:
     import pygame
     from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q
+    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x, K_i, K_p
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -88,8 +71,6 @@ def run_simulation(args, client):
     vehicle = None
     vehicle_list = []
     timer = CustomTimer()
-
-
 
 
     try:
@@ -114,11 +95,14 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        
-        ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
-        ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
+        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
+        #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
+        #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
+        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo)
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
-        
+        #ponto_spawn = carla.Transform(carla.Location(x=388.704559, y=-141.879608, z=0.01), carla.Rotation(pitch=-0.005649, yaw=90.611755, roll=0.004866)) # proximo da curva, faixa melhor
+        #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil
+        #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção
         print("Spawn do carro: ",ponto_spawn)
        
 
@@ -127,28 +111,53 @@ def run_simulation(args, client):
         vehicle_list.append(vehicle)
 
 
-        vehicle.set_autopilot(True)
-
 
         # Display Manager organize all the sensors an its display in a window
         # If can easily configure the grid and the total window size
         display_manager = DisplayManager(grid_size=[1, 2], window_size=[args.width, args.height])
+        #display_manager = DisplayManager(grid_size=[1, 1], window_size=[720, 720])
 
 
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
         # and assign each of them to a grid position, 
-        RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
-                      vehicle, {}, display_pos=[0, 0])
-        Segment = SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)), 
-                      vehicle, {}, display_pos=[0, 1])
-        '''SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
-                      vehicle, {}, display_pos=[0, 2])
-'''
+        RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=1.2, z=1.4), carla.Rotation(pitch=-15, yaw=0)), 
+                      vehicle, {'fov' : '30'}, display_pos=[0, 0])
+
+        RGBCamera2 = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=-3, z=3), carla.Rotation(pitch=-30, yaw=0)), 
+                      vehicle, {'fov' : '90'}, display_pos=[0, 1])
+
+        # Segment = SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)), 
+        #               vehicle, {}, display_pos=[0, 1])
+        # SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=00)), 
+        #               vehicle, {}, display_pos=[0, 2])
+
 
 
         #Simulation loop
+
+        #Configurando controlador
+        # theta em radianos
+        # steering em fator, para vel = 10, steering 0.1 => 5.6 graus
+        # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
+        control = Controller(K_psi=0.08, K_dx=0.1)
+        #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
+        control.setFilter(n=1, wn=0.02)
+        #control.setOutputLimit(0.5, -0.5)
+
+        velocidade = 10
+
+        # classe para gestão dos dados
+        data = SimulationData()
+
+
+        #vehicle.set_autopilot(True)
+
         call_exit = False
         time_init_sim = timer.time()
+
+        frame = np.zeros((720,720,3))
+        rgb_frame = np.zeros((720,720,3))
+
         while True:
             # Carla Tick
             if args.sync:
@@ -161,21 +170,87 @@ def run_simulation(args, client):
 
 
 
+            ####################################################
+            ####################################################
+            ####################################################
+            ####################################################
+           
+           
             # Envia frame para a função de visão computacional
-            frame = Segment.rgb_frame
-            Erro = computer_vision(frame)
-            control_main(vehicle, Erro)
+            #seg_frame = Segment.rgb_frame
+            rgb_frame = RGBCamera.rgb_frame
+            
+            #computer_vision(seg_frame, data)
+            computer_vision_rgb(rgb_frame, data)
+            control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
+            data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
+            data.velocidade = velocidade
+            data.control_output = control.last_output
+            # data.Kp_dx = controlador.Kp_dx
+            # data.Ki_dx = controlador.Ki_dx
+
+            #print('aqui',np.shape(frame))
+
+
+            control_monitor(data)
+
+
+            #print('left',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
+            #print('right',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
+
+
+
+            ####################################################
+            ####################################################
+            ####################################################
+            ####################################################
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
+
+                    '''if event.key == K_a:
+                        new_kp =  controlador.Kp_theta+0.0001
+                        if new_kp < 0: 
+                            controlador.setKp(new_kp)
+                            print('Aumentando Kp_theta para:',controlador.Kp)
+                    if event.key == K_s: 
+                        controlador.setKp(controlador.Kp_theta-0.0001)
+                        print('Diminuindo Kp_theta para:',controlador.Kp)
+                    if event.key == K_d:
+                        new_kd =  controlador.Kp_dx+0.00001
+                        if new_kd < 0:
+                            controlador.setKd(new_kd)
+                            print('Aumentando Kp_dx para:',controlador.Kd)
+                    if event.key == K_f: 
+                        controlador.setKd(controlador.Kp_dx-0.00001)
+                        print('Diminuindo Kp_dx para:',controlador.Kd)'''
+                    if event.key == K_z:
+                        new_vel =  velocidade-0.5
+                        if new_vel > 0:
+                            velocidade = new_vel
+                            print('Diminuindo velocidade para:',velocidade)
+                    if event.key == K_x: 
+                        velocidade = velocidade + 0.5
+                        print('Aumentando velocidade para:',velocidade)  
+                    if event.key == K_p: 
+                        while(event.key != K_p): pass                                           
+
+                    if event.key == K_i: 
+                        
+                        print('Info:')
+                        print('Esquerda:', data.left_line)
+                        print('Direita:', data.right_line)
+                        print('Local do carro:', vehicle.get_transform())
+
                     if event.key == K_ESCAPE or event.key == K_q:
                         call_exit = True
                         break
 
             if call_exit:
+                print('Saindo ....')
                 break
 
     finally:

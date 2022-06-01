@@ -60,7 +60,7 @@ class SensorManager:
                 #camera_bp.set_attribute(key, sensor_options[key])
 
             camera = self.world.spawn_actor(camera_bp, transform, attach_to=attached)
-            camera.listen(self.save_rgb_image_color)
+            camera.listen(self.save_segmented_image)
 
             return camera
 
@@ -79,7 +79,7 @@ class SensorManager:
         array = array[:, :, :3]
 
         # Salva frame na variavel rgb_frame da classe
-        self.rgb_frame = array
+        self.rgb_frame = np.ascontiguousarray(array, dtype=np.uint8)
 
         array = array[:, :, ::-1]
 
@@ -90,7 +90,7 @@ class SensorManager:
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
         
-    def save_rgb_image_color(self, image):
+    def save_segmented_image(self, image):
         t_start = self.timer.time()
 
         image.convert(carla.ColorConverter.CityScapesPalette)
@@ -99,7 +99,7 @@ class SensorManager:
         array = array[:, :, :3]
         
         # Salva frame na variavel rgb_frame da classe
-        self.rgb_frame = array
+        self.rgb_frame = np.ascontiguousarray(array, dtype=np.uint8)
 
         array = array[:, :, ::-1]
 
