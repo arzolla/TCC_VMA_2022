@@ -319,8 +319,8 @@ def image_processing4(rgb_frame):
     left_lines= normalize_hough(left_lines)
     right_lines = normalize_hough(right_lines)
 
-    left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
-    right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
+    left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2BGR)
+    right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2BGR)
 
     display_lines(left_img, left_lines, line_color = (0,0,255), line_width=1)
     display_lines(right_img, right_lines, line_color = (0,0,255), line_width=1)
@@ -335,7 +335,7 @@ def image_processing4(rgb_frame):
     right_line = get_average_line(right_lines)
     #print('apos mediana',left_line, right_line )
     # converte para rgb
-    roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
+    roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2BGR)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
     left_line, right_line = holder.hold(left_line, right_line)
@@ -470,7 +470,7 @@ def adaptive_threshold(rgb_img):
 
     #cv2.imshow('rgb image', rgb_img)
 
-    gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
+    gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2GRAY)
     #cv2.imshow('gray image', gray_img)
     gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
     #roi_img_rgb, ROI = get_roi(gray_img, 1)
@@ -526,7 +526,7 @@ def bird_eyes(image):
 
 
 def teste(img):
-    pass
+    cv2.imshow('teste', img)
 
 if __name__ == '__main__':
 
@@ -541,15 +541,15 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
     path = 'curva_fov30_left.png'
-    path = 'line4.png'
-    path = 'line3.png'
+    #path = 'line4.png'
+    #path = 'line3.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
+    img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)
     
-    #img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
+    img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
     #image_processing(img_gray)
     #cv2.waitKey(0)
@@ -561,7 +561,7 @@ if __name__ == '__main__':
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
         #bird_eyes(img_BGR)
-        #testando(img_gray)
+        #teste(img_BGR)
         cv2.waitKey(0)
         print('arctan',np.arctan(-10000000))
         cv2.destroyAllWindows()
