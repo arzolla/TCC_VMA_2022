@@ -88,9 +88,12 @@ def get_average_line(line_list):
 
     if line_list is not None:
         if len(line_list) != 0:
-            # if len(line_list) > 10:
-            #     avg = [np.mean(line_list[0:10], axis=0, dtype=np.float32)]
-            # else:
+        # xs = [3, 7, 6]
+        # mean = xs[0]
+        # n = 1
+        #     while n < len(xs):
+        #     n += 1
+        #     mean = mean*(i-1)/i + xs[i-1]/i
             avg = [np.mean(line_list, axis=0, dtype=np.float32)]
             return avg
     #print('avg', avg)
@@ -103,9 +106,13 @@ def normalize_hough(lines):
         for line in lines:
             rho, theta = line[0]
             if rho < 0:
-                line[0] = (-rho), (theta - np.pi)
-
+                rho = (-rho)
+                theta = (theta - np.pi)
+            rho = rho + 360*np.cos(theta) # mudança de origem
+            line[0] = rho, theta
     return lines
+
+
 
 def get_median_line(line_list):
     if line_list is not None:
@@ -337,13 +344,13 @@ def image_processing4(rgb_frame):
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    left_line, right_line = holder.hold(left_line, right_line)
+    #left_line, right_line = holder.hold(left_line, right_line)
     
     # ignora as faixas muito diferentes da anterior
-    left_line, right_line = diff.filter_strange_line(left_line, right_line)
+    #left_line, right_line = diff.filter_strange_line(left_line, right_line)
 
     # média temporal das ultimas faixas
-    left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
