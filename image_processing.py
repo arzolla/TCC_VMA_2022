@@ -101,17 +101,35 @@ def get_average_line(line_list):
 
 
 def normalize_hough(lines):
-
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
             if rho < 0:
                 rho = (-rho)
                 theta = (theta - np.pi)
-            rho = rho + 360*np.cos(theta) # mudança de origem
             line[0] = rho, theta
     return lines
 
+def shift_origin(lines, shift = 360):
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            if theta > np.pi/2:
+                rho = - rho + abs(shift*np.cos(theta))
+                theta = theta - np.pi
+            else:
+                rho = shift*np.cos(theta) + rho # mudança de origem
+
+            line[0] = rho, theta
+    return lines
+
+def return_origin(lines):
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            rho = rho - 360*np.cos(theta) # mudança de origem
+            line[0] = rho, theta
+    return lines
 
 
 def get_median_line(line_list):
@@ -322,8 +340,11 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    left_lines= normalize_hough(left_lines)
-    right_lines = normalize_hough(right_lines)
+    left_lines_shift = left_lines.copy()
+    right_lines_shift = right_lines.copy()
+
+    normalize_hough(left_lines_shift)
+    normalize_hough(right_lines_shift)
 
     left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
     right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
@@ -334,12 +355,19 @@ def image_processing4(rgb_frame):
     cv2.imshow('left', left_img)
     cv2.imshow('right', right_img)
 
-    #left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
-    #right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
-    #print('antes',left_lines, right_lines )
-    left_line = get_average_line(left_lines)
-    right_line = get_average_line(right_lines)
-    #print('apos mediana',left_line, right_line )
+    filter_by_angle(left_lines_shift) # descarta linhas com angulo muito horizontal
+    filter_by_angle(right_lines_shift) # descarta linhas com angulo muito horizontal
+
+    shift_origin(left_lines_shift)
+    shift_origin(right_lines_shift)
+
+    left_line_shift = get_average_line(left_lines_shift)
+    right_line_shift = get_average_line(right_lines_shift)
+
+    left_line = return_origin(left_line_shift)
+    right_line = return_origin(right_line_shift)
+
+
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
@@ -367,7 +395,9 @@ def image_processing4(rgb_frame):
     ########## CALCULAR ERROS O CONTROLE ###########
     ################################################
 
-    mid_line, psi, del_x = get_mid_line(left_line, right_line)
+    mid_line, psi, del_x = get_mid_line(left_line_shift, right_line_shift)
+
+
 
 
 
@@ -547,8 +577,8 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
     path = 'curva_fov30_left.png'
-    path = 'line4.png'
-    path = 'line3.png'
+    #path = 'line4.png'
+    #path = 'line3.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
