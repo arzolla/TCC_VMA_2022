@@ -80,8 +80,8 @@ def filter_by_angle(lines, sin_max = 76):
             if sin_max > sin_theta:
                 ok_lines.append(np.array(line))
 
-    ok_lines = np.array(ok_lines)
-    return ok_lines
+    lines = np.array(ok_lines)
+    return lines
 
 
 def get_average_line(line_list):
@@ -146,8 +146,8 @@ class Accumulator:
         
         # Variáveis para armazenar a média temporal. 
         # São inicializadas com valor de faixa ideal.
-        self.left_line_accum = [np.array([[200.        ,   0]], dtype=np.float32)]
-        self.right_line_accum = [np.array([[520.       ,   0]], dtype=np.float32)]
+        self.left_line_accum = [np.array([[560.        ,   0]], dtype=np.float32)]
+        self.right_line_accum = [np.array([[880.       ,   0]], dtype=np.float32)]
         self.accum_max_size = accum_max_size
 
     def accumulate(self, left_line, right_line):
@@ -198,8 +198,8 @@ class Holder:
         
         # Variáveis para armazenar a faixa atual 
         # São inicializadas com valor de faixa ideal.
-        self.left_line = [np.array([[200.        ,   0]], dtype=np.float32)]
-        self.right_line = [np.array([[520.       ,   0]], dtype=np.float32)]
+        self.left_line = [np.array([[560.        ,   0]], dtype=np.float32)]
+        self.right_line = [np.array([[880.       ,   0]], dtype=np.float32)]
 
     def hold(self, left_line, right_line):
 
@@ -221,8 +221,8 @@ class DifferenceFilter:
     def __init__(self, theta_lim = 0.5, rho_lim=400, count_lim=25):
         
         # Valores padrão das linhas
-        self.left_antiga = [np.array([[200.        ,   0]], dtype=np.float32)]
-        self.right_antiga = [np.array([[520.       ,   0]], dtype=np.float32)]
+        self.left_antiga = [np.array([[560.        ,   0]], dtype=np.float32)]
+        self.right_antiga = [np.array([[880.       ,   0]], dtype=np.float32)]
         
         # contadores para após x linhas ignoradas ele forçar pegar a nova
         self.l_count = 0
@@ -293,18 +293,20 @@ def intersection(line1, line2):
 def get_mid_line(left_line, right_line):
     #print('left', left_line[0])
     if left_line  is not None and right_line is not None:
-        rho1, theta1 = left_line[0][0]
-        rho2, theta2 = right_line[0][0]
-        #print(left_line, right_line)
-        
-        psi = (theta1 + theta2)/2 # yaw error
-        rho = (rho1 + rho2)/2
-        del_x = 0
-        intersec = intersection([[[rho, psi]]],[[[720, 1.57059]]])
-        #print(intersec)
-        del_x = intersec[0] - 360
+        if len(left_line) != 0 and len(right_line) != 0:
 
-        return [[[rho, psi]]], np.rad2deg(psi), del_x
+            rho1, theta1 = left_line[0][0]
+            rho2, theta2 = right_line[0][0]
+
+            
+            psi = (theta1 + theta2)/2 # yaw error
+            rho = (rho1 + rho2)/2
+            del_x = 0
+            intersec = intersection([[[rho, psi]]],[[[720, 1.57059]]])
+            #print(intersec)
+            del_x = intersec[0] - 360
+
+            return [[[rho, psi]]], np.rad2deg(psi), del_x
     return [[[0, 0]]], 0, 0
     
 holder = Holder()
@@ -340,9 +342,14 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
-    left_lines_shift = left_lines.copy()
-    right_lines_shift = right_lines.copy()
-
+    if left_lines is not None:
+        left_lines_shift = left_lines.copy()
+    else:
+        left_lines_shift = None
+    if right_lines is not None:
+        right_lines_shift = right_lines.copy()
+    else:
+        right_lines_shift = None
     normalize_hough(left_lines_shift)
     normalize_hough(right_lines_shift)
 
@@ -358,27 +365,30 @@ def image_processing4(rgb_frame):
     filter_by_angle(left_lines_shift) # descarta linhas com angulo muito horizontal
     filter_by_angle(right_lines_shift) # descarta linhas com angulo muito horizontal
 
+    # Desloca origem em 360 pixels no eixo x
     shift_origin(left_lines_shift)
     shift_origin(right_lines_shift)
 
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
 
-    left_line = return_origin(left_line_shift)
-    right_line = return_origin(right_line_shift)
-
 
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    #left_line, right_line = holder.hold(left_line, right_line)
+    left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
     
     # ignora as faixas muito diferentes da anterior
-    #left_line, right_line = diff.filter_strange_line(left_line, right_line)
+    left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
 
     # média temporal das ultimas faixas
-    #left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
+
+    # Volta para origem antiga
+    left_line = return_origin(left_line_shift)
+    right_line = return_origin(right_line_shift)
+
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
