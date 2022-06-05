@@ -245,7 +245,7 @@ class DifferenceFilter:
         rho_l_a, theta_l_a = self.left_antiga[0][0]
 
         # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_l - rho_l_a) < self.rho_lim and abs(np.sin(theta_l) - np.sin(theta_l_a)) < self.theta_lim) or self.l_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        if (abs(rho_l - rho_l_a) < self.rho_lim and abs(np.sin(theta_l) - abs(np.sin(theta_l_a))) < self.theta_lim) or self.l_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
             left_ok = left_line # usa linha nova
             self.left_antiga = left_line # armazena linha nova
             self.l_count = 0 # zera contador sempre que utilizar linha nova
@@ -264,7 +264,7 @@ class DifferenceFilter:
         rho_r_a, theta_r_a = self.right_antiga[0][0]
 
         # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_r - rho_r_a) < self.rho_lim and abs(np.sin(theta_r) - np.sin(theta_r_a)) < self.theta_lim) or self.r_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        if (abs(rho_r - rho_r_a) < self.rho_lim and abs(np.sin(theta_r) - abs(np.sin(theta_r_a))) < self.theta_lim) or self.r_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
             right_ok = right_line # usa linha nova
             self.right_antiga = right_line # armazena linha nova
             self.r_count = 0 # zera contador sempre que utilizar linha nova
