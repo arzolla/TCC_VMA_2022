@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 def get_roi(image):
 
     height, width = image.shape
-    left_img = image[0:int(height), 0:int(width/2)]
+    left_img = image[0:height, 0:int(width/2)]
     right_img = image[0:height, int(width/2):width]
     half = np.zeros_like(left_img)
     left_img = np.concatenate((left_img, half), axis=1)
