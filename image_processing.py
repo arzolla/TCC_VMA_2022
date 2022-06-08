@@ -69,15 +69,16 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_by_angle(lines, sin_max = 76):
+def filter_by_angle(lines, sin_max = 0.76):
 
     ok_lines = []
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
             sin_theta = np.sin(theta)
-            #print(sin_theta)
-            if sin_max > sin_theta:
+            print(sin_theta)
+            if sin_max > abs(sin_theta):
+                print(line)
                 ok_lines.append(np.array(line))
 
     lines = np.array(ok_lines)
@@ -352,6 +353,9 @@ def image_processing4(rgb_frame):
     left_lines = hough_transform(left_img) # todas as linhas detectadas 
     right_lines = hough_transform(right_img)
 
+    left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
+    right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
+
     if left_lines is not None:
         left_lines_shift = left_lines.copy()
     else:
@@ -372,8 +376,7 @@ def image_processing4(rgb_frame):
     cv2.imshow('left', left_img)
     cv2.imshow('right', right_img)
 
-    filter_by_angle(left_lines_shift) # descarta linhas com angulo muito horizontal
-    filter_by_angle(right_lines_shift) # descarta linhas com angulo muito horizontal
+
 
     # Desloca origem em 360 pixels no eixo x
     shift_origin(left_lines_shift)
@@ -387,13 +390,13 @@ def image_processing4(rgb_frame):
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
+    #left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
     
     # ignora as faixas muito diferentes da anterior
-    left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
+    #left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
 
     # média temporal das ultimas faixas
-    left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
+    #left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
 
     # Volta para origem antiga
     left_line = return_origin(left_line_shift)
@@ -537,8 +540,8 @@ def moving_threshold(gray_img, n=20, b=0.5):
     g = np.ascontiguousarray(g, dtype=np.uint8)
     g = g*255
     
-    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6,6))
-    print(element)
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4,4))
+    #print(element)
 
     close_img = cv2.morphologyEx(g, cv2.MORPH_CLOSE, element)
 
