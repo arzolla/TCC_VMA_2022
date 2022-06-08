@@ -325,7 +325,17 @@ def image_processing4(rgb_frame):
 
     cv2.imshow('birds', bird_img)
 
-    img_bin = adaptive_threshold(bird_img)
+    gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
+
+    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
+
+    cv2.imshow('gray img', gray_img)
+
+    #img_bin = adaptive_threshold(gray_img)
+
+    img_bin = moving_threshold(gray_img, n=200, b=1.1)
+
+    cv2.imshow('img_bin', img_bin)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
@@ -512,34 +522,37 @@ def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
 
 
-def adaptive_threshold(rgb_img):
+def moving_threshold(gray_img, n=20, b=0.5):
 
-    #cv2.imshow('rgb image', rgb_img)
+    #gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
 
-    gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
-    #cv2.imshow('gray image', gray_img)
-    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
-    #roi_img_rgb, ROI = get_roi(gray_img, 1)
-    #cv2.imshow('roi img rgb', roi_img_rgb)
-    #cv2.imshow('gray blurred', gray_img)
+    gray_img[1:-1:2, :] = np.fliplr(gray_img[1:-1:2, :])  #  Vector flip 
+    f = gray_img.flatten()  #  Flatten to one dimension 
+    ret = np.cumsum(f)
+    ret[n:] = ret[n:] - ret[:-n]
+    m = ret / n  #  Moving average 
+    g = np.array(f>=b*m).astype(int)  #  Threshold judgment ,g=1 if f>=b*m
+    g = g.reshape(gray_img.shape)  #  Restore to 2D 
+    g[1:-1:2, :] = np.fliplr(g[1:-1:2, :])  #  Flip alternately
+    g = np.ascontiguousarray(g, dtype=np.uint8)
+    g = g*255
+    
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6,6))
+    print(element)
+
+    close_img = cv2.morphologyEx(g, cv2.MORPH_CLOSE, element)
+
+  
+    return close_img
 
 
-    cv2.imshow('roi img', gray_img)
 
-    # gray_img_eq = cv2.equalizeHist(gray_img[ROI])
-    # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
-    # gray_img_eq = clahe.apply(gray_img[ROI])
-
-    # gray_img[ROI] = gray_img_eq.reshape(-1)
-
-
+def adaptive_threshold(gray_img):
 
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
     thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
-    cv2.imshow('tresh img', thresh_img)
-
 
 
     #plt.show()
@@ -571,8 +584,23 @@ def bird_eyes(image):
     return img_transformed
 
 
-def teste(img):
-    pass
+def teste(rgb_frame):
+    bird_img = bird_eyes(rgb_frame)
+
+    cv2.imshow('birds', bird_img)
+
+    img_thresh = moving_threshold(bird_img, n = 50, b = 1.2)
+
+    cv2.imshow('tresh', img_thresh)
+
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6,6))
+    print(element)
+
+    open = cv2.morphologyEx(img_thresh, cv2.MORPH_CLOSE, element)
+
+    cv2.imshow('open', open)
+
+
 
 if __name__ == '__main__':
 
@@ -593,9 +621,9 @@ if __name__ == '__main__':
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
+    #img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
     
-    #img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
+    img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
     #image_processing(img_gray)
     #cv2.waitKey(0)
@@ -607,7 +635,7 @@ if __name__ == '__main__':
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
         #bird_eyes(img_BGR)
-        #testando(img_gray)
+        #teste(img_BGR)
         cv2.waitKey(0)
         print('arctan',np.arctan(-10000000))
         cv2.destroyAllWindows()
