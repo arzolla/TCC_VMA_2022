@@ -92,9 +92,9 @@ def filter_out_of_roi(lines):
         for line in lines:
             rho, theta = line[0]
             base = rho*(1/np.cos(theta)) + np.sign(theta)*720*np.sin(theta)
-            print('base',base)
+            #print('base',base)
             if base > 360 and base < 1080:
-                print(line)
+                #print(line)
                 ok_lines.append(np.array(line))
 
     lines = np.array(ok_lines)
@@ -411,13 +411,13 @@ def image_processing4(rgb_frame):
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    #left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
+    left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
     
     # ignora as faixas muito diferentes da anterior
-    #left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
+    left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
 
     # média temporal das ultimas faixas
-    #left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
+    left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
 
     # Volta para origem antiga
     left_line = return_origin(left_line_shift)
