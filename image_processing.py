@@ -2,6 +2,7 @@
 
 # Feito por Victor de Mattos Arzolla
 
+from sqlite3 import DataError
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
@@ -76,8 +77,23 @@ def filter_by_angle(lines, sin_max = 0.76):
         for line in lines:
             rho, theta = line[0]
             sin_theta = np.sin(theta)
-            print(sin_theta)
+            #print(sin_theta)
             if sin_max > abs(sin_theta):
+                #print(line)
+                ok_lines.append(np.array(line))
+
+    lines = np.array(ok_lines)
+    return lines
+
+def filter_out_of_roi(lines):
+
+    ok_lines = []
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            base = rho*(1/np.cos(theta)) + np.sign(theta)*720*np.sin(theta)
+            print('base',base)
+            if base > 360 and base < 1080:
                 print(line)
                 ok_lines.append(np.array(line))
 
@@ -364,6 +380,7 @@ def image_processing4(rgb_frame):
         right_lines_shift = right_lines.copy()
     else:
         right_lines_shift = None
+
     normalize_hough(left_lines_shift)
     normalize_hough(right_lines_shift)
 
@@ -381,6 +398,10 @@ def image_processing4(rgb_frame):
     # Desloca origem em 360 pixels no eixo x
     shift_origin(left_lines_shift)
     shift_origin(right_lines_shift)
+
+    left_lines_shift = filter_out_of_roi(left_lines_shift)
+    right_lines_shift = filter_out_of_roi(right_lines_shift)
+
 
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
@@ -401,6 +422,9 @@ def image_processing4(rgb_frame):
     # Volta para origem antiga
     left_line = return_origin(left_line_shift)
     right_line = return_origin(right_line_shift)
+
+    left_lines = return_origin(left_lines_shift)
+    right_lines = return_origin(right_lines_shift)
 
 
     # mostra as linhas
