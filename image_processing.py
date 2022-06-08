@@ -92,9 +92,9 @@ def filter_out_of_roi(lines):
         for line in lines:
             rho, theta = line[0]
             base = rho*(1/np.cos(theta)) - 720*np.sin(theta)
-            print('base',base)
+            #print('base',base)
             if base > 360 and base < 1080:
-                print(line)
+                #print(line)
                 ok_lines.append(np.array(line))
 
     lines = np.array(ok_lines)
@@ -348,9 +348,9 @@ def image_processing4(rgb_frame):
 
     cv2.imshow('gray img', gray_img)
 
-    #img_bin = adaptive_threshold(gray_img)
+    img_bin = adaptive_threshold(gray_img)
 
-    img_bin = moving_threshold(gray_img, n=200, b=1.1)
+    #img_bin = moving_threshold(gray_img, n=200, b=1.1)
 
     cv2.imshow('img_bin', img_bin)
 
@@ -456,7 +456,7 @@ def image_processing4(rgb_frame):
 def computer_vision_rgb(rgb_frame, data):
     #seg_frame = data.frame
     if rgb_frame is None:
-        rgb_frame = np.zeros((720,720,3))
+        rgb_frame = np.full((720,720,3),255)
     rgb_frame = np.ascontiguousarray(rgb_frame, dtype=np.uint8)
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
