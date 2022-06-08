@@ -91,10 +91,10 @@ def filter_out_of_roi(lines):
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
-            base = rho*(1/np.cos(theta)) + np.sign(theta)*720*np.sin(theta)
-            #print('base',base)
+            base = rho*(1/np.cos(theta)) - 720*np.sin(theta)
+            print('base',base)
             if base > 360 and base < 1080:
-                #print(line)
+                print(line)
                 ok_lines.append(np.array(line))
 
     lines = np.array(ok_lines)
@@ -644,7 +644,7 @@ if __name__ == '__main__':
     path = 'curva_fov30_left.png'
     #path = 'line4.png'
     #path = 'line3.png'
-    #path = 'curva_fov30_right.png'
+    path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
