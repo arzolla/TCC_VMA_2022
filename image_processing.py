@@ -338,7 +338,23 @@ def image_processing4(rgb_frame):
     #### TRATAMENTO E PROCESSAMENTO DE IMAGENS #####
     ################################################
 
+
+
+
+
     bird_img = bird_eyes(rgb_frame)
+
+    tl = [145, 80]
+    tr = [575, 80]
+    br = [820, 175]
+    bl = [-100, 175]
+
+    display_lines_2pts(rgb_frame, tl, tr, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame, tr, br, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame, br, bl, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame, bl, tl, line_color = (0,21,200), line_width=1)
+
+    cv2.imshow('cam image', rgb_frame)
 
     cv2.imshow('birds', bird_img)
 
@@ -579,7 +595,7 @@ def adaptive_threshold(gray_img):
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
+    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
 
 
     #plt.show()
@@ -641,10 +657,10 @@ if __name__ == '__main__':
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
-    path = 'curva_fov30_left.png'
+    #path = 'curva_fov30_left.png'
     #path = 'line4.png'
     #path = 'line3.png'
-    path = 'curva_fov30_right.png'
+    #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
