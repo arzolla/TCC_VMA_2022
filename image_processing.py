@@ -343,8 +343,8 @@ def image_processing4(rgb_frame):
 
     tl = [145, 80]
     tr = [575, 80]
-    br = [1145, 300]
-    bl = [-420, 300]
+    br = [1065, 270]
+    bl = [-345, 270]
 
     display_lines_2pts(rgb_frame, tl, tr, line_color = (0,21,200), line_width=1)
     display_lines_2pts(rgb_frame, tr, br, line_color = (0,21,200), line_width=1)
@@ -602,8 +602,8 @@ def bird_eyes(image):
     # targeted rectangle on original image which needs to be transformed
     tl = [145, 80]
     tr = [575, 80]
-    br = [1145, 300]
-    bl = [-420, 300]
+    br = [1065, 270]
+    bl = [-345, 270]
 
     corner_points_array = np.float32([tl,tr,br,bl])
 
