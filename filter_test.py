@@ -9,7 +9,7 @@ from scipy import signal
 if __name__ == '__main__':
 
     # Obtendo dados dos arquivos
-    f_theta = open("theta.txt", "r")
+    f_theta = open("psi.txt", "r")
     f_dx = open("dx.txt", "r")
     f_time = open("time.txt", "r")
 
@@ -23,12 +23,12 @@ if __name__ == '__main__':
 
     # Declarando filtro
 
-    num, den = signal.butter(1, 0.04)
+    num, den = signal.butter(1, 0.02)
     zi = signal.lfilter_zi(num, den)
     theta_f1, _ = signal.lfilter(num, den, theta, zi=zi*theta[0])
 
 
-    num2, den2 = signal.butter(2, 0.02)
+    num2, den2 = signal.butter(4, 0.03)
     zi2 = signal.lfilter_zi(num2, den2)
     theta_f2, _ = signal.lfilter(num2, den2, theta, zi=zi2*theta[0])
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     plt.plot(time, theta, 'b-', label='Theta')
 
     #plt.plot(time, z, 'g-', label='Theta filtrado lfilter')
-    #plt.plot(time, theta_f2, 'y-', label='Theta n=2')
+    plt.plot(time, theta_f2, 'y-', label='Theta n=2')
     plt.plot(time, theta_f1, 'r-', label='Theta n=1')
 
 
