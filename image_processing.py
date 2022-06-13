@@ -319,7 +319,7 @@ def get_mid_line(left_line, right_line):
             psi = (theta1 + theta2)/2 # yaw error
             rho = (rho1 + rho2)/2
             del_x = 0
-            intersec = intersection([[[rho, psi]]],[[[720, 1.57059]]])
+            intersec = intersection([[[rho, psi]]],[[[1000, 1.57059]]])
             #print(intersec)
             del_x = intersec[0] - 360
 
@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.4, rho_lim=300, count_lim=49)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=150, count_lim=49)
 
 def image_processing4(rgb_frame):
 
@@ -343,8 +343,8 @@ def image_processing4(rgb_frame):
 
     tl = [145, 80]
     tr = [575, 80]
-    br = [1065, 270]
-    bl = [-345, 270]
+    br = [1145, 300]
+    bl = [-420, 300]
 
     display_lines_2pts(rgb_frame, tl, tr, line_color = (0,21,200), line_width=1)
     display_lines_2pts(rgb_frame, tr, br, line_color = (0,21,200), line_width=1)
@@ -602,8 +602,8 @@ def bird_eyes(image):
     # targeted rectangle on original image which needs to be transformed
     tl = [145, 80]
     tr = [575, 80]
-    br = [1065, 270]
-    bl = [-345, 270]
+    br = [1145, 300]
+    bl = [-420, 300]
 
     corner_points_array = np.float32([tl,tr,br,bl])
 
