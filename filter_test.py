@@ -37,13 +37,13 @@ if __name__ == '__main__':
     plt.figure('Theta x Tempo')
     plt.plot(time, theta, 'b-', label='Theta')
 
+
     #plt.plot(time, z, 'g-', label='Theta filtrado lfilter')
-    plt.plot(time, theta_f2, 'y-', label='Theta n=2')
-    plt.plot(time, theta_f1, 'r-', label='Theta n=1')
+    #plt.plot(time, theta_f2, 'y-', label='Theta n=2')
+    #plt.plot(time, theta_f1, 'r-', label='Theta n=1')
 
-
-    # plt.figure('Dx x Tempo')
-    # plt.plot(time, dx)
+    plt.figure('Dx x Tempo')
+    plt.plot(time, dx, 'c-', label='Dx')
 
     plt.legend(loc='best')
     plt.show()
