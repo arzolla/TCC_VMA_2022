@@ -142,8 +142,8 @@ def run_simulation(args, client):
         # K_psi = 0.12 parece replicar angulo do erro para steering direto da roda
 
         velocidade = 15
-        wn = 0.2625/velocidade
-        control = Controller(K_psi=0.12, K_dx=0.35)
+        wn = 0.5625/velocidade
+        control = Controller(K_psi=0.12, K_dx=0.3)
         #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
         control.setFilter(n=1, wn=wn)
         control.setSampleTime(0.03)
