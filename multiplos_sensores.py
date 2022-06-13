@@ -140,13 +140,16 @@ def run_simulation(args, client):
         # steering em fator, para vel = 10, steering 0.1 => 5.6 graus
         # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
         # K_psi = 0.12 parece replicar angulo do erro para steering direto da roda
+
+        velocidade = 15
+        wn = 0.2625/velocidade
         control = Controller(K_psi=0.12, K_dx=0.35)
         #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
-        control.setFilter(n=1, wn=0.0175)
+        control.setFilter(n=1, wn=wn)
         control.setSampleTime(0.03)
         #control.setOutputLimit(0.5, -0.5)
 
-        velocidade = 15
+  
 
         # classe para gestão dos dados
         data = SimulationData()
