@@ -32,7 +32,8 @@ class Controller:
         # Configuração do filtro
         self.num = None
         self.den = None
-        self.zi = None
+        self.zi_psi = None
+        self.zi_dx = None
 
 
     # Função estática para limitar determinado valor
@@ -46,11 +47,11 @@ class Controller:
             return min
         return value
 
-    def __filter(self, input):
-        if self.zi is None or input is None:
+    def __filter(self, input, zi):
+        if zi is None or input is None:
             return input
-        output, _ = signal.lfilter(self.num, self.den, [input], zi=self.zi)  
-        return output
+        output, zi = signal.lfilter(self.num, self.den, [input], zi=zi)  
+        return output, zi
 
     def update(self, psi, dx, velocidade, current_time=None):
 
@@ -73,13 +74,12 @@ class Controller:
             return self.last_output
 
         # Filtra as entradas
-        psi = self.__filter(psi)
-        dx = self.__filter(dx)
-
+        psi, self.zi_psi = self.__filter(psi, self.zi_psi)
+        dx, self.zi_dx = self.__filter(dx, self.zi_dx)
+        
         # Cálculo dos termos
         self.Term_arctan = np.arctan(self.K_dx * (dx/velocidade))/1.57 # arctan é normalizada para intervalo entre -1 e 1
         self.Term_psi = self.K_psi * psi
-
 
         # Calcula resposta do controle
         output = self.Term_psi + self.Term_arctan
@@ -91,12 +91,16 @@ class Controller:
         self.last_time = current_time
         self.last_output = output
 
-        return output
+        return output, psi, dx
 
     def setFilter(self, n=1, wn=0.04):
         """Define os parâmetros do filtro Butterworth a ser aplicado nas entradas"""
         self.num, self.den = signal.butter(n, wn)
-        self.zi = np.zeros(self.num.size-1)
+
+        self.zi_psi = np.zeros(self.num.size-1)
+        self.zi_dx = np.zeros(self.num.size-1)
+        self.zi_output = np.zeros(self.num.size-1)
+
 
     def setKp(self, K_psi, K_dx):
         """Determina o ganho proporcional de psi e velocidade da arctan"""

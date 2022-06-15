@@ -41,11 +41,13 @@ def control_main(vehicle, control, velocidade, psi, dx):
     #print(left_line, right_line)   
 
 
-    steering = control.update(psi, dx, velocidade)
+    steering, psi_filt, dx_filt = control.update(psi, dx, velocidade)
 
     # log_data(steering, 'steering')
     # log_data(psi, 'psi')
     # log_data(dx, 'dx')
+    # log_data(dx_filt, 'dx_filt')
+    # log_data(psi_filt, 'psi_filt')
     # log_data(time.time(),'time')
     
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
@@ -151,9 +153,9 @@ def run_simulation(args, client):
 
         velocidade = 15
         wn = 0.5625/velocidade
-        control = Controller(K_psi=0.12, K_dx=0.32)
+        control = Controller(K_psi=0.12*0.045, K_dx=0.32*0.045)
         #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
-        control.setFilter(n=1, wn=0.03)
+        control.setFilter(n=1, wn=0.8)
         control.setSampleTime(0.033)
         #control.setOutputLimit(0.5, -0.5)
 
