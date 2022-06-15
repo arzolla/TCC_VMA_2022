@@ -269,7 +269,7 @@ class DifferenceFilter:
         else: # se for muito diferente da linha antiga
             left_ok = self.left_antiga # Pega a faixa antiga
             self.l_count = self.l_count + 1 # incrementa contador quando utilizar linha antiga
-            print('pegou LEFT antiga, count',self.l_count, left_line, self.left_antiga)
+            #print('pegou LEFT antiga, count',self.l_count, left_line, self.left_antiga)
 
 
         # if right_antiga is None:
@@ -288,7 +288,7 @@ class DifferenceFilter:
         else: # se for muito diferente da linha antiga
             right_ok = self.right_antiga # Pega a faixa antiga
             self.r_count = self.r_count + 1  # incrementa contador quando utilizar linha antiga
-            print('pegou RIGHT antiga, count',self.r_count, right_line, self.right_antiga)    
+            #print('pegou RIGHT antiga, count',self.r_count, right_line, self.right_antiga)    
 
 
         return left_ok, right_ok
