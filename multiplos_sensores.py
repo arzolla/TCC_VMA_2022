@@ -59,7 +59,7 @@ def control_main(vehicle, control, velocidade, psi, dx):
 
 def log_data(data, data_name):
     data_f = open(data_name+".txt", "a")
-    data_f.write(str(data)+",\n")
+    data_f.write(str(data)+", ")
 
 
 
