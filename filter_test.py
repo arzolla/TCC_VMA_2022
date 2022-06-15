@@ -26,12 +26,12 @@ if __name__ == '__main__':
 
 
     # Declarando filtro
-
-    num, den = signal.butter(1, 0.8)
+    n = 0.03
+    num, den = signal.butter(1, 0.08, btype='lowpass')
     zi = signal.lfilter_zi(num, den)
     theta_f1, _ = signal.lfilter(num, den, theta, zi=zi*theta[0])
 
-    theta_f1 = np.array(theta_f1)
+    theta_f1 = np.array(theta_f1)*0.045
 
     num2, den2 = signal.butter(4, 0.03)
     zi2 = signal.lfilter_zi(num2, den2)
@@ -39,21 +39,23 @@ if __name__ == '__main__':
 
     dx_f1, _ = signal.lfilter(num, den, dx, zi=zi*dx[0])
 
-    dx_f1 = np.array(dx_f1)
+    dx_f1 = np.array(dx_f1)*0.045
 
     # Traçando gráficos dos dados
     plt.figure('Theta x Tempo')
-    plt.plot(time, theta, 'b-', label='Theta')
+    #plt.plot(time, theta, 'b-', label='Theta')
     plt.plot(time, theta_filt, 'g--', label='Theta filt')
 
     #plt.plot(time, z, 'g-', label='Theta filtrado lfilter')
     #plt.plot(time, theta_f2, 'y-', label='Theta n=2')
     plt.plot(time, theta_f1, 'r-', label='Theta n=1')
-
-    plt.figure('Dx x Tempo')
-    plt.plot(time, dx, 'b-', label='Dx')
-    plt.plot(time, dx_filt, 'g--', label='Dx filt')
-    plt.plot(time, dx_f1, 'r-', label='Dx n=1')
+    plt.legend(loc='best')
+    
+    
+    # plt.figure('Dx x Tempo')
+    # plt.plot(time, dx, 'b-', label='Dx')
+    # plt.plot(time, dx_filt, 'g--', label='Dx filt')
+    # plt.plot(time, dx_f1, 'r-', label='Dx n=1')
 
     plt.legend(loc='best')
     plt.show()
