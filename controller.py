@@ -49,7 +49,7 @@ class Controller:
 
     def __filter(self, input, zi):
         if zi is None or input is None:
-            return input
+            return input, None
         output, zi = signal.lfilter(self.num, self.den, [input], zi=zi)  
         return output, zi
 
@@ -93,13 +93,12 @@ class Controller:
 
         return output, psi, dx
 
-    def setFilter(self, n=1, wn=0.04):
+    def setFilter(self, n=1, wn=0.04, btype='lowpass'):
         """Define os parâmetros do filtro Butterworth a ser aplicado nas entradas"""
-        self.num, self.den = signal.butter(n, wn)
+        self.num, self.den = signal.butter(n, wn, btype)
 
         self.zi_psi = np.zeros(self.num.size-1)
         self.zi_dx = np.zeros(self.num.size-1)
-        self.zi_output = np.zeros(self.num.size-1)
 
 
     def setKp(self, K_psi, K_dx):
