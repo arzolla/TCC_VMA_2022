@@ -598,25 +598,31 @@ def adaptive_threshold(gray_img):
     #plt.show()
     return thresh_img
 
+
 def bird_eyes(image):
-    # targeted rectangle on original image which needs to be transformed
-    tl = [145, 80]
-    tr = [575, 80]
-    br = [1065, 270]
-    bl = [-345, 270]
+    # # targeted rectangle on original image which needs to be transformed
+    # tl = [145, 80]
+    # tr = [575, 80]
+    # br = [1065, 270]
+    # bl = [-345, 270]
 
-    corner_points_array = np.float32([tl,tr,br,bl])
+    # corner_points_array = np.float32([tl,tr,br,bl])
 
 
-    # Create an array with the parameters (the dimensions) required to build the matrix
-    imgTl = [0, 0]
-    imgTr = [720, 0]
-    imgBr = [720, 720]
-    imgBl = [0, 720]
-    img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
+    # # Create an array with the parameters (the dimensions) required to build the matrix
+    # imgTl = [0, 0]
+    # imgTr = [720, 0]
+    # imgBr = [720, 720]
+    # imgBl = [0, 720]
+    # img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
 
-    # Compute and return the transformation matrix
-    matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
+    # # Compute and return the transformation matrix
+    # matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
+    # print(matrix)
+    matrix = np.array([ [ 4.14545455e+01,  1.06909091e+02, -1.45636364e+04],
+                        [-6.83188508e-15,  3.07636364e+02, -2.46109091e+04],
+                        [-6.97913090e-18,  2.96969697e-01,  1.00000000e+00]])
+    
     img_transformed = cv2.warpPerspective(image,matrix,(720, 720), borderMode=cv2.BORDER_REPLICATE)
     #display_lines_2pts(img_transformed, [360,0], [360,720], line_color = (200,21,21), line_width=1)
     #display_lines_2pts(img_transformed, [0,360], [720,360], line_color = (200,21,21), line_width=1)
@@ -660,6 +666,8 @@ if __name__ == '__main__':
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
+    #path = 'moqueca.jpg'
+
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     #img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
     
@@ -670,6 +678,11 @@ if __name__ == '__main__':
     data = SimulationData()
     for n in range(1):
 
+        
+        #gray_img = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2GRAY)
+        #gray_img_blur = cv2.GaussianBlur(gray_img,(21,21),0)
+        #cv2.imwrite('moqueca_gray.jpg', gray_img)
+        #cv2.imwrite('moqueca_gray_blur.jpg', gray_img_blur)
         #image_processing_kmeans(img_gray)
         computer_vision_rgb(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
