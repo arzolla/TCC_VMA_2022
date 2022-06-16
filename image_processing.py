@@ -357,13 +357,13 @@ def image_processing4(rgb_frame):
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
-    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
+    gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
 
     cv2.imshow('gray img', gray_img)
 
     img_bin = adaptive_threshold(gray_img)
 
-    #img_bin = moving_threshold(gray_img, n=200, b=1.1)
+    #img_bin = moving_threshold(gray_img, n=100, b=1.2)
 
     cv2.imshow('img_bin', img_bin)
 
@@ -592,7 +592,7 @@ def adaptive_threshold(gray_img):
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
+    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 3)
 
 
     #plt.show()
