@@ -40,7 +40,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 50  # minimal of votes
+    min_threshold = 45  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -361,9 +361,9 @@ def image_processing4(rgb_frame):
 
     cv2.imshow('gray img', gray_img)
 
-    img_bin = adaptive_threshold(gray_img)
+    #img_bin = adaptive_threshold(gray_img)
 
-    #img_bin = moving_threshold(gray_img, n=100, b=1.2)
+    img_bin = moving_threshold(gray_img, n=100, b=1.2)
 
     cv2.imshow('img_bin', img_bin)
 
@@ -592,7 +592,7 @@ def adaptive_threshold(gray_img):
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 3)
+    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
 
 
     #plt.show()
