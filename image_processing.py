@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.4, rho_lim=160, count_lim=80)
+diff = DifferenceFilter(theta_lim = 0.7, rho_lim=160, count_lim=100)
 
 def image_processing4(rgb_frame):
 
@@ -357,7 +357,7 @@ def image_processing4(rgb_frame):
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
-    gray_img = cv2.GaussianBlur(gray_img,(11,11),0)
+    gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
 
     cv2.imshow('gray img', gray_img)
 
