@@ -371,8 +371,6 @@ def image_processing4(rgb_frame):
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
-    left_img, right_img = get_roi(skel_img)
-
     cv2.imshow('skel img', skel_img)
 
 
@@ -381,41 +379,31 @@ def image_processing4(rgb_frame):
     ########### PARA DETECTAR AS FAIXAS ############
     ################################################
 
-    left_lines_in = hough_transform(left_img) # todas as linhas detectadas 
-    right_lines_in = hough_transform(right_img)
+    lines_in = hough_transform(skel_img) # todas as linhas detectadas 
 
-    left_lines = filter_by_angle(left_lines_in) # descarta linhas com angulo muito horizontal
-    right_lines = filter_by_angle(right_lines_in) # descarta linhas com angulo muito horizontal
+    lines = filter_by_angle(lines_in) # descarta linhas com angulo muito horizontal
 
-    if left_lines is not None:
-        left_lines_shift = left_lines.copy()
+    if lines is not None:
+        lines_shift = lines.copy()
     else:
-        left_lines_shift = None
-    if right_lines is not None:
-        right_lines_shift = right_lines.copy()
-    else:
-        right_lines_shift = None
-
-    normalize_hough(left_lines_shift)
-    normalize_hough(right_lines_shift)
-
-    left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
-    right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
-
-    display_lines(left_img, left_lines_in, line_color = (0,0,255), line_width=1)
-    display_lines(right_img, right_lines_in, line_color = (0,0,255), line_width=1)
-
-    cv2.imshow('left', left_img)
-    cv2.imshow('right', right_img)
+        lines_shift = None
 
 
+    img_bin = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+    display_lines(img_bin, lines_in, line_color = (255,0,255), line_width=1)
+    cv2.imshow('All lines', img_bin)
+
+    normalize_hough(lines_shift)
 
     # Desloca origem em 360 pixels no eixo x
-    shift_origin(left_lines_shift)
-    shift_origin(right_lines_shift)
+    shift_origin(lines_shift)
 
-    left_lines_shift = filter_out_of_roi(left_lines_shift, 360, 720)
-    right_lines_shift = filter_out_of_roi(right_lines_shift, 720, 1080)
+    left_lines_shift = filter_out_of_roi(lines_shift, 360, 720)
+    right_lines_shift = filter_out_of_roi(lines_shift, 720, 1080)
+
+
+    display_lines(img_bin, lines_in, line_color = (0,0,255), line_width=1)
+
 
 
     left_line_shift = get_average_line(left_lines_shift)
@@ -444,12 +432,12 @@ def image_processing4(rgb_frame):
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
-    display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
+    display_lines(roi_img_rgb, right_lines, line_color = (255,0,0), line_width=1)
     ########## Mostrar as faixas ######
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
 
-    cv2.imshow('Hough Lines and Lane', roi_img_rgb)
+    cv2.imshow('Left, Right and Averages', roi_img_rgb)
 
 
     ################################################
@@ -552,7 +540,7 @@ def control_monitor(data):
     # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,300), (50,50,255))
     write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,350), (50,255,50))
       
-    cv2.imshow('rgb with lines', frame)
+    cv2.imshow('Lane Monitor', frame)
 
     #data.frame = frame
     
