@@ -40,7 +40,7 @@ def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
     angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 45  # minimal of votes
+    min_threshold = 55  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -269,7 +269,7 @@ class DifferenceFilter:
         else: # se for muito diferente da linha antiga
             left_ok = self.left_antiga # Pega a faixa antiga
             self.l_count = self.l_count + 1 # incrementa contador quando utilizar linha antiga
-            #print('pegou LEFT antiga, count',self.l_count, left_line, self.left_antiga)
+            print('pegou LEFT antiga, count',self.l_count, left_line, self.left_antiga)
 
 
         # if right_antiga is None:
@@ -288,7 +288,7 @@ class DifferenceFilter:
         else: # se for muito diferente da linha antiga
             right_ok = self.right_antiga # Pega a faixa antiga
             self.r_count = self.r_count + 1  # incrementa contador quando utilizar linha antiga
-            #print('pegou RIGHT antiga, count',self.r_count, right_line, self.right_antiga)    
+            print('pegou RIGHT antiga, count',self.r_count, right_line, self.right_antiga)    
 
 
         return left_ok, right_ok
@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.4, rho_lim=180, count_lim=80)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=160, count_lim=80)
 
 def image_processing4(rgb_frame):
 
@@ -357,7 +357,7 @@ def image_processing4(rgb_frame):
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
-    gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
+    gray_img = cv2.GaussianBlur(gray_img,(11,11),0)
 
     cv2.imshow('gray img', gray_img)
 
