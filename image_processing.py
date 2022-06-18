@@ -85,7 +85,7 @@ def filter_by_angle(lines, sin_max = 0.76):
     lines = np.array(ok_lines)
     return lines
 
-def filter_out_of_roi(lines):
+def filter_out_of_roi(lines, low = 360, high = 1080):
 
     ok_lines = []
     if lines is not None:
@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.7, rho_lim=160, count_lim=100)
+diff = DifferenceFilter(theta_lim = 0.8, rho_lim=170, count_lim=100)
 
 def image_processing4(rgb_frame):
 
@@ -357,13 +357,16 @@ def image_processing4(rgb_frame):
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
-    gray_img = cv2.GaussianBlur(gray_img,(9,9),0)
+    gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
 
     cv2.imshow('gray img', gray_img)
 
-    img_bin = adaptive_threshold(gray_img, 21, 5)
+
+    img_bin = adaptive_threshold(gray_img, 27, 4)
 
     #img_bin = moving_threshold(gray_img, n=100, b=1.2)
+
+    #skel_img = cv2.Canny(img_bin,20,100)
 
     cv2.imshow('img_bin', img_bin)
 
@@ -412,8 +415,8 @@ def image_processing4(rgb_frame):
     shift_origin(left_lines_shift)
     shift_origin(right_lines_shift)
 
-    left_lines_shift = filter_out_of_roi(left_lines_shift)
-    right_lines_shift = filter_out_of_roi(right_lines_shift)
+    left_lines_shift = filter_out_of_roi(left_lines_shift, 360, 720)
+    right_lines_shift = filter_out_of_roi(right_lines_shift, 720, 1080)
 
 
     left_line_shift = get_average_line(left_lines_shift)
