@@ -23,6 +23,8 @@ class Controller:
         self.sample_time = 0.01
         self.last_time = time.time()
         self.last_output = 0
+        self.psi = 0
+        self.dx = 0
 
         # Limites da saída
         self.cmax = None
@@ -61,21 +63,21 @@ class Controller:
             current_time = time.time()
 
         # se delta de tempo for positivo
-        if current_time - self.last_time:
+        if (current_time - self.last_time) > 0:
             # Computa a variação do tempo
             delta_time = current_time - self.last_time
         # Se delta_time for zero
         else: 
-            delta_time = 1e-16
+            delta_time = 1e-10
 
         # Só entra na rotina de atualização a cada 'sample_time' segundos
-        if (self.sample_time is not None) and (delta_time < self.sample_time) and (self.last_output is not None):
+        if (self.sample_time is not None) and (delta_time < self.sample_time) :
             # Se não passou tempo suficiente só retorna ultimo valor da saída
             return self.last_output
 
         # Filtra as entradas
-        psi, self.zi_psi = self.__filter(psi, self.zi_psi)
-        dx, self.zi_dx = self.__filter(dx, self.zi_dx)
+        self.psi, self.zi_psi = self.__filter(psi, self.zi_psi)
+        self.dx, self.zi_dx = self.__filter(dx, self.zi_dx)
         
         # Cálculo dos termos
         self.Term_arctan = np.arctan(self.K_dx * (dx/velocidade))/1.57 # arctan é normalizada para intervalo entre -1 e 1
@@ -91,7 +93,7 @@ class Controller:
         self.last_time = current_time
         self.last_output = output
 
-        return output, psi, dx
+        return output
 
     def setFilter(self, n=1, wn=0.04, btype='lowpass'):
         """Define os parâmetros do filtro Butterworth a ser aplicado nas entradas"""

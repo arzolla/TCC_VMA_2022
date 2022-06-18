@@ -41,7 +41,7 @@ def control_main(vehicle, control, velocidade, psi, dx):
     #print(left_line, right_line)   
 
 
-    steering, psi_filt, dx_filt = control.update(psi, dx, velocidade)
+    steering = control.update(psi, dx, velocidade)
 
     # log_data(steering, 'steering')
     # log_data(psi, 'psi')
@@ -149,7 +149,7 @@ def run_simulation(args, client):
         control = Controller(K_psi=0.12*0.045, K_dx=0.31*0.045)
  
         #control.setFilter(n=1, wn=0.8)
-        control.setSampleTime(0.033)
+        control.setSampleTime(0.042)
         #control.setOutputLimit(0.5, -0.5)
 
 
