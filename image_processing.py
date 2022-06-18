@@ -93,7 +93,7 @@ def filter_out_of_roi(lines, low = 360, high = 1080):
             rho, theta = line[0]
             base = rho*(1/np.cos(theta)) - 720*np.sin(theta)
             #print('base',base)
-            if base > 360 and base < 1080:
+            if base > low and base < high:
                 #print(line)
                 ok_lines.append(np.array(line))
 
@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.8, rho_lim=170, count_lim=100)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=170, count_lim=10000)
 
 def image_processing4(rgb_frame):
 
@@ -338,7 +338,7 @@ def image_processing4(rgb_frame):
     #### TRATAMENTO E PROCESSAMENTO DE IMAGENS #####
     ################################################
 
-
+    rgb_frame_copy = rgb_frame.copy()
     bird_img = bird_eyes(rgb_frame)
 
     tl = [145, 80]
@@ -346,12 +346,12 @@ def image_processing4(rgb_frame):
     br = [1065, 270]
     bl = [-345, 270]
 
-    display_lines_2pts(rgb_frame, tl, tr, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame, tr, br, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame, br, bl, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame, bl, tl, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
 
-    cv2.imshow('cam image', rgb_frame)
+    cv2.imshow('cam image', rgb_frame_copy)
 
     cv2.imshow('birds', bird_img)
 
@@ -361,10 +361,9 @@ def image_processing4(rgb_frame):
 
     cv2.imshow('gray img', gray_img)
 
+    img_bin = adaptive_threshold(gray_img, 21, 3)
 
-    img_bin = adaptive_threshold(gray_img, 27, 4)
-
-    #img_bin = moving_threshold(gray_img, n=100, b=1.2)
+    #img_bin = moving_threshold(gray_img, n=100, b=1.1)
 
     #skel_img = cv2.Canny(img_bin,20,100)
 
@@ -664,6 +663,7 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
     #path = 'curva_fov30_left.png'
+    path = 'curva_fov30_right_brusca.png'
     #path = 'line4.png'
     #path = 'line3.png'
     #path = 'curva_fov30_right.png'
