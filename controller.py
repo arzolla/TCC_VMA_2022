@@ -22,7 +22,7 @@ class Controller:
         self.Term_arctan = 0.0
         self.sample_time = 0.01
         self.last_time = time.time()
-        self.last_output = None
+        self.last_output = 0
 
         # Limites da saída
         self.cmax = None
