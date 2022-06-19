@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.4, rho_lim=180, count_lim=10000)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=175, count_lim=10000)
 
 def image_processing4(rgb_frame):
 
@@ -398,8 +398,8 @@ def image_processing4(rgb_frame):
     # Desloca origem em 360 pixels no eixo x
     shift_origin(lines_shift)
 
-    left_lines_shift = filter_out_of_roi(lines_shift, 360, 720)
-    right_lines_shift = filter_out_of_roi(lines_shift, 720, 1080)
+    left_lines_shift = filter_out_of_roi(lines_shift, 360, 710)
+    right_lines_shift = filter_out_of_roi(lines_shift, 730, 1080)
 
 
     display_lines(img_bin, lines_in, line_color = (0,0,255), line_width=1)
