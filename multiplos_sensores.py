@@ -146,10 +146,10 @@ def run_simulation(args, client):
 
         velocidade = 15
         #wn = 0.5625/velocidade
-        control = Controller(K_psi=0.12*0.045, K_dx=0.31*0.045)
+        control = Controller(K_psi=0.12*0.045, K_dx=0.36*0.045)
  
         #control.setFilter(n=1, wn=0.8)
-        control.setSampleTime(0.042)
+        control.setSampleTime(0.033)
         #control.setOutputLimit(0.5, -0.5)
 
 
