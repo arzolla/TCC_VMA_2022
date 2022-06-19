@@ -80,7 +80,7 @@ class Controller:
         self.dx, self.zi_dx = self.__filter(dx, self.zi_dx)
         
         # Cálculo dos termos
-        self.Term_arctan = np.arctan(self.K_dx * (dx/velocidade))/1.57 # arctan é normalizada para intervalo entre -1 e 1
+        self.Term_arctan = np.rad2deg(np.arctan(self.K_dx * (dx/velocidade))) # 
         self.Term_psi = self.K_psi * psi
 
         # Calcula resposta do controle

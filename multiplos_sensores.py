@@ -49,9 +49,14 @@ def control_main(vehicle, control, velocidade, psi, dx):
     # log_data(dx_filt, 'dx_filt')
     # log_data(psi_filt, 'psi_filt')
     # log_data(time.time(),'time')
-    
+
+    steering_norm = steering*0.018
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
-    vehicle.apply_control(carla.VehicleControl(steer = round(float(steering), 4))) # aplicando steering
+    vehicle.apply_control(carla.VehicleControl(steer = round(float(steering_norm), 4))) # aplicando steering
+    rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+    print('psi:', psi,'  -   rodas:',rodas)
+
+    
     #print('steering', steering, theta, dx)
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
@@ -106,7 +111,7 @@ def run_simulation(args, client):
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
         ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
-        ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
+        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção (faixa 2)
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
@@ -143,10 +148,10 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-
+        # steer: 0.01   =>   rodas: 0.5687311887741089
         velocidade = 15
         #wn = 0.5625/velocidade
-        control = Controller(K_psi=0.54*0.01, K_dx=1.61*0.01)
+        control = Controller(K_psi=0.3, K_dx=4.8)
  
         #control.setFilter(n=1, wn=0.8)
         control.setSampleTime(0.033)

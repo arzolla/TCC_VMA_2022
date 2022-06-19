@@ -321,7 +321,7 @@ def get_mid_line(left_line, right_line):
             del_x = 0
             intersec = intersection([[[rho, psi]]],[[[1000, 1.57059]]])
             #print(intersec)
-            del_x = (intersec[0] - 360)*np.cos(psi)
+            del_x = (intersec[0] - 360)*np.cos(psi)*0.002084 # transformado para metros
 
             return [[[rho, psi]]], np.rad2deg(psi), del_x
     return [[[0, 0]]], 0, 0
@@ -526,7 +526,7 @@ def control_monitor(data):
 
         # del_x
         display_lines_2pts(frame, [data.dx + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
+        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))+' m'), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
     if  data.steering > 0:
