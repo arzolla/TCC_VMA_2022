@@ -321,7 +321,7 @@ def get_mid_line(left_line, right_line):
             del_x = 0
             intersec = intersection([[[rho, psi]]],[[[1000, 1.57059]]])
             #print(intersec)
-            del_x = intersec[0] - 360
+            del_x = (intersec[0] - 360)*np.cos(psi)
 
             return [[[rho, psi]]], np.rad2deg(psi), del_x
     return [[[0, 0]]], 0, 0
@@ -330,7 +330,7 @@ holder = Holder()
 
 accum_pos = Accumulator(7)
 
-diff = DifferenceFilter(theta_lim = 0.45, rho_lim=190, count_lim=10000)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=180, count_lim=10000)
 
 def image_processing4(rgb_frame):
 
@@ -351,15 +351,15 @@ def image_processing4(rgb_frame):
     display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
     display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
 
-    cv2.imshow('cam image', rgb_frame_copy)
+    # cv2.imshow('cam image', rgb_frame_copy)
 
-    cv2.imshow('birds', bird_img)
+    # cv2.imshow('birds', bird_img)
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
     gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
 
-    cv2.imshow('gray img', gray_img)
+    # cv2.imshow('gray img', gray_img)
 
     img_bin = adaptive_threshold(gray_img, 21, 3)
 
@@ -367,11 +367,11 @@ def image_processing4(rgb_frame):
 
     #skel_img = cv2.Canny(img_bin,20,100)
 
-    cv2.imshow('img_bin', img_bin)
+    # cv2.imshow('img_bin', img_bin)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
-    cv2.imshow('skel img', skel_img)
+    # cv2.imshow('skel img', skel_img)
 
 
     ################################################
@@ -391,7 +391,7 @@ def image_processing4(rgb_frame):
 
     img_bin = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
     display_lines(img_bin, lines_in, line_color = (255,0,255), line_width=1)
-    cv2.imshow('All lines', img_bin)
+    # cv2.imshow('All lines', img_bin)
 
     normalize_hough(lines_shift)
 
@@ -437,7 +437,7 @@ def image_processing4(rgb_frame):
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
 
-    cv2.imshow('Left, Right and Averages', roi_img_rgb)
+    # cv2.imshow('Left, Right and Averages', roi_img_rgb)
 
 
     ################################################
@@ -526,7 +526,7 @@ def control_monitor(data):
 
         # del_x
         display_lines_2pts(frame, [data.dx + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [data.dx + 360,710], (51,251,255), size = 0.5, thick = 2) 
+        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
     if  data.steering > 0:
