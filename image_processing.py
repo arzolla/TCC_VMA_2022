@@ -391,7 +391,7 @@ def image_processing4(rgb_frame):
 
     img_bin = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
     display_lines(img_bin, lines_in, line_color = (255,0,255), line_width=1)
-    # cv2.imshow('All lines', img_bin)
+    cv2.imshow('All lines', img_bin)
 
     normalize_hough(lines_shift)
 
@@ -437,7 +437,7 @@ def image_processing4(rgb_frame):
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
 
-    # cv2.imshow('Left, Right and Averages', roi_img_rgb)
+    cv2.imshow('Left, Right and Averages', roi_img_rgb)
 
 
     ################################################
