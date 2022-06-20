@@ -353,7 +353,7 @@ def image_processing4(rgb_frame):
 
     cv2.imshow('cam image', rgb_frame_copy)
 
-    # cv2.imshow('birds', bird_img)
+    cv2.imshow('birds', bird_img)
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
@@ -361,7 +361,7 @@ def image_processing4(rgb_frame):
 
     # cv2.imshow('gray img', gray_img)
 
-    img_bin = adaptive_threshold(gray_img, 201, -5)
+    img_bin = adaptive_threshold(gray_img, 35, -5)
 
     #img_bin = moving_threshold(gray_img, n=100, b=1.1)
 
