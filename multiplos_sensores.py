@@ -162,8 +162,8 @@ def run_simulation(args, client):
         # classe para gestão dos dados
         data = SimulationData()
 
-
-        #vehicle.set_autopilot(True)
+        vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
+        vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
@@ -190,25 +190,24 @@ def run_simulation(args, client):
            
            
             # Envia frame para a função de visão computacional
-            #seg_frame = Segment.rgb_frame
+
             rgb_frame = RGBCamera.rgb_frame
             
-            #computer_vision(seg_frame, data)
-            computer_vision_rgb(rgb_frame, data)
-            control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
-            data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
-            data.velocidade = velocidade
-            data.control_output = control.last_output
-            # data.Kp_dx = controlador.Kp_dx
-            # data.Ki_dx = controlador.Ki_dx
-            #print(control.Term_psi, control.Term_arctan)
-            #print('aqui',np.shape(frame))
+            # computer_vision_rgb(rgb_frame, data)
+            # control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
+            # data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+            # data.velocidade = velocidade
+            # data.control_output = control.last_output
+            # control_monitor(data)
 
-            control_monitor(data)
+  
 
-
+            #print('x y', vehicle.get_location().x, vehicle.get_location().y)
+            
+            log_data(vehicle.get_location().x,'ideal_map_x')
+            log_data(vehicle.get_location().y,'ideal_map_y')
             #print('left',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
             #print('right',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
 
