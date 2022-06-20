@@ -361,7 +361,7 @@ def image_processing4(rgb_frame):
 
     # cv2.imshow('gray img', gray_img)
 
-    img_bin = adaptive_threshold(gray_img, 21, 3)
+    img_bin = adaptive_threshold(gray_img, 201, -5)
 
     #img_bin = moving_threshold(gray_img, n=100, b=1.1)
 
@@ -582,7 +582,7 @@ def adaptive_threshold(gray_img, block_size = 21, const = 5):
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, const)
+    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, const)
 
 
     #plt.show()
