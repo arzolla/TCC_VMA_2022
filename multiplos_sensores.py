@@ -149,9 +149,9 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # steer: 0.01   =>   rodas: 0.5687311887741089
-        velocidade = 15
+        velocidade = 20
         #wn = 0.5625/velocidade
-        control = Controller(K_psi=0.3, K_dx=4.8)
+        control = Controller(K_psi=0.24, K_dx=3.2)
  
         #control.setFilter(n=1, wn=0.8)
         control.setSampleTime(0.033)
