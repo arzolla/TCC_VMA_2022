@@ -319,7 +319,7 @@ def get_mid_line(left_line, right_line):
             psi = (theta1 + theta2)/2 # yaw error
             rho = (rho1 + rho2)/2
             del_x = 0
-            intersec = intersection([[[rho, psi]]],[[[1000, 1.57059]]])
+            intersec = intersection([[[rho, psi]]],[[[865, 1.57059]]])
             #print(intersec)
             del_x = (intersec[0] - 360)*np.cos(psi)*0.002084 # transformado para metros
 
@@ -341,8 +341,8 @@ def image_processing4(rgb_frame):
     rgb_frame_copy = rgb_frame.copy()
     bird_img = bird_eyes(rgb_frame)
 
-    tl = [145, 80]
-    tr = [575, 80]
+    tl = [60, 113]
+    tr = [660, 113]
     br = [1065, 270]
     bl = [-345, 270]
 
@@ -351,7 +351,7 @@ def image_processing4(rgb_frame):
     display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
     display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
 
-    # cv2.imshow('cam image', rgb_frame_copy)
+    cv2.imshow('cam image', rgb_frame_copy)
 
     # cv2.imshow('birds', bird_img)
 
@@ -591,27 +591,27 @@ def adaptive_threshold(gray_img, block_size = 21, const = 5):
 
 def bird_eyes(image):
     # # targeted rectangle on original image which needs to be transformed
-    # tl = [145, 80]
-    # tr = [575, 80]
+    # tl = [60, 113]
+    # tr = [660, 113]
     # br = [1065, 270]
     # bl = [-345, 270]
 
     # corner_points_array = np.float32([tl,tr,br,bl])
 
 
-    # # Create an array with the parameters (the dimensions) required to build the matrix
+    # # # Create an array with the parameters (the dimensions) required to build the matrix
     # imgTl = [0, 0]
     # imgTr = [720, 0]
     # imgBr = [720, 720]
     # imgBl = [0, 720]
     # img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
 
-    # # Compute and return the transformation matrix
+    # # # Compute and return the transformation matrix
     # matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
     # print(matrix)
-    matrix = np.array([ [ 4.14545455e+01,  1.06909091e+02, -1.45636364e+04],
-                        [-6.83188508e-15,  3.07636364e+02, -2.46109091e+04],
-                        [-6.97913090e-18,  2.96969697e-01,  1.00000000e+00]])
+    matrix = np.array([ [ 4.23370787e+01,  1.09213483e+02, -1.48813483e+04],
+                        [ 0.00000000e+00,  3.80224719e+02, -4.29653933e+04],
+                        [ 1.31581988e-19,  3.03370787e-01,  1.00000000e+00],])
     
     img_transformed = cv2.warpPerspective(image,matrix,(720, 720), borderMode=cv2.BORDER_REPLICATE)
     #display_lines_2pts(img_transformed, [360,0], [360,720], line_color = (200,21,21), line_width=1)

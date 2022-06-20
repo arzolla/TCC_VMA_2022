@@ -54,7 +54,7 @@ def control_main(vehicle, control, velocidade, psi, dx):
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = round(float(steering_norm), 4))) # aplicando steering
     rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
-    print('psi:', psi,'  -   rodas:',rodas)
+    #print('psi:', psi,'  -   rodas:',rodas)
 
     
     #print('steering', steering, theta, dx)
