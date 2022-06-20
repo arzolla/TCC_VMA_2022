@@ -525,7 +525,7 @@ def control_monitor(data):
         write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
-        display_lines_2pts(frame, [data.dx + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
+        display_lines_2pts(frame, [data.dx/0.002084 + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
         write_on_screen(frame, ('D_x: '+str(round(data.dx,3))+' m'), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
