@@ -150,7 +150,7 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # steer: 0.01   =>   rodas: 0.5687311887741089
-        velocidade = 22
+        velocidade = 18
         #wn = 0.5625/velocidade
         control = Controller(K_psi=0.237, K_dx=2.85)
  
@@ -202,7 +202,7 @@ def run_simulation(args, client):
             data.control_output = control.last_output
             # data.Kp_dx = controlador.Kp_dx
             # data.Ki_dx = controlador.Ki_dx
-            print(control.Term_psi, control.Term_arctan)
+            #print(control.Term_psi, control.Term_arctan)
             #print('aqui',np.shape(frame))
 
 
