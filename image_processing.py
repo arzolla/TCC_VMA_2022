@@ -367,11 +367,11 @@ def image_processing4(rgb_frame):
 
     #skel_img = cv2.Canny(img_bin,20,100)
 
-    # cv2.imshow('img_bin', img_bin)
+    cv2.imshow('img_bin', img_bin)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
-    # cv2.imshow('skel img', skel_img)
+    cv2.imshow('skel img', skel_img)
 
 
     ################################################
