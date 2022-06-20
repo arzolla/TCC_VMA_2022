@@ -55,7 +55,7 @@ def control_main(vehicle, control, velocidade, psi, dx):
     vehicle.apply_control(carla.VehicleControl(steer = round(float(steering_norm), 4))) # aplicando steering
     rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
     #print('psi:', psi,'  -   rodas:',rodas)
-
+    #print('velocidade',vehicle.get_velocity())
     
     #print('steering', steering, theta, dx)
     #print('steering:', vehicle.get_control().steer)           # lendo steering
@@ -110,7 +110,8 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
+        ponto_spawn = carla.Transform(carla.Location(x=388.0, y=-66.211449, z=0.1), carla.Rotation(pitch=-0.007903, yaw=90.600136, roll=0.053928)) # mais proximo ainda
+        #ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção (faixa 2)
@@ -149,9 +150,9 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # steer: 0.01   =>   rodas: 0.5687311887741089
-        velocidade = 20
+        velocidade = 22
         #wn = 0.5625/velocidade
-        control = Controller(K_psi=0.24, K_dx=3.2)
+        control = Controller(K_psi=0.237, K_dx=2.85)
  
         #control.setFilter(n=1, wn=0.8)
         control.setSampleTime(0.033)
@@ -201,7 +202,7 @@ def run_simulation(args, client):
             data.control_output = control.last_output
             # data.Kp_dx = controlador.Kp_dx
             # data.Ki_dx = controlador.Ki_dx
-
+            print(control.Term_psi, control.Term_arctan)
             #print('aqui',np.shape(frame))
 
 
