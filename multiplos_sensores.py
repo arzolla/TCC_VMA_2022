@@ -150,7 +150,7 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # steer: 0.01   =>   rodas: 0.5687311887741089
-        velocidade = 18
+        velocidade = 25
         #wn = 0.5625/velocidade
         control = Controller(K_psi=0.237, K_dx=2.85)
  
@@ -207,20 +207,20 @@ def run_simulation(args, client):
   
 
             #print('x y', vehicle.get_location().x, vehicle.get_location().y)
-            pos_x = vehicle.get_location().x
-            pos_y = vehicle.get_location().y
+            # pos_x = vehicle.get_location().x
+            # pos_y = vehicle.get_location().y
 
 
 
-            if(log_enable):
-                #log_data(pos_x,'ideal_map_x')
-                #log_data(pos_y,'ideal_map_y')
+            # if(log_enable):
+            #     #log_data(pos_x,'ideal_map_x')
+            #     #log_data(pos_y,'ideal_map_y')
 
-                log_data(pos_x,'path_vel_'+str(velocidade)+'_x')
-                log_data(-pos_y,'path_vel_'+str(velocidade)+'_y')
+            #     log_data(pos_x,'path_vel_'+str(velocidade)+'_x')
+            #     log_data(-pos_y,'path_vel_'+str(velocidade)+'_y')
 
-            if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
-                log_enable = 0
+            # if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
+            #     log_enable = 0
 
 
             ####################################################

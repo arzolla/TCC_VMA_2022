@@ -328,7 +328,7 @@ def get_mid_line(left_line, right_line):
     
 holder = Holder()
 
-accum_pos = Accumulator(7)
+accum_pos = Accumulator(3)
 
 diff = DifferenceFilter(theta_lim = 0.4, rho_lim=175, count_lim=10000)
 
