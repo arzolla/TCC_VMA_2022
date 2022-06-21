@@ -162,14 +162,16 @@ def run_simulation(args, client):
         # classe para gestão dos dados
         data = SimulationData()
 
-        vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
-        vehicle.set_autopilot(True)
+        #vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
+        #vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
 
         frame = np.zeros((720,720,3))
         rgb_frame = np.zeros((720,720,3))
+        log_enable = 1
+        disable_log_button = 0
 
         while True:
             # Carla Tick
@@ -194,23 +196,31 @@ def run_simulation(args, client):
             rgb_frame = RGBCamera.rgb_frame
             
 
-            # computer_vision_rgb(rgb_frame, data)
-            # control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
+            computer_vision_rgb(rgb_frame, data)
+            control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
-            # data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
-            # data.velocidade = velocidade
-            # data.control_output = control.last_output
-            # control_monitor(data)
+            data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+            data.velocidade = velocidade
+            data.control_output = control.last_output
+            control_monitor(data)
 
   
 
             #print('x y', vehicle.get_location().x, vehicle.get_location().y)
-            
-            log_data(vehicle.get_location().x,'ideal_map_x')
-            log_data(vehicle.get_location().y,'ideal_map_y')
-            #print('left',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
-            #print('right',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
+            pos_x = vehicle.get_location().x
+            pos_y = vehicle.get_location().y
 
+
+
+            if(log_enable):
+                #log_data(pos_x,'ideal_map_x')
+                #log_data(pos_y,'ideal_map_y')
+
+                log_data(pos_x,'path_vel_'+str(velocidade)+'_x')
+                log_data(-pos_y,'path_vel_'+str(velocidade)+'_y')
+
+            if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
+                log_enable = 0
 
 
             ####################################################
@@ -223,22 +233,9 @@ def run_simulation(args, client):
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
 
-                    '''if event.key == K_a:
-                        new_kp =  controlador.Kp_theta+0.0001
-                        if new_kp < 0: 
-                            controlador.setKp(new_kp)
-                            print('Aumentando Kp_theta para:',controlador.Kp)
-                    if event.key == K_s: 
-                        controlador.setKp(controlador.Kp_theta-0.0001)
-                        print('Diminuindo Kp_theta para:',controlador.Kp)
-                    if event.key == K_d:
-                        new_kd =  controlador.Kp_dx+0.00001
-                        if new_kd < 0:
-                            controlador.setKd(new_kd)
-                            print('Aumentando Kp_dx para:',controlador.Kd)
-                    if event.key == K_f: 
-                        controlador.setKd(controlador.Kp_dx-0.00001)
-                        print('Diminuindo Kp_dx para:',controlador.Kd)'''
+                    if event.key == K_a:
+                        disable_log_button = 1
+                        print('Log desabilitará no fim da volta!')
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
                         if new_vel > 0:
