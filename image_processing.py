@@ -307,6 +307,20 @@ def intersection(line1, line2):
     return [x0, y0]
 
 
+
+def compute_error(center_line):
+    if len(center_line) != 0:
+
+        rho, psi = center_line[0][0]
+
+        intersec = intersection([[[rho, psi]]],[[[865, 1.57059]]])
+        #print(intersec)
+        del_x = (intersec[0] - 720)*np.cos(psi)*0.002084 # transformado para metros
+
+        return np.rad2deg(psi), del_x
+    return  0, 0
+
+
 def get_mid_line(left_line, right_line):
     #print('left', left_line[0])
     if left_line  is not None and right_line is not None:
@@ -341,37 +355,23 @@ def image_processing4(rgb_frame):
     rgb_frame_copy = rgb_frame.copy()
     bird_img = bird_eyes(rgb_frame)
 
-    tl = [60, 113]
-    tr = [660, 113]
-    br = [1065, 270]
-    bl = [-345, 270]
 
-    display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
-
-    cv2.imshow('cam image', rgb_frame_copy)
-
-    cv2.imshow('birds', bird_img)
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
-    gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
+    gray_img_blur = cv2.GaussianBlur(gray_img,(15,15),0)
 
-    # cv2.imshow('gray img', gray_img)
 
-    img_bin = adaptive_threshold(gray_img, 35, -5)
+
+    img_bin = adaptive_threshold(gray_img_blur, 35, -5)
 
     #img_bin = moving_threshold(gray_img, n=100, b=1.1)
 
     #skel_img = cv2.Canny(img_bin,20,100)
 
-    cv2.imshow('img_bin', img_bin)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
 
-    cv2.imshow('skel img', skel_img)
 
 
     ################################################
@@ -389,10 +389,6 @@ def image_processing4(rgb_frame):
         lines_shift = None
 
 
-    img_bin = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
-    display_lines(img_bin, lines_in, line_color = (255,0,255), line_width=1)
-    cv2.imshow('All lines', img_bin)
-
     normalize_hough(lines_shift)
 
     # Desloca origem em 360 pixels no eixo x
@@ -400,10 +396,6 @@ def image_processing4(rgb_frame):
 
     left_lines_shift = filter_out_of_roi(lines_shift, 360, 710)
     right_lines_shift = filter_out_of_roi(lines_shift, 730, 1080)
-
-
-    display_lines(img_bin, lines_in, line_color = (0,0,255), line_width=1)
-
 
 
     left_line_shift = get_average_line(left_lines_shift)
@@ -422,13 +414,51 @@ def image_processing4(rgb_frame):
     # média temporal das ultimas faixas
     left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
 
+
+    ################################################
+    ########## OBTÉM CENTRO DA FAIXA PARA ##########
+    ########## CALCULAR ERROS DO CONTROLE ##########
+    ################################################
+
+    #mid_line, psi, del_x = get_mid_line(left_line_shift, right_line_shift)
+
+    #print(psi,del_x)
+    center_line_shift = get_average_line([left_line_shift[0], right_line_shift[0]])
+    
+
+    #center_line, right_line_shift = accum_pos.accumulate(center_line, right_line_shift)
+
+
+    #print(center_line)
+    psi, del_x = compute_error(center_line_shift)
+    #print(aa,bb)
+
+    
+    ################################################
+    ############### Mostrar Imagens ################
+    ################################################
+    tl = [60, 113]
+    tr = [660, 113]
+    br = [1065, 270]
+    bl = [-345, 270]
+
+    display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
+
+
+    img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+    display_lines(img_bin_rgb, lines_in, line_color = (255,0,255), line_width=1)
+    
     # Volta para origem antiga
     left_line = return_origin(left_line_shift)
     right_line = return_origin(right_line_shift)
 
     left_lines = return_origin(left_lines_shift)
     right_lines = return_origin(right_lines_shift)
-
+    
+    center_line = return_origin(center_line_shift)
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
@@ -437,21 +467,16 @@ def image_processing4(rgb_frame):
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
 
-    cv2.imshow('Left, Right and Averages', roi_img_rgb)
+    cv2.imshow('Camera e ROI', rgb_frame_copy)
+    cv2.imshow('Transformacao de Perspectiva', bird_img)
+    cv2.imshow('Imagem grayscale', gray_img)
+    cv2.imshow('Imagem apos filtro Gaussiano', gray_img)
+    cv2.imshow('Imagem Binarizada', img_bin)
+    cv2.imshow('Imagem Esqueletizada', skel_img)
+    cv2.imshow('Todas as Linhas', img_bin_rgb)
+    cv2.imshow('Esquerda, Direita e Medias', roi_img_rgb)
 
-
-    ################################################
-    ########## OBTÉM CENTRO DA FAIXA PARA ##########
-    ########## CALCULAR ERROS O CONTROLE ###########
-    ################################################
-
-    mid_line, psi, del_x = get_mid_line(left_line_shift, right_line_shift)
-
-
-
-
-
-    return bird_img, left_line, right_line, mid_line, psi, del_x
+    return bird_img, left_line, right_line, center_line, psi, del_x
 
 
 
@@ -651,7 +676,7 @@ if __name__ == '__main__':
     #path = 'static_road_color.png'
     path = 'test_img\ideal_fov30_2.png'
     #path = 'curva_fov30_left.png'
-    path = 'test_img\curva_fov30_right_brusca.png'
+    #path = 'test_img\curva_fov30_right_brusca.png'
     #path = 'line4.png'
     #path = 'line3.png'
     #path = 'curva_fov30_right.png'
