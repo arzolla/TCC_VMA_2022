@@ -110,7 +110,7 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        #ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
+        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
         ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
@@ -172,7 +172,7 @@ def run_simulation(args, client):
         rgb_frame = np.zeros((720,720,3))
         log_enable = 1
         disable_log_button = 0
-
+        a = 0
         while True:
             # Carla Tick
             if args.sync:
@@ -197,6 +197,8 @@ def run_simulation(args, client):
             
 
             computer_vision_rgb(rgb_frame, data)
+
+            data.dx = data.dx + a
             control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
             data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
@@ -236,6 +238,12 @@ def run_simulation(args, client):
                     if event.key == K_a:
                         disable_log_button = 1
                         print('Log desabilitará no fim da volta!')
+                    if event.key == K_s:
+                        if a == 0: a = -0.4
+                        else : a = 0
+                    if event.key == K_d:
+                        if a == 0: a = 0.4
+                        else : a = 0
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
                         if new_vel > 0:
