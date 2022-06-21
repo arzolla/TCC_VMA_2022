@@ -43,13 +43,28 @@ def control_main(vehicle, control, velocidade, psi, dx):
 
     steering = control.update(psi, dx, velocidade)
 
+    # log_data(steering, 'steering')
+    # log_data(psi, 'psi')
+    # log_data(dx, 'dx')
+    # log_data(dx_filt, 'dx_filt')
+    # log_data(psi_filt, 'psi_filt')
+    # log_data(time.time(),'time')
 
-    
+    steering_norm = steering*0.018
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
-    vehicle.apply_control(carla.VehicleControl(steer = round(float(steering), 4))) # aplicando steering
+    vehicle.apply_control(carla.VehicleControl(steer = round(float(steering_norm), 4))) # aplicando steering
+    rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+    #print('psi:', psi,'  -   rodas:',rodas)
+    #print('velocidade',vehicle.get_velocity())
+    
     #print('steering', steering, theta, dx)
     #print('steering:', vehicle.get_control().steer)           # lendo steering
     #print('posicao', vehicle.get_transform())
+
+
+def log_data(data, data_name):
+    data_f = open(data_name+".txt", "a")
+    data_f.write(str(data)+", ")
 
 
 
@@ -78,10 +93,10 @@ def run_simulation(args, client):
         # Getting the world and
         world = client.get_world()
         print(world.get_map().name)
-        #if 'Town04' not in world.get_map().name :
-        #    client.load_world('Town04')
-        #    client.reload_world()
-         #   print('Mudando para mapa Town11')
+        if 'Town04' not in world.get_map().name :
+            client.load_world('Town04')
+            client.reload_world()
+            print('Mudando para mapa Town04')
         original_settings = world.get_settings()
 
         if args.sync:
@@ -95,14 +110,12 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada
-        #ponto_spawn = carla.Transform(carla.Location(x=402.525452, y=-124.737938, z=0.281942), carla.Rotation(pitch=0.000000, yaw=-89.401421, roll=0.000000)) # melhor
-        #ponto_spawn = carla.Transform(carla.Location(x=-400.416626, y=9.283669, z=0.281942), carla.Rotation(pitch=-2.857300, yaw=179.601227, roll=0.000000)) # faixas tracejadas
-        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo)
+        #ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
+        ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 3)
+        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
+        #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
+        #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção (faixa 2)
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
-        #ponto_spawn = carla.Transform(carla.Location(x=388.704559, y=-141.879608, z=0.01), carla.Rotation(pitch=-0.005649, yaw=90.611755, roll=0.004866)) # proximo da curva, faixa melhor
-        #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil
-        #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção
         print("Spawn do carro: ",ponto_spawn)
        
 
@@ -123,8 +136,8 @@ def run_simulation(args, client):
         RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=1.2, z=1.4), carla.Rotation(pitch=-15, yaw=0)), 
                       vehicle, {'fov' : '30'}, display_pos=[0, 0])
 
-        RGBCamera2 = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=-3, z=3), carla.Rotation(pitch=-30, yaw=0)), 
-                      vehicle, {'fov' : '90'}, display_pos=[0, 1])
+        RGBCamera2 = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=-10, z=6), carla.Rotation(pitch=-20, yaw=0)), 
+                      vehicle, {'fov' : '60'}, display_pos=[0, 1])
 
         # Segment = SensorManager(world, display_manager, 'Segmentation', carla.Transform(carla.Location(x=0, z=2.4), carla.Rotation(yaw=+00)), 
         #               vehicle, {}, display_pos=[0, 1])
@@ -136,20 +149,20 @@ def run_simulation(args, client):
         #Simulation loop
 
         #Configurando controlador
-        # theta em radianos
-        # steering em fator, para vel = 10, steering 0.1 => 5.6 graus
-        # com angulo em graus, fator multiplicativo de 0.025 para converter ao 'steering' normalizado
-        control = Controller(K_psi=0.08, K_dx=0.1)
-        #control = Controller(K_theta=0, K_dx=0, K_arctan=0)
-        control.setFilter(n=1, wn=0.02)
+        # steer: 0.01   =>   rodas: 0.5687311887741089
+        velocidade = 25
+        #wn = 0.5625/velocidade
+        control = Controller(K_psi=0.237, K_dx=2.85)
+ 
+        #control.setFilter(n=1, wn=0.8)
+        control.setSampleTime(0.033)
         #control.setOutputLimit(0.5, -0.5)
 
-        velocidade = 10
 
         # classe para gestão dos dados
         data = SimulationData()
 
-
+        #vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
         #vehicle.set_autopilot(True)
 
         call_exit = False
@@ -157,6 +170,8 @@ def run_simulation(args, client):
 
         frame = np.zeros((720,720,3))
         rgb_frame = np.zeros((720,720,3))
+        log_enable = 1
+        disable_log_button = 0
 
         while True:
             # Carla Tick
@@ -177,28 +192,35 @@ def run_simulation(args, client):
            
            
             # Envia frame para a função de visão computacional
-            #seg_frame = Segment.rgb_frame
+
             rgb_frame = RGBCamera.rgb_frame
             
-            #computer_vision(seg_frame, data)
+
             computer_vision_rgb(rgb_frame, data)
             control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
-            data.steering = vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)
+            data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
             data.velocidade = velocidade
             data.control_output = control.last_output
-            # data.Kp_dx = controlador.Kp_dx
-            # data.Ki_dx = controlador.Ki_dx
-
-            #print('aqui',np.shape(frame))
-
-
             control_monitor(data)
 
+  
 
-            #print('left',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
-            #print('right',vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel))
+            #print('x y', vehicle.get_location().x, vehicle.get_location().y)
+            # pos_x = vehicle.get_location().x
+            # pos_y = vehicle.get_location().y
 
+
+
+            # if(log_enable):
+            #     #log_data(pos_x,'ideal_map_x')
+            #     #log_data(pos_y,'ideal_map_y')
+
+            #     log_data(pos_x,'path_vel_'+str(velocidade)+'_x')
+            #     log_data(-pos_y,'path_vel_'+str(velocidade)+'_y')
+
+            # if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
+            #     log_enable = 0
 
 
             ####################################################
@@ -211,22 +233,9 @@ def run_simulation(args, client):
                     call_exit = True
                 elif event.type == pygame.KEYDOWN:
 
-                    '''if event.key == K_a:
-                        new_kp =  controlador.Kp_theta+0.0001
-                        if new_kp < 0: 
-                            controlador.setKp(new_kp)
-                            print('Aumentando Kp_theta para:',controlador.Kp)
-                    if event.key == K_s: 
-                        controlador.setKp(controlador.Kp_theta-0.0001)
-                        print('Diminuindo Kp_theta para:',controlador.Kp)
-                    if event.key == K_d:
-                        new_kd =  controlador.Kp_dx+0.00001
-                        if new_kd < 0:
-                            controlador.setKd(new_kd)
-                            print('Aumentando Kp_dx para:',controlador.Kd)
-                    if event.key == K_f: 
-                        controlador.setKd(controlador.Kp_dx-0.00001)
-                        print('Diminuindo Kp_dx para:',controlador.Kd)'''
+                    if event.key == K_a:
+                        disable_log_button = 1
+                        print('Log desabilitará no fim da volta!')
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
                         if new_vel > 0:

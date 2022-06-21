@@ -2,6 +2,7 @@
 
 # Feito por Victor de Mattos Arzolla
 
+from sqlite3 import DataError
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
@@ -10,8 +11,7 @@ from matplotlib import pyplot as plt
 def get_roi(image):
 
     height, width = image.shape
-    half = np.zeros_like
-    left_img = image[0:int(height), 0:int(width/2)]
+    left_img = image[0:height, 0:int(width/2)]
     right_img = image[0:height, int(width/2):width]
     half = np.zeros_like(left_img)
     left_img = np.concatenate((left_img, half), axis=1)
@@ -70,7 +70,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_by_angle(lines, sin_max = 76):
+def filter_by_angle(lines, sin_max = 0.76):
 
     ok_lines = []
     if lines is not None:
@@ -78,20 +78,39 @@ def filter_by_angle(lines, sin_max = 76):
             rho, theta = line[0]
             sin_theta = np.sin(theta)
             #print(sin_theta)
-            if sin_max > sin_theta:
+            if sin_max > abs(sin_theta):
+                #print(line)
                 ok_lines.append(np.array(line))
 
-    ok_lines = np.array(ok_lines)
-    return ok_lines
+    lines = np.array(ok_lines)
+    return lines
+
+def filter_out_of_roi(lines, low = 360, high = 1080):
+
+    ok_lines = []
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            base = rho*(1/np.cos(theta)) - 720*np.sin(theta)
+            #print('base',base)
+            if base > low and base < high:
+                #print(line)
+                ok_lines.append(np.array(line))
+
+    lines = np.array(ok_lines)
+    return lines
 
 
 def get_average_line(line_list):
 
     if line_list is not None:
         if len(line_list) != 0:
-            # if len(line_list) > 10:
-            #     avg = [np.mean(line_list[0:10], axis=0, dtype=np.float32)]
-            # else:
+        # xs = [3, 7, 6]
+        # mean = xs[0]
+        # n = 1
+        #     while n < len(xs):
+        #     n += 1
+        #     mean = mean*(i-1)/i + xs[i-1]/i
             avg = [np.mean(line_list, axis=0, dtype=np.float32)]
             return avg
     #print('avg', avg)
@@ -99,14 +118,36 @@ def get_average_line(line_list):
 
 
 def normalize_hough(lines):
-
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
             if rho < 0:
-                line[0] = (-rho), (theta - np.pi)
-
+                rho = (-rho)
+                theta = (theta - np.pi)
+            line[0] = rho, theta
     return lines
+
+def shift_origin(lines, shift = 360):
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            if theta > np.pi/2:
+                rho = - rho + abs(shift*np.cos(theta))
+                theta = theta - np.pi
+            else:
+                rho = shift*np.cos(theta) + rho # mudança de origem
+
+            line[0] = rho, theta
+    return lines
+
+def return_origin(lines):
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            rho = rho - 360*np.cos(theta) # mudança de origem
+            line[0] = rho, theta
+    return lines
+
 
 def get_median_line(line_list):
     if line_list is not None:
@@ -122,8 +163,8 @@ class Accumulator:
         
         # Variáveis para armazenar a média temporal. 
         # São inicializadas com valor de faixa ideal.
-        self.left_line_accum = [np.array([[200.        ,   0]], dtype=np.float32)]
-        self.right_line_accum = [np.array([[520.       ,   0]], dtype=np.float32)]
+        self.left_line_accum = [np.array([[560.        ,   0]], dtype=np.float32)]
+        self.right_line_accum = [np.array([[880.       ,   0]], dtype=np.float32)]
         self.accum_max_size = accum_max_size
 
     def accumulate(self, left_line, right_line):
@@ -174,8 +215,8 @@ class Holder:
         
         # Variáveis para armazenar a faixa atual 
         # São inicializadas com valor de faixa ideal.
-        self.left_line = [np.array([[200.        ,   0]], dtype=np.float32)]
-        self.right_line = [np.array([[520.       ,   0]], dtype=np.float32)]
+        self.left_line = [np.array([[560.        ,   0]], dtype=np.float32)]
+        self.right_line = [np.array([[880.       ,   0]], dtype=np.float32)]
 
     def hold(self, left_line, right_line):
 
@@ -194,11 +235,11 @@ class Holder:
 
 class DifferenceFilter:
 
-    def __init__(self, theta_lim = 0.5, rho_lim=400, count_lim=25):
+    def __init__(self, theta_lim = 0.5, rho_lim=200, count_lim=25):
         
         # Valores padrão das linhas
-        self.left_antiga = [np.array([[200.        ,   0]], dtype=np.float32)]
-        self.right_antiga = [np.array([[520.       ,   0]], dtype=np.float32)]
+        self.left_antiga = [np.array([[560.        ,   0]], dtype=np.float32)]
+        self.right_antiga = [np.array([[880.       ,   0]], dtype=np.float32)]
         
         # contadores para após x linhas ignoradas ele forçar pegar a nova
         self.l_count = 0
@@ -221,7 +262,7 @@ class DifferenceFilter:
         rho_l_a, theta_l_a = self.left_antiga[0][0]
 
         # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_l - rho_l_a) < self.rho_lim and abs(np.sin(theta_l) - np.sin(theta_l_a)) < self.theta_lim) or self.l_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        if (abs(rho_l - rho_l_a) < self.rho_lim and abs(theta_l - theta_l_a) < self.theta_lim) or self.l_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
             left_ok = left_line # usa linha nova
             self.left_antiga = left_line # armazena linha nova
             self.l_count = 0 # zera contador sempre que utilizar linha nova
@@ -240,7 +281,7 @@ class DifferenceFilter:
         rho_r_a, theta_r_a = self.right_antiga[0][0]
 
         # Compara a diferença absoluta entre rho e theta da linha antiga e nova
-        if (abs(rho_r - rho_r_a) < self.rho_lim and abs(np.sin(theta_r) - np.sin(theta_r_a)) < self.theta_lim) or self.r_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
+        if (abs(rho_r - rho_r_a) < self.rho_lim and abs(theta_r - theta_r_a) < self.theta_lim) or self.r_count > self.count_lim:   # Se dif rho for menor q rho_lim e dif theta menor q theta_lim
             right_ok = right_line # usa linha nova
             self.right_antiga = right_line # armazena linha nova
             self.r_count = 0 # zera contador sempre que utilizar linha nova
@@ -269,25 +310,27 @@ def intersection(line1, line2):
 def get_mid_line(left_line, right_line):
     #print('left', left_line[0])
     if left_line  is not None and right_line is not None:
-        rho1, theta1 = left_line[0][0]
-        rho2, theta2 = right_line[0][0]
-        #print(left_line, right_line)
-        
-        psi = (theta1 + theta2)/2 # yaw error
-        rho = (rho1 + rho2)/2
-        del_x = 0
-        intersec = intersection([[[rho, psi]]],[[[720, 1.57059]]])
-        #print(intersec)
-        del_x = intersec[0] - 360
+        if len(left_line) != 0 and len(right_line) != 0:
 
-        return [[[rho, psi]]], np.rad2deg(psi), del_x
+            rho1, theta1 = left_line[0][0]
+            rho2, theta2 = right_line[0][0]
+
+            
+            psi = (theta1 + theta2)/2 # yaw error
+            rho = (rho1 + rho2)/2
+            del_x = 0
+            intersec = intersection([[[rho, psi]]],[[[865, 1.57059]]])
+            #print(intersec)
+            del_x = (intersec[0] - 360)*np.cos(psi)*0.002084 # transformado para metros
+
+            return [[[rho, psi]]], np.rad2deg(psi), del_x
     return [[[0, 0]]], 0, 0
     
 holder = Holder()
 
-accum_pos = Accumulator(7)
+accum_pos = Accumulator(3)
 
-diff = DifferenceFilter(theta_lim = 0.4, rho_lim=300, count_lim=49)
+diff = DifferenceFilter(theta_lim = 0.4, rho_lim=175, count_lim=10000)
 
 def image_processing4(rgb_frame):
 
@@ -295,15 +338,38 @@ def image_processing4(rgb_frame):
     #### TRATAMENTO E PROCESSAMENTO DE IMAGENS #####
     ################################################
 
+    rgb_frame_copy = rgb_frame.copy()
     bird_img = bird_eyes(rgb_frame)
+
+    tl = [60, 113]
+    tr = [660, 113]
+    br = [1065, 270]
+    bl = [-345, 270]
+
+    display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
+    display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
+
+    cv2.imshow('cam image', rgb_frame_copy)
 
     cv2.imshow('birds', bird_img)
 
-    img_bin = adaptive_threshold(bird_img)
+    gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
+
+    gray_img = cv2.GaussianBlur(gray_img,(15,15),0)
+
+    # cv2.imshow('gray img', gray_img)
+
+    img_bin = adaptive_threshold(gray_img, 35, -5)
+
+    #img_bin = moving_threshold(gray_img, n=100, b=1.1)
+
+    #skel_img = cv2.Canny(img_bin,20,100)
+
+    cv2.imshow('img_bin', img_bin)
 
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
-
-    left_img, right_img = get_roi(skel_img)
 
     cv2.imshow('skel img', skel_img)
 
@@ -313,47 +379,65 @@ def image_processing4(rgb_frame):
     ########### PARA DETECTAR AS FAIXAS ############
     ################################################
 
-    left_lines = hough_transform(left_img) # todas as linhas detectadas 
-    right_lines = hough_transform(right_img)
+    lines_in = hough_transform(skel_img) # todas as linhas detectadas 
 
-    left_lines= normalize_hough(left_lines)
-    right_lines = normalize_hough(right_lines)
+    lines = filter_by_angle(lines_in) # descarta linhas com angulo muito horizontal
 
-    left_img = cv2.cvtColor(left_img, cv2.COLOR_GRAY2RGB)
-    right_img = cv2.cvtColor(right_img, cv2.COLOR_GRAY2RGB)
+    if lines is not None:
+        lines_shift = lines.copy()
+    else:
+        lines_shift = None
 
-    display_lines(left_img, left_lines, line_color = (0,0,255), line_width=1)
-    display_lines(right_img, right_lines, line_color = (0,0,255), line_width=1)
 
-    cv2.imshow('left', left_img)
-    cv2.imshow('right', right_img)
+    img_bin = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+    display_lines(img_bin, lines_in, line_color = (255,0,255), line_width=1)
+    cv2.imshow('All lines', img_bin)
 
-    #left_lines = filter_by_angle(left_lines) # descarta linhas com angulo muito horizontal
-    #right_lines = filter_by_angle(right_lines) # descarta linhas com angulo muito horizontal
-    #print('antes',left_lines, right_lines )
-    left_line = get_average_line(left_lines)
-    right_line = get_average_line(right_lines)
-    #print('apos mediana',left_line, right_line )
+    normalize_hough(lines_shift)
+
+    # Desloca origem em 360 pixels no eixo x
+    shift_origin(lines_shift)
+
+    left_lines_shift = filter_out_of_roi(lines_shift, 360, 710)
+    right_lines_shift = filter_out_of_roi(lines_shift, 730, 1080)
+
+
+    display_lines(img_bin, lines_in, line_color = (0,0,255), line_width=1)
+
+
+
+    left_line_shift = get_average_line(left_lines_shift)
+    right_line_shift = get_average_line(right_lines_shift)
+
+
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    left_line, right_line = holder.hold(left_line, right_line)
+    left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
     
     # ignora as faixas muito diferentes da anterior
-    left_line, right_line = diff.filter_strange_line(left_line, right_line)
+    left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
 
     # média temporal das ultimas faixas
-    left_line, right_line = accum_pos.accumulate(left_line, right_line)
+    left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
+
+    # Volta para origem antiga
+    left_line = return_origin(left_line_shift)
+    right_line = return_origin(right_line_shift)
+
+    left_lines = return_origin(left_lines_shift)
+    right_lines = return_origin(right_lines_shift)
+
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
-    display_lines(roi_img_rgb, right_lines, line_color = (0,0,255), line_width=1)
+    display_lines(roi_img_rgb, right_lines, line_color = (255,0,0), line_width=1)
     ########## Mostrar as faixas ######
     display_lines(roi_img_rgb, left_line)
     display_lines(roi_img_rgb, right_line)
 
-    cv2.imshow('Hough Lines and Lane', roi_img_rgb)
+    cv2.imshow('Left, Right and Averages', roi_img_rgb)
 
 
     ################################################
@@ -361,7 +445,9 @@ def image_processing4(rgb_frame):
     ########## CALCULAR ERROS O CONTROLE ###########
     ################################################
 
-    mid_line, psi, del_x = get_mid_line(left_line, right_line)
+    mid_line, psi, del_x = get_mid_line(left_line_shift, right_line_shift)
+
+
 
 
 
@@ -373,7 +459,7 @@ def image_processing4(rgb_frame):
 def computer_vision_rgb(rgb_frame, data):
     #seg_frame = data.frame
     if rgb_frame is None:
-        rgb_frame = np.zeros((720,720,3))
+        rgb_frame = np.full((720,720,3),255)
     rgb_frame = np.ascontiguousarray(rgb_frame, dtype=np.uint8)
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
@@ -439,8 +525,8 @@ def control_monitor(data):
         write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
 
         # del_x
-        display_lines_2pts(frame, [data.dx + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))), [data.dx + 360,710], (51,251,255), size = 0.5, thick = 2) 
+        display_lines_2pts(frame, [data.dx/0.002084 + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
+        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))+' m'), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
     if  data.steering > 0:
@@ -454,7 +540,7 @@ def control_monitor(data):
     # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,300), (50,50,255))
     write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,350), (50,255,50))
       
-    cv2.imshow('rgb with lines', frame)
+    cv2.imshow('Lane Monitor', frame)
 
     #data.frame = frame
     
@@ -466,58 +552,67 @@ def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
 
 
-def adaptive_threshold(rgb_img):
+def moving_threshold(gray_img, n=20, b=0.5):
 
-    #cv2.imshow('rgb image', rgb_img)
+    #gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
 
-    gray_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
-    #cv2.imshow('gray image', gray_img)
-    gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
-    #roi_img_rgb, ROI = get_roi(gray_img, 1)
-    #cv2.imshow('roi img rgb', roi_img_rgb)
-    #cv2.imshow('gray blurred', gray_img)
+    gray_img[1:-1:2, :] = np.fliplr(gray_img[1:-1:2, :])  #  Vector flip 
+    f = gray_img.flatten()  #  Flatten to one dimension 
+    ret = np.cumsum(f)
+    ret[n:] = ret[n:] - ret[:-n]
+    m = ret / n  #  Moving average 
+    g = np.array(f>=b*m).astype(int)  #  Threshold judgment ,g=1 if f>=b*m
+    g = g.reshape(gray_img.shape)  #  Restore to 2D 
+    g[1:-1:2, :] = np.fliplr(g[1:-1:2, :])  #  Flip alternately
+    g = np.ascontiguousarray(g, dtype=np.uint8)
+    g = g*255
+    
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4,4))
+    #print(element)
+
+    close_img = cv2.morphologyEx(g, cv2.MORPH_CLOSE, element)
+
+  
+    return close_img
 
 
-    cv2.imshow('roi img', gray_img)
 
-    # gray_img_eq = cv2.equalizeHist(gray_img[ROI])
-    # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
-    # gray_img_eq = clahe.apply(gray_img[ROI])
-
-    # gray_img[ROI] = gray_img_eq.reshape(-1)
-
-
+def adaptive_threshold(gray_img, block_size = 21, const = 5):
 
     #cv2.imshow('gray roi eq', gray_img)
     #ret, thresh_img = cv2.threshold(gray_img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     #thresh1 = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 8)
-    thresh_img = cv2.adaptiveThreshold(gray_img, 254, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 5)
-    cv2.imshow('tresh img', thresh_img)
-
+    thresh_img = cv2.adaptiveThreshold(gray_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, const)
 
 
     #plt.show()
     return thresh_img
 
+
 def bird_eyes(image):
-    # targeted rectangle on original image which needs to be transformed
-    tl = [145, 80]
-    tr = [575, 80]
-    br = [820, 175]
-    bl = [-100, 175]
+    # # targeted rectangle on original image which needs to be transformed
+    # tl = [60, 113]
+    # tr = [660, 113]
+    # br = [1065, 270]
+    # bl = [-345, 270]
 
-    corner_points_array = np.float32([tl,tr,br,bl])
+    # corner_points_array = np.float32([tl,tr,br,bl])
 
 
-    # Create an array with the parameters (the dimensions) required to build the matrix
-    imgTl = [0, 0]
-    imgTr = [720, 0]
-    imgBr = [720, 720]
-    imgBl = [0, 720]
-    img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
+    # # # Create an array with the parameters (the dimensions) required to build the matrix
+    # imgTl = [0, 0]
+    # imgTr = [720, 0]
+    # imgBr = [720, 720]
+    # imgBl = [0, 720]
+    # img_params = np.float32([imgTl,imgTr,imgBr,imgBl])
 
-    # Compute and return the transformation matrix
-    matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
+    # # # Compute and return the transformation matrix
+    # matrix = cv2.getPerspectiveTransform(corner_points_array,img_params)
+    # print(matrix)
+    matrix = np.array([ [ 4.23370787e+01,  1.09213483e+02, -1.48813483e+04],
+                        [ 0.00000000e+00,  3.80224719e+02, -4.29653933e+04],
+                        [ 1.31581988e-19,  3.03370787e-01,  1.00000000e+00],])
+    
     img_transformed = cv2.warpPerspective(image,matrix,(720, 720), borderMode=cv2.BORDER_REPLICATE)
     #display_lines_2pts(img_transformed, [360,0], [360,720], line_color = (200,21,21), line_width=1)
     #display_lines_2pts(img_transformed, [0,360], [720,360], line_color = (200,21,21), line_width=1)
@@ -525,8 +620,23 @@ def bird_eyes(image):
     return img_transformed
 
 
-def teste(img):
-    pass
+def teste(rgb_frame):
+    bird_img = bird_eyes(rgb_frame)
+
+    cv2.imshow('birds', bird_img)
+
+    img_thresh = moving_threshold(bird_img, n = 50, b = 1.2)
+
+    cv2.imshow('tresh', img_thresh)
+
+    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6,6))
+    print(element)
+
+    open = cv2.morphologyEx(img_thresh, cv2.MORPH_CLOSE, element)
+
+    cv2.imshow('open', open)
+
+
 
 if __name__ == '__main__':
 
@@ -540,28 +650,36 @@ if __name__ == '__main__':
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
     path = 'ideal_fov30_2.png'
-    path = 'curva_fov30_left.png'
-    path = 'line4.png'
-    path = 'line3.png'
+    #path = 'curva_fov30_left.png'
+    path = 'curva_fov30_right_brusca.png'
+    #path = 'line4.png'
+    #path = 'line3.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
+    #path = 'moqueca.jpg'
+
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
+    #img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
     
-    #img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
+    img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
     #image_processing(img_gray)
     #cv2.waitKey(0)
     data = SimulationData()
     for n in range(1):
 
+        
+        #gray_img = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2GRAY)
+        #gray_img_blur = cv2.GaussianBlur(gray_img,(21,21),0)
+        #cv2.imwrite('moqueca_gray.jpg', gray_img)
+        #cv2.imwrite('moqueca_gray_blur.jpg', gray_img_blur)
         #image_processing_kmeans(img_gray)
         computer_vision_rgb(img_BGR, data)
         #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
         #adaptive_threshold(img_BGR)
         #bird_eyes(img_BGR)
-        #testando(img_gray)
+        #teste(img_BGR)
         cv2.waitKey(0)
         print('arctan',np.arctan(-10000000))
         cv2.destroyAllWindows()

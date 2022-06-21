@@ -22,7 +22,9 @@ class Controller:
         self.Term_arctan = 0.0
         self.sample_time = 0.01
         self.last_time = time.time()
-        self.last_output = None
+        self.last_output = 0
+        self.psi = 0
+        self.dx = 0
 
         # Limites da saída
         self.cmax = None
@@ -32,7 +34,8 @@ class Controller:
         # Configuração do filtro
         self.num = None
         self.den = None
-        self.zi = None
+        self.zi_psi = None
+        self.zi_dx = None
 
 
     # Função estática para limitar determinado valor
@@ -46,11 +49,11 @@ class Controller:
             return min
         return value
 
-    def __filter(self, input):
-        if self.zi is None or input is None:
-            return input
-        output, _ = signal.lfilter(self.num, self.den, [input], zi=self.zi)  
-        return output
+    def __filter(self, input, zi):
+        if zi is None or input is None:
+            return input, None
+        output, zi = signal.lfilter(self.num, self.den, [input], zi=zi)  
+        return output, zi
 
     def update(self, psi, dx, velocidade, current_time=None):
 
@@ -60,26 +63,25 @@ class Controller:
             current_time = time.time()
 
         # se delta de tempo for positivo
-        if current_time - self.last_time:
+        if (current_time - self.last_time) > 0:
             # Computa a variação do tempo
             delta_time = current_time - self.last_time
         # Se delta_time for zero
         else: 
-            delta_time = 1e-16
+            delta_time = 1e-10
 
         # Só entra na rotina de atualização a cada 'sample_time' segundos
-        if (self.sample_time is not None) and (delta_time < self.sample_time) and (self.last_output is not None):
+        if (self.sample_time is not None) and (delta_time < self.sample_time) :
             # Se não passou tempo suficiente só retorna ultimo valor da saída
             return self.last_output
 
         # Filtra as entradas
-        psi = self.__filter(psi)
-        dx = self.__filter(dx)
-
+        self.psi, self.zi_psi = self.__filter(psi, self.zi_psi)
+        self.dx, self.zi_dx = self.__filter(dx, self.zi_dx)
+        
         # Cálculo dos termos
-        self.Term_arctan = np.arctan(self.K_dx * (dx/velocidade))/1.57 # arctan é normalizada para intervalo entre -1 e 1
+        self.Term_arctan = np.rad2deg(np.arctan(self.K_dx * (dx/velocidade))) # 
         self.Term_psi = self.K_psi * psi
-
 
         # Calcula resposta do controle
         output = self.Term_psi + self.Term_arctan
@@ -93,10 +95,13 @@ class Controller:
 
         return output
 
-    def setFilter(self, n=1, wn=0.04):
+    def setFilter(self, n=1, wn=0.04, btype='lowpass'):
         """Define os parâmetros do filtro Butterworth a ser aplicado nas entradas"""
-        self.num, self.den = signal.butter(n, wn)
-        self.zi = np.zeros(self.num.size-1)
+        self.num, self.den = signal.butter(n, wn, btype)
+
+        self.zi_psi = np.zeros(self.num.size-1)
+        self.zi_dx = np.zeros(self.num.size-1)
+
 
     def setKp(self, K_psi, K_dx):
         """Determina o ganho proporcional de psi e velocidade da arctan"""
