@@ -2,11 +2,12 @@
 
 # Feito por Victor de Mattos Arzolla
 
-from sqlite3 import DataError
+# This work is licensed under the terms of the MIT license.
+# For a copy, see <https://opensource.org/licenses/MIT>.
+
+
 import numpy as np
 import cv2
-from matplotlib import pyplot as plt
-
 
 def get_roi(image):
 
@@ -148,15 +149,6 @@ def return_origin(lines):
             line[0] = rho, theta
     return lines
 
-
-def get_median_line(line_list):
-    if line_list is not None:
-        if len(line_list) != 0:
-            avg = [np.median(line_list, axis=0)]
-            return avg
-
-    #print('avg', avg)
-    return []
 
 class Accumulator:
     def __init__(self, accum_max_size):
@@ -353,26 +345,16 @@ def image_processing4(rgb_frame):
     ################################################
 
     rgb_frame_copy = rgb_frame.copy()
+
     bird_img = bird_eyes(rgb_frame)
-
-
 
     gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
 
     gray_img_blur = cv2.GaussianBlur(gray_img,(15,15),0)
 
-
-
     img_bin = adaptive_threshold(gray_img_blur, 35, -5)
 
-    #img_bin = moving_threshold(gray_img, n=100, b=1.1)
-
-    #skel_img = cv2.Canny(img_bin,20,100)
-
-
     skel_img = skeletize_image(img_bin) # esqueletiza a imagem
-
-
 
     ################################################
     ####### ALGORITMO DE VISÃO COMPUTACIONAL #######
@@ -388,7 +370,6 @@ def image_processing4(rgb_frame):
     else:
         lines_shift = None
 
-
     normalize_hough(lines_shift)
 
     # Desloca origem em 360 pixels no eixo x
@@ -397,10 +378,8 @@ def image_processing4(rgb_frame):
     left_lines_shift = filter_out_of_roi(lines_shift, 360, 710)
     right_lines_shift = filter_out_of_roi(lines_shift, 730, 1080)
 
-
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
-
 
     # converte para rgb
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
@@ -420,20 +399,10 @@ def image_processing4(rgb_frame):
     ########## CALCULAR ERROS DO CONTROLE ##########
     ################################################
 
-    #mid_line, psi, del_x = get_mid_line(left_line_shift, right_line_shift)
-
-    #print(psi,del_x)
     center_line_shift = get_average_line([left_line_shift[0], right_line_shift[0]])
     
-
-    #center_line, right_line_shift = accum_pos.accumulate(center_line, right_line_shift)
-
-
-    #print(center_line)
     psi, del_x = compute_error(center_line_shift)
-    #print(aa,bb)
 
-    
     ################################################
     ############### Mostrar Imagens ################
     ################################################
@@ -475,7 +444,6 @@ def image_processing4(rgb_frame):
     cv2.imshow('Imagem Esqueletizada', skel_img)
     cv2.imshow('Todas as Linhas', img_bin_rgb)
     cv2.imshow('Esquerda, Direita e Medias', roi_img_rgb)
-
     return bird_img, left_line, right_line, center_line, psi, del_x
 
 
