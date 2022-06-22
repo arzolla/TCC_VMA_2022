@@ -11,5 +11,5 @@ echo/
 set /p weather="Selecione o weather: "
 
 
-python .\config.py -m Town04 --weather weather%
+python .\config.py -m Town04 --weather %weather%
 echo
