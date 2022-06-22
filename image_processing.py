@@ -22,9 +22,9 @@ def get_roi(image):
 
  
 
-def skeletize_image(img):
+def skeletize_image(img, cross_size = 3):
     skel = np.zeros(img.shape, np.uint8)
-    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (cross_size,cross_size))
     while cv2.countNonZero(img) != 0:
         #Step 2: Open the image
         open = cv2.morphologyEx(img, cv2.MORPH_OPEN, element)
@@ -352,9 +352,9 @@ def image_processing4(rgb_frame):
 
     gray_img_blur = cv2.GaussianBlur(gray_img,(15,15),0)
 
-    img_bin = adaptive_threshold(gray_img_blur, 35, -5)
+    img_bin = adaptive_threshold(gray_img_blur, 11, -1)
 
-    skel_img = skeletize_image(img_bin) # esqueletiza a imagem
+    skel_img = skeletize_image(img_bin, 3) # esqueletiza a imagem
 
     ################################################
     ####### ALGORITMO DE VISÃO COMPUTACIONAL #######
@@ -650,7 +650,7 @@ if __name__ == '__main__':
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
-    #path = 'moqueca.jpg'
+    path = 'test_img\sombra.png'
 
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     #img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
