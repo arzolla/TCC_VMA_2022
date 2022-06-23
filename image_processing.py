@@ -375,8 +375,8 @@ def image_processing4(rgb_frame):
     # Desloca origem em 360 pixels no eixo x
     shift_origin(lines_shift)
 
-    left_lines_shift = filter_out_of_roi(lines_shift, 360+40, 720-30)
-    right_lines_shift = filter_out_of_roi(lines_shift, 720+30, 1080-40)
+    left_lines_shift = filter_out_of_roi(lines_shift, 360+80, 720-60)
+    right_lines_shift = filter_out_of_roi(lines_shift, 720+60, 1080-80)
 
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
@@ -385,13 +385,13 @@ def image_processing4(rgb_frame):
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
+    #left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
     
     # ignora as faixas muito diferentes da anterior
-    left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
+    #left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
 
     # média temporal das ultimas faixas
-    left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
+    #left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
 
 
     ################################################
@@ -433,8 +433,9 @@ def image_processing4(rgb_frame):
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
     display_lines(roi_img_rgb, right_lines, line_color = (255,0,0), line_width=1)
     ########## Mostrar as faixas ######
-    display_lines(roi_img_rgb, left_line)
-    display_lines(roi_img_rgb, right_line)
+    display_lines(roi_img_rgb, left_line, line_color = (180,180,255))
+    display_lines(roi_img_rgb, right_line, line_color = (255,180,180))
+    display_lines(roi_img_rgb, center_line)
 
     cv2.imshow('Camera e ROI', rgb_frame_copy)
     cv2.imshow('Transformacao de Perspectiva', bird_img)
@@ -444,6 +445,7 @@ def image_processing4(rgb_frame):
     cv2.imshow('Imagem Esqueletizada', skel_img)
     cv2.imshow('Todas as Linhas', img_bin_rgb)
     cv2.imshow('Esquerda, Direita e Medias', roi_img_rgb)
+    #cv2.imwrite('4_centro.png',roi_img_rgb)
     return bird_img, left_line, right_line, center_line, psi, del_x
 
 
@@ -508,14 +510,14 @@ def control_monitor(data):
         display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
         # linhas (em verde)
-        display_lines(frame, data.left_line)
-        display_lines(frame, data.right_line)
-        display_lines(frame, data.mid_line, line_color = (255,0,255))
+        display_lines(frame, data.left_line, line_color = (0,0,255))
+        display_lines(frame, data.right_line, line_color = (255,0,0))
+        display_lines(frame, data.mid_line)
         # triangulo (em magenta)
         #display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
         #display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
         #display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
-        write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (255,0,255), size = 0.5, thick = 2)
+        write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (0,255,0), size = 0.5, thick = 2)
 
         # del_x
         display_lines_2pts(frame, [data.dx/0.002084 + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
