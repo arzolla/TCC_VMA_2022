@@ -418,36 +418,36 @@ def image_processing4(rgb_frame):
     ############### Mostrar Imagens ################
     ################################################
 
-    img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+    # img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
 
-    display_lines(img_bin_rgb, lines_in, line_color = (255,0,255), line_width=1)
+    # display_lines(img_bin_rgb, lines_in, line_color = (255,0,255), line_width=1)
 
-    tl = [60, 113]
-    tr = [660, 113]
-    br = [1065, 270]
-    bl = [-345, 270]
+    # tl = [60, 113]
+    # tr = [660, 113]
+    # br = [1065, 270]
+    # bl = [-345, 270]
 
-    display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
-    display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
 
-    # mostra as linhas
-    display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
-    display_lines(roi_img_rgb, right_lines, line_color = (255,0,0), line_width=1)
-    ########## Mostrar as faixas ######
-    display_lines(roi_img_rgb, left_line, line_color = (180,180,255))
-    display_lines(roi_img_rgb, right_line, line_color = (255,180,180))
-    display_lines(roi_img_rgb, center_line)
+    # # mostra as linhas
+    # display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
+    # display_lines(roi_img_rgb, right_lines, line_color = (255,0,0), line_width=1)
+    # ########## Mostrar as faixas ######
+    # display_lines(roi_img_rgb, left_line, line_color = (180,180,255))
+    # display_lines(roi_img_rgb, right_line, line_color = (255,180,180))
+    # display_lines(roi_img_rgb, center_line)
 
-    cv2.imshow('Camera e ROI', rgb_frame_copy)
-    cv2.imshow('Transformacao de Perspectiva', bird_img)
-    cv2.imshow('Imagem grayscale', gray_img)
-    cv2.imshow('Imagem apos filtro Gaussiano', gray_img)
-    cv2.imshow('Imagem Binarizada', img_bin)
-    cv2.imshow('Imagem Esqueletizada', skel_img)
-    cv2.imshow('Todas as Linhas', img_bin_rgb)
-    cv2.imshow('Esquerda, Direita e Medias', roi_img_rgb)
+    # cv2.imshow('Camera e ROI', rgb_frame_copy)
+    # cv2.imshow('Transformacao de Perspectiva', bird_img)
+    # cv2.imshow('Imagem grayscale', gray_img)
+    # cv2.imshow('Imagem apos filtro Gaussiano', gray_img)
+    # cv2.imshow('Imagem Binarizada', img_bin)
+    # cv2.imshow('Imagem Esqueletizada', skel_img)
+    # cv2.imshow('Todas as Linhas', img_bin_rgb)
+    # cv2.imshow('Esquerda, Direita e Medias', roi_img_rgb)
     #cv2.imwrite('4_centro.png',roi_img_rgb)
     return bird_img, left_line, right_line, center_line, psi, del_x
 
