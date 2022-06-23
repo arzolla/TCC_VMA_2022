@@ -40,8 +40,8 @@ def skeletize_image(img, cross_size = 3):
 def hough_transform(image):
     # tuning min_threshold, minLineLength, maxLineGap is a trial and error process by hand
     rho = 1  # distance precision in pixel, i.e. 1 pixel
-    angle = np.pi / 360  # angular precision in radian, i.e. 1 degree
-    min_threshold = 50  # minimal of votes
+    angle = np.pi / 180  # angular precision in radian, i.e. 1 degree
+    min_threshold = 40  # minimal of votes
     #line_segments = cv2.HoughLinesP(cropped_edges, rho, angle, min_threshold, np.array([]), minLineLength=8, maxLineGap=4)
     #line_segments = cv2.HoughLines(cropped_edges, rho, angle, min_threshold, np.array([]))
     line_segments =cv2.HoughLines(image, rho, angle, min_threshold, None, 0, 0)
@@ -71,7 +71,7 @@ def display_lines_2pts(frame, pt1, pt2, line_color=(0, 255, 0), line_width=2):
     #line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
 
 
-def filter_by_angle(lines, sin_max = 0.76):
+def filter_by_angle(lines, sin_max = 0.5):
 
     ok_lines = []
     if lines is not None:
@@ -375,8 +375,8 @@ def image_processing4(rgb_frame):
     # Desloca origem em 360 pixels no eixo x
     shift_origin(lines_shift)
 
-    left_lines_shift = filter_out_of_roi(lines_shift, 360, 710)
-    right_lines_shift = filter_out_of_roi(lines_shift, 730, 1080)
+    left_lines_shift = filter_out_of_roi(lines_shift, 360+40, 720-30)
+    right_lines_shift = filter_out_of_roi(lines_shift, 720+30, 1080-40)
 
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
@@ -643,14 +643,14 @@ if __name__ == '__main__':
     #path = 'color_curva.png'
     #path = 'static_road_color.png'
     path = 'test_img\ideal_fov30_2.png'
-    #path = 'curva_fov30_left.png'
+    #path = 'test_img\curva_fov30_left.png'
     #path = 'test_img\curva_fov30_right_brusca.png'
     #path = 'line4.png'
     #path = 'line3.png'
     #path = 'curva_fov30_right.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
     #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
-    path = 'test_img\sombra.png'
+    #path = 'test_img\sombra.png'
 
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     #img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
