@@ -1,5 +1,6 @@
 @echo off
 
+python .\config.py -m Town04
 echo Weathers disponiveis:
 echo/
  echo   ClearNight, ClearNoon, ClearSunset, CloudyNight, CloudyNoon,
@@ -11,5 +12,5 @@ echo/
 set /p weather="Selecione o weather: "
 
 
-python .\config.py -m Town04 --weather %weather%
+python .\config.py --weather %weather%
 echo
