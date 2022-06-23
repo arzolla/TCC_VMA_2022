@@ -385,13 +385,13 @@ def image_processing4(rgb_frame):
     roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
-    #left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
+    left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
     
     # ignora as faixas muito diferentes da anterior
-    #left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
+    left_line_shift, right_line_shift = diff.filter_strange_line(left_line_shift, right_line_shift)
 
     # média temporal das ultimas faixas
-    #left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
+    left_line_shift, right_line_shift = accum_pos.accumulate(left_line_shift, right_line_shift)
 
 
     ################################################
@@ -403,9 +403,25 @@ def image_processing4(rgb_frame):
     
     psi, del_x = compute_error(center_line_shift)
 
+
+
+    # Volta para origem antiga
+    left_line = return_origin(left_line_shift)
+    right_line = return_origin(right_line_shift)
+
+    left_lines = return_origin(left_lines_shift)
+    right_lines = return_origin(right_lines_shift)
+    
+    center_line = return_origin(center_line_shift)
+
     ################################################
     ############### Mostrar Imagens ################
     ################################################
+
+    img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+
+    display_lines(img_bin_rgb, lines_in, line_color = (255,0,255), line_width=1)
+
     tl = [60, 113]
     tr = [660, 113]
     br = [1065, 270]
@@ -415,19 +431,6 @@ def image_processing4(rgb_frame):
     display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
     display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
     display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
-
-
-    img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
-    display_lines(img_bin_rgb, lines_in, line_color = (255,0,255), line_width=1)
-    
-    # Volta para origem antiga
-    left_line = return_origin(left_line_shift)
-    right_line = return_origin(right_line_shift)
-
-    left_lines = return_origin(left_lines_shift)
-    right_lines = return_origin(right_lines_shift)
-    
-    center_line = return_origin(center_line_shift)
 
     # mostra as linhas
     display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
