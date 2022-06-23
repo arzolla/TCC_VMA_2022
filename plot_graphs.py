@@ -60,47 +60,66 @@ def align_yaxis_np(axes):
     # set axes limits
     [axes[i].set_ylim(*extrema[i]) for i in range(len(extrema))]
 
-if __name__ == '__main__':
 
+def plot_map():
 
-    # Obtendo dados dos arquivos
+ # Obtendo dados dos arquivos
 
     map_x = eval(open("logs\\path_ideal_x.txt").read())
     map_y = eval(open("logs\\path_ideal_y.txt").read())
 
-    vel25_time = eval(open("logs\\vel_25_time.txt").read())
-    vel25_psi = eval(open("logs\\vel_25_psi.txt").read())
-    vel25_dx = eval(open("logs\\vel_25_dx.txt").read())
-    vel25_steer = eval(open("logs\\vel_25_steer.txt").read())
-
-    vel20_time = eval(open("logs\\vel_20_time.txt").read())
-    vel20_psi = eval(open("logs\\vel_20_psi.txt").read())
-    vel20_dx = eval(open("logs\\vel_20_dx.txt").read())
-    vel20_steer = eval(open("logs\\vel_20_steer.txt").read())
-
-    vel15_time = eval(open("logs\\vel_15_time.txt").read())
-    vel15_psi = eval(open("logs\\vel_15_psi.txt").read())
-    vel15_dx = eval(open("logs\\vel_15_dx.txt").read())
-    vel15_steer = eval(open("logs\\vel_15_steer.txt").read())
 
 
     # Trajeto
-    plt.figure('Trajeto', frameon=False)
-    plt.plot(map_x, map_y, 'b-', label='Simulador')
+    fig = plt.figure('Trajeto', frameon=False)
+    ax = fig.add_subplot(1, 1, 1)
+    plt.plot(map_x, map_y, 'b-', label='Percurso')
     #plt.plot(vel15_x, vel15_y, 'r--', label='Controle, v = 18')
     
     #plt.scatter(vel15_x[0], np.negative(vel15_y[0]), s = 100, marker = '*' , color = 'green', label='Inicio', zorder=3)
-    #plt.arrow(map_x[0], map_y[0], 0, -1, shape='full', color='green', length_includes_head=True, zorder=0, head_length=40., head_width=20, label='Inicio')
+    plt.arrow(map_x[0], map_y[0], 0, -1, shape='full', color='green', length_includes_head=True, zorder=0, head_length=40., head_width=20, label='Inicio')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
 
-    plt.grid()
-    plt.axis('square')
-    #plt.legend(loc='best')
+
+
+    # Major ticks every 20, minor ticks every 5
+    major_ticks = np.arange(-500, 501, 100)
+    minor_ticks = np.arange(-550, 551, 50)
+
+    ax.set_xticks(major_ticks)
+    ax.set_xticks(minor_ticks, minor=True)
+    ax.set_yticks(major_ticks)
+    ax.set_yticks(minor_ticks, minor=True)
+
+    # And a corresponding grid
+    ax.grid(which='both')
+
+    # Or if you want different settings for the grids:
+    ax.grid(which='minor', alpha=0.2)
+    ax.grid(which='major', alpha=0.5)
+
+    #plt.xlim(-450,450)
+    #plt.ylim(-450,450)
+
+    ax.axis('square')
+    
+    plt.legend(loc='upper left')
+
+    plt.savefig('4_percurso.pdf', bbox_inches='tight')  
+    plt.show()
 
 
 
-    fig, ax1 = plt.subplots()
+def plot_error(time, psi, dx, steer, figure = None):
+
+    time = np.array(time)
+    time = time - time[0]
+
+    fig = plt.figure(figure, frameon=False)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    #fig, ax1 = plt.subplots()
     fig.subplots_adjust(right=0.75)
 
     ax2 = ax1.twinx() # psi
@@ -109,9 +128,9 @@ if __name__ == '__main__':
     ax3.spines.right.set_position(("axes", 1.2))
     ax1.invert_yaxis()
 
-    ax3.plot(vel25_time, vel25_steer, 'g-', linewidth=0.5)
-    ax2.plot(vel25_time, vel25_psi, 'b-', linewidth=0.5)
-    ax1.plot(vel25_time, vel25_dx, 'r-', linewidth=0.5)
+    ax3.plot(time, steer, 'g-', linewidth=0.5)
+    ax2.plot(time, psi, 'b-', linewidth=0.5)
+    ax1.plot(time, dx, 'r-', linewidth=0.5)
 
 
     align_yaxis_np([ax1, ax2, ax3])
@@ -129,9 +148,31 @@ if __name__ == '__main__':
     #plt.legend(loc='best')
 
 
-   # plt.savefig('line_plot.pdf', bbox_inches='tight')  
+  
+    #plt.show()
+
+
+if __name__ == '__main__':
+
+    #plot_map()
+
+    
+    vel25_time = eval(open("logs\\vel_25_time.txt").read())
+    vel25_psi = eval(open("logs\\vel_25_psi.txt").read())
+    vel25_dx = eval(open("logs\\vel_25_dx.txt").read())
+    vel25_steer = eval(open("logs\\vel_25_steer.txt").read())
+
+    vel20_time = eval(open("logs\\vel_20_time.txt").read())
+    vel20_psi = eval(open("logs\\vel_20_psi.txt").read())
+    vel20_dx = eval(open("logs\\vel_20_dx.txt").read())
+    vel20_steer = eval(open("logs\\vel_20_steer.txt").read())
+
+    vel15_time = eval(open("logs\\vel_15_time.txt").read())
+    vel15_psi = eval(open("logs\\vel_15_psi.txt").read())
+    vel15_dx = eval(open("logs\\vel_15_dx.txt").read())
+    vel15_steer = eval(open("logs\\vel_15_steer.txt").read())
+    plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
+    plot_error(vel20_time, vel20_psi, vel20_dx, vel20_steer)
+    plot_error(vel15_time, vel15_psi, vel15_dx, vel15_steer)
     plt.show()
-
-
-
 
