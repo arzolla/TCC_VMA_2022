@@ -111,7 +111,7 @@ def run_simulation(args, client):
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
         ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
-        #ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 2)
+        ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.1), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção (faixa 2)
@@ -170,7 +170,7 @@ def run_simulation(args, client):
 
         frame = np.zeros((720,720,3))
         rgb_frame = np.zeros((720,720,3))
-        log_enable = 1
+        log_enable = 0
         disable_log_button = 0
         a = 0
         while True:
@@ -211,12 +211,12 @@ def run_simulation(args, client):
 
             pos_x = vehicle.get_location().x
             pos_y = vehicle.get_location().y
-            vel_str = 'vel_'+str(velocidade)
+            vel_str = 'logs\\vel_'+str(velocidade)
             if(log_enable):
 
-                log_data(control.psi,vel_str+'_psi')
-                log_data(control.dx,vel_str+'_dx')
-                log_data(control.last_output,vel_str+'_steer')
+                log_data(control.psi, vel_str+'_psi')
+                log_data(control.dx, vel_str+'_dx')
+                log_data(control.last_output, vel_str+'_steer')
                 log_data(time.time(),vel_str+'_time')
 
             if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
@@ -237,17 +237,20 @@ def run_simulation(args, client):
                     if event.key == K_a:
                         disable_log_button = 1
                         print('Log desabilitará no fim da volta!')
-                    if event.key == K_s:
+                    if event.key == K_d:
                         if a == 0: a = -0.4
                         else : a = 0
-                    if event.key == K_d:
+                    if event.key == K_f:
                         if a == 0: a = 0.4
                         else : a = 0
+                    if event.key == K_s:
+                        new_vel = 0
+                        velocidade = new_vel
+                        print('Diminuindo velocidade para:',velocidade)
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
-                        if new_vel > 0:
-                            velocidade = new_vel
-                            print('Diminuindo velocidade para:',velocidade)
+                        velocidade = new_vel
+                        print('Diminuindo velocidade para:',velocidade)
                     if event.key == K_x: 
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)  
