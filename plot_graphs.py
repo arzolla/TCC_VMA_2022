@@ -77,7 +77,7 @@ def plot_map(map_x,map_y, figure = 'Figura'):
     #plt.plot(vel15_x, vel15_y, 'r--', label='Controle, v = 18')
     
     #plt.scatter(vel15_x[0], np.negative(vel15_y[0]), s = 100, marker = '*' , color = 'green', label='Inicio', zorder=3)
-    plt.arrow(map_x[0], map_y[0], map_x[1]-map_x[0], map_y[1]-map_y[0], shape='full', color='green', length_includes_head=True, zorder=0, head_length=40., head_width=20, label='Inicio')
+    plt.arrow(map_x[0], map_y[0], map_x[1]-map_x[0], map_y[1]-map_y[0], shape='full', color='green', length_includes_head=True, zorder=3, head_length=40., head_width=20, label='Inicio')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
 
@@ -104,6 +104,12 @@ def plot_map(map_x,map_y, figure = 'Figura'):
 
     ax.axis('square')
     
+    points = [(325, 34), (-450,-75), (-425,-330),  (-75,-330),  (75,280),  (325,280),]
+    index = ['A', 'B', 'C', 'D', 'E', 'F']
+    for n, point in enumerate(points):
+
+        plt.text(*point,  index[n], c='gray', ha='center', va='center', size='large', weight='roman')
+
 
     plt.legend(loc='upper left')
 
@@ -134,32 +140,35 @@ def plot_error(time, psi, dx, steer, figure = None):
 
 
     align_yaxis_np([axes[0], axes[1], axes[2]])
-    ranges = [(3, 6),(9,12)]
-
-    for range in ranges:
+    ranges = [(0.5, 3.5), (25.5,30.5), (33,43.5), (46.0,57.5),  (70,78),  (80,87.5)]
+    index = ['A', 'B', 'C', 'D', 'E', 'F']
+    for n, range in enumerate(ranges):
         for ax in axes:
             ax.axvspan(*range, color='k', alpha=0.2)
+
+        plt.text(((range[1]+range[0])/2),-3.6,  index[n], c='gray', ha='center', size='large', weight='roman')
 
 
     #plt.scatter(vel15_x[0], np.negative(vel15_y[0]), s = 100, marker = '*' , color = 'green', label='Inicio', zorder=3)
     #plt.arrow(map_x[0], map_y[0], 0, -1, shape='full', color='green', length_includes_head=True, zorder=0, head_length=40., head_width=20, label='Inicio')
     axes[2].set_xlabel('Tempo [s]')
-    axes[2].set_ylabel('Estercamento $\delta$ [$^\circ$]')
-    axes[1].set_ylabel('Erro angular $\psi$ [$^\circ$]')
-    axes[0].set_ylabel('Erro lateral $d_x$ [m]')
+    axes[2].set_ylabel('Esterçamento $\delta$ [$^\circ$]', family='serif')
+    axes[1].set_ylabel('Erro angular $\psi$ [$^\circ$]', family='serif')
+    axes[0].set_ylabel('Erro lateral $d_x$ [m]', family='serif')
 
     #ax1.set_xticklabels([])
     #ax2.set_xticklabels([])
 
     fig.set_figwidth(10)
-    fig.set_figheight(12)
+    fig.set_figheight(10)
     
     #fig.xlim(-450,450)
     plt.xlim(0,time[len(time)-1])
-
+    plt.xticks(np.arange(0, time[len(time)-1], step=5))
     axes[0].grid()
     axes[1].grid()
     axes[2].grid()
+    fig.tight_layout()
     #plt.legend(loc='best')
 
 
@@ -204,31 +213,31 @@ def get_arc_length(x, y):
     return arc
 
 
+
+
 if __name__ == '__main__':
 
-
-    map_x = eval(open("logs\\path_ideal_x.txt").read())
-    map_y = eval(open("logs\\path_ideal_y.txt").read())
-
-    #plot_map(map_x,map_y)
-
-    
     vel25_time = eval(open("logs\\vel_25_time.txt").read())
     vel25_psi = eval(open("logs\\vel_25_psi.txt").read())
     vel25_dx = eval(open("logs\\vel_25_dx.txt").read())
     vel25_steer = eval(open("logs\\vel_25_steer.txt").read())
 
-    #plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
+    vel20_time = eval(open("logs\\vel_20_time.txt").read())
+    vel20_psi = eval(open("logs\\vel_20_psi.txt").read())
+    vel20_dx = eval(open("logs\\vel_20_dx.txt").read())
+    vel20_steer = eval(open("logs\\vel_20_steer.txt").read())
+
+    vel15_time = eval(open("logs\\vel_15_time.txt").read())
+    vel15_psi = eval(open("logs\\vel_15_psi.txt").read())
+    vel15_dx = eval(open("logs\\vel_15_dx.txt").read())
+    vel15_steer = eval(open("logs\\vel_15_steer.txt").read())
+
+    plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
 
     #plt.savefig('4_todos_dados.pdf', bbox_inches='tight')
 
-
-    map_x = eval(open("logs\\path_ideal_x.txt").read())
-    map_y = eval(open("logs\\path_ideal_y.txt").read())
-
-
-    ideal_x = eval(open("ideal_x.txt").read())
-    ideal_y = eval(open("ideal_y.txt").read())
+    ideal_x = eval(open("logs\\ideal_x.txt").read())
+    ideal_y = eval(open("logs\\ideal_y.txt").read())
 
 
     i = np.arange(len(ideal_x))
@@ -237,11 +246,11 @@ if __name__ == '__main__':
     new_map_x = interp1d(i, ideal_x, kind='cubic')(interp_i)
     new_map_y = interp1d(i, ideal_y, kind='cubic')(interp_i)
 
-    #plt.plot(new_map_x,new_map_y, color='r') #melhor curva
-    #plt.plot(ideal_x,ideal_y)
     plot_map(new_map_x,new_map_y , 'mais um')
 
-    plt.show()
-    #get_curvature(new_map_x,new_map_y)
+    #plt.savefig('4_percurso.pdf', bbox_inches='tight')
+
+
     
+    plt.show()
 
