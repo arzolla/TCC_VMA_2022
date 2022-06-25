@@ -138,7 +138,6 @@ def plot_error(time, psi, dx, steer, figure = None):
     axes[0].plot(time, dx, 'r-', linewidth=0.5)
 
 
-
     align_yaxis_np([axes[0], axes[1], axes[2]])
     ranges = [(0.5, 3.5), (25.5,30.5), (33,43.5), (46.0,57.5),  (70,78),  (80,87.5)]
     index = ['A', 'B', 'C', 'D', 'E', 'F']
@@ -149,20 +148,15 @@ def plot_error(time, psi, dx, steer, figure = None):
         plt.text(((range[1]+range[0])/2),-3.6,  index[n], c='gray', ha='center', size='large', weight='roman')
 
 
-    #plt.scatter(vel15_x[0], np.negative(vel15_y[0]), s = 100, marker = '*' , color = 'green', label='Inicio', zorder=3)
-    #plt.arrow(map_x[0], map_y[0], 0, -1, shape='full', color='green', length_includes_head=True, zorder=0, head_length=40., head_width=20, label='Inicio')
     axes[2].set_xlabel('Tempo [s]')
-    axes[2].set_ylabel('Esterçamento $\delta$ [$^\circ$]', family='serif')
-    axes[1].set_ylabel('Erro angular $\psi$ [$^\circ$]', family='serif')
-    axes[0].set_ylabel('Erro lateral $d_x$ [m]', family='serif')
+    axes[2].set_ylabel('Esterçamento  $\delta$ [$^\circ$]', family='serif', size='x-large')
+    axes[1].set_ylabel('Erro angular  $\psi$ [$^\circ$]', family='serif', size='x-large')
+    axes[0].set_ylabel('Erro lateral  $d_x$ [m]', family='serif', size='x-large')
 
-    #ax1.set_xticklabels([])
-    #ax2.set_xticklabels([])
 
     fig.set_figwidth(10)
     fig.set_figheight(10)
     
-    #fig.xlim(-450,450)
     plt.xlim(0,time[len(time)-1])
     plt.xticks(np.arange(0, time[len(time)-1], step=5))
     axes[0].grid()
@@ -234,7 +228,7 @@ if __name__ == '__main__':
 
     plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
 
-    #plt.savefig('4_todos_dados.pdf', bbox_inches='tight')
+    plt.savefig('4_todos_dados.pdf', bbox_inches='tight')
 
     ideal_x = eval(open("logs\\ideal_x.txt").read())
     ideal_y = eval(open("logs\\ideal_y.txt").read())
