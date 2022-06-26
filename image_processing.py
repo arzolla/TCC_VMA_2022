@@ -402,7 +402,6 @@ def image_processing4(rgb_frame):
     
     psi, del_x = compute_error(center_line_shift)
 
-    bird_img_orig = np.copy(bird_img)
 
     # Volta para origem antiga
     #left_line_shift = return_origin(left_line_shift)
@@ -444,7 +443,7 @@ def image_processing4(rgb_frame):
 
     # rgb_frame = cv2.resize(rgb_frame, (380,380))
     # gray_img_rgb = cv2.resize(gray_img_rgb, (380,380))
-    # bird_img = cv2.resize(bird_img, (380,380))
+    # bird_img_resize = cv2.resize(bird_img, (380,380))
     # bird_img_blur = cv2.resize(bird_img_blur, (380,380))
     # img_bin = cv2.resize(img_bin, (380,380))
     # skel_img = cv2.resize(skel_img, (380,380))
@@ -454,7 +453,7 @@ def image_processing4(rgb_frame):
 
     # cv2.imshow('Camera', rgb_frame)
     # cv2.imshow('Imagem grayscale e ROI', gray_img_rgb)
-    # cv2.imshow('Transformacao de Perspectiva', bird_img)
+    # cv2.imshow('Transformacao de Perspectiva', bird_img_resize)
     # cv2.imshow('Imagem apos filtro Gaussiano', bird_img_blur)
     # cv2.imshow('Imagem Binarizada', img_bin)
     # cv2.imshow('Imagem Esqueletizada', skel_img)
@@ -463,7 +462,7 @@ def image_processing4(rgb_frame):
     # ##cv2.imwrite('4_centro.png',roi_img_rgb)
 
 
-    return bird_img_orig, left_line_shift, right_line_shift, center_line_shift, psi, del_x
+    return bird_img, left_line_shift, right_line_shift, center_line_shift, psi, del_x
 
 
 
