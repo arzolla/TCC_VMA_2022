@@ -150,7 +150,7 @@ def run_simulation(args, client):
 
         #Configurando controlador
         # steer: 0.01   =>   rodas: 0.5687311887741089
-        velocidade = 15
+        velocidade = 20
         #wn = 0.5625/velocidade
         control = Controller(K_psi=0.237, K_dx=2.85)
  
@@ -162,17 +162,23 @@ def run_simulation(args, client):
         # classe para gestão dos dados
         data = SimulationData()
 
-        vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
-        vehicle.set_autopilot(True)
+        #vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
+        #vehicle.set_autopilot(True)
 
         call_exit = False
         time_init_sim = timer.time()
 
         frame = np.zeros((720,720,3))
         rgb_frame = np.zeros((720,720,3))
+
+        dx_offset = 0
+
+
         log_enable = 1
         disable_log_button = 0
-        a = 0
+        if(log_enable) : print('Log habilitado!')
+
+
         while True:
             # Carla Tick
             if args.sync:
@@ -196,15 +202,15 @@ def run_simulation(args, client):
             rgb_frame = RGBCamera.rgb_frame
             
 
-            # computer_vision_rgb(rgb_frame, data)
+            computer_vision_rgb(rgb_frame, data)
 
-            # data.dx = data.dx + a
-            # control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
+            #data.dx = data.dx + dx_offset # para adicionar offset de mudança de faixa
+            control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
-            # data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
-            # data.velocidade = velocidade
-            # data.control_output = control.last_output
-            # control_monitor(data)
+            data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+            data.velocidade = velocidade
+            data.control_output = control.last_output
+            control_monitor(data)
 
   
 
@@ -213,20 +219,20 @@ def run_simulation(args, client):
             pos_y = vehicle.get_location().y
             vel_str = 'logs\\vel_'+str(velocidade)
 
-            waypoint = world.get_map().get_waypoint(vehicle.get_location())
+            #waypoint = world.get_map().get_waypoint(vehicle.get_location())
             
-            wp_location = waypoint.transform.location
+            #wp_location = waypoint.transform.location
 
             #print('waypoint',wp_location)
             #print('vehicle',vehicle.get_location())
             if(log_enable):
 
-                #log_data(control.psi, vel_str+'_psi')
-                #log_data(control.dx, vel_str+'_dx')
-                #log_data(control.last_output, vel_str+'_steer')
-                #log_data(time.time(),vel_str+'_time')
-                log_data(wp_location.x, 'ideal_x')
-                log_data(-wp_location.y,'ideal_y')
+                log_data(control.psi, vel_str+'_psi')
+                log_data(control.dx, vel_str+'_dx')
+                log_data(control.last_output, vel_str+'_steer')
+                log_data(time.time(),vel_str+'_time')
+                #log_data(wp_location.x, 'ideal_x')
+                #log_data(-wp_location.y,'ideal_y')
 
             if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
                 log_enable = 0
@@ -247,11 +253,11 @@ def run_simulation(args, client):
                         disable_log_button = 1
                         print('Log desabilitará no fim da volta!')
                     if event.key == K_d:
-                        if a == 0: a = -0.4
-                        else : a = 0
+                        if dx_offset == 0: dx_offset = -0.4
+                        else : dx_offset = 0
                     if event.key == K_f:
-                        if a == 0: a = 0.4
-                        else : a = 0
+                        if dx_offset == 0: dx_offset = 0.4
+                        else : dx_offset = 0
                     if event.key == K_s:
                         new_vel = 0
                         velocidade = new_vel
