@@ -53,6 +53,7 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     if lines is not None:
         for line in lines:
             rho, theta = line[0]
+            rho = rho - 360*np.cos(theta)
             a = np.cos(theta)
             b = np.sin(theta)
             x0 = a * rho
@@ -344,15 +345,13 @@ def image_processing4(rgb_frame):
     #### TRATAMENTO E PROCESSAMENTO DE IMAGENS #####
     ################################################
 
-    rgb_frame_copy = rgb_frame.copy()
+    gray_img = cv2.cvtColor(rgb_frame, cv2.COLOR_BGR2GRAY)
 
-    bird_img = bird_eyes(rgb_frame)
+    bird_img = bird_eyes(gray_img)
 
-    gray_img = cv2.cvtColor(bird_img, cv2.COLOR_BGR2GRAY)
+    bird_img_blur = cv2.GaussianBlur(bird_img,(15,15),0)
 
-    gray_img_blur = cv2.GaussianBlur(gray_img,(15,15),0)
-
-    img_bin = adaptive_threshold(gray_img_blur, 11, -1)
+    img_bin = adaptive_threshold(bird_img_blur, 11, -1)
 
     skel_img = skeletize_image(img_bin, 3) # esqueletiza a imagem
 
@@ -361,9 +360,11 @@ def image_processing4(rgb_frame):
     ########### PARA DETECTAR AS FAIXAS ############
     ################################################
 
-    lines_in = hough_transform(skel_img) # todas as linhas detectadas 
+    lines = hough_transform(skel_img) # todas as linhas detectadas 
 
-    lines = filter_by_angle(lines_in) # descarta linhas com angulo muito horizontal
+    shift_origin(lines)
+
+    filter_by_angle(lines) # descarta linhas com angulo muito horizontal
 
     if lines is not None:
         lines_shift = lines.copy()
@@ -373,7 +374,7 @@ def image_processing4(rgb_frame):
     normalize_hough(lines_shift)
 
     # Desloca origem em 360 pixels no eixo x
-    shift_origin(lines_shift)
+
 
     left_lines_shift = filter_out_of_roi(lines_shift, 360+80, 720-60)
     right_lines_shift = filter_out_of_roi(lines_shift, 720+60, 1080-80)
@@ -381,8 +382,6 @@ def image_processing4(rgb_frame):
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
 
-    # converte para rgb
-    roi_img_rgb = cv2.cvtColor(skel_img,cv2.COLOR_GRAY2RGB)
 
     # em caso de não detectar faixa, mantém a ultima encontrada
     left_line_shift, right_line_shift = holder.hold(left_line_shift, right_line_shift)
@@ -406,50 +405,69 @@ def image_processing4(rgb_frame):
 
 
     # Volta para origem antiga
-    left_line = return_origin(left_line_shift)
-    right_line = return_origin(right_line_shift)
+    #left_line_shift = return_origin(left_line_shift)
+    #right_line_shift = return_origin(right_line_shift)
 
-    left_lines = return_origin(left_lines_shift)
-    right_lines = return_origin(right_lines_shift)
+    #left_lines_shift = return_origin(left_lines_shift)
+    #right_lines_shift = return_origin(right_lines_shift)
     
-    center_line = return_origin(center_line_shift)
+    #center_line_shift = return_origin(center_line_shift)
 
     ################################################
     ############### Mostrar Imagens ################
     ################################################
+    # converte para rgb
+    
+#     bird_img_rgb = cv2.cvtColor(bird_img,cv2.COLOR_GRAY2RGB)
+#     bird_img_rgb_orig = np.copy(bird_img_rgb) # preserva copia 
+#     img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+#     gray_img_rgb = cv2.cvtColor(gray_img, cv2.COLOR_GRAY2RGB)
 
-    # img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+#     display_lines(img_bin_rgb, lines, line_color = (255,0,255), line_width=1)
 
-    # display_lines(img_bin_rgb, lines_in, line_color = (255,0,255), line_width=1)
+#     tl = [60, 113]
+#     tr = [660, 113]
+#     br = [1065, 270]
+#     bl = [-345, 270]
 
-    # tl = [60, 113]
-    # tr = [660, 113]
-    # br = [1065, 270]
-    # bl = [-345, 270]
+#     display_lines_2pts(gray_img_rgb, tl, tr, line_color = (0,21,200), line_width=1)
+#     display_lines_2pts(gray_img_rgb, tr, br, line_color = (0,21,200), line_width=1)
+#     display_lines_2pts(gray_img_rgb, br, bl, line_color = (0,21,200), line_width=1)
+#     display_lines_2pts(gray_img_rgb, bl, tl, line_color = (0,21,200), line_width=1)
 
-    # display_lines_2pts(rgb_frame_copy, tl, tr, line_color = (0,21,200), line_width=1)
-    # display_lines_2pts(rgb_frame_copy, tr, br, line_color = (0,21,200), line_width=1)
-    # display_lines_2pts(rgb_frame_copy, br, bl, line_color = (0,21,200), line_width=1)
-    # display_lines_2pts(rgb_frame_copy, bl, tl, line_color = (0,21,200), line_width=1)
+#     # mostra as linhas
+#     display_lines(bird_img_rgb, left_lines_shift, line_color = (0,0,255), line_width=1)
+#     display_lines(bird_img_rgb, right_lines_shift, line_color = (255,0,0), line_width=1)
+#     ########## Mostrar as faixas ######
+#     display_lines(bird_img_rgb, left_line_shift, line_color = (180,180,255))
+#     display_lines(bird_img_rgb, right_line_shift, line_color = (255,180,180))
+#     display_lines(bird_img_rgb, center_line_shift)
 
-    # # mostra as linhas
-    # display_lines(roi_img_rgb, left_lines, line_color = (0,0,255), line_width=1)
-    # display_lines(roi_img_rgb, right_lines, line_color = (255,0,0), line_width=1)
-    # ########## Mostrar as faixas ######
-    # display_lines(roi_img_rgb, left_line, line_color = (180,180,255))
-    # display_lines(roi_img_rgb, right_line, line_color = (255,180,180))
-    # display_lines(roi_img_rgb, center_line)
+#     rgb_frame = cv2.resize(rgb_frame, (380,380))
+#     gray_img_rgb = cv2.resize(gray_img_rgb, (380,380))
+#     bird_img = cv2.resize(bird_img, (380,380))
+#     bird_img_blur = cv2.resize(bird_img_blur, (380,380))
+#     img_bin = cv2.resize(img_bin, (380,380))
+#     skel_img = cv2.resize(skel_img, (380,380))
+#     img_bin_rgb = cv2.resize(img_bin_rgb, (380,380))
+#     bird_img_rgb = cv2.resize(bird_img_rgb, (380,380))
 
-    # cv2.imshow('Camera e ROI', rgb_frame_copy)
-    # cv2.imshow('Transformacao de Perspectiva', bird_img)
-    # cv2.imshow('Imagem grayscale', gray_img)
-    # cv2.imshow('Imagem apos filtro Gaussiano', gray_img)
-    # cv2.imshow('Imagem Binarizada', img_bin)
-    # cv2.imshow('Imagem Esqueletizada', skel_img)
-    # cv2.imshow('Todas as Linhas', img_bin_rgb)
-    # cv2.imshow('Esquerda, Direita e Medias', roi_img_rgb)
-    #cv2.imwrite('4_centro.png',roi_img_rgb)
-    return bird_img, left_line, right_line, center_line, psi, del_x
+# #    cv2.hconcat()
+
+#     cv2.imshow('Camera', rgb_frame)
+#     cv2.imshow('Imagem grayscale e ROI', gray_img_rgb)
+#     cv2.imshow('Transformacao de Perspectiva', bird_img)
+#     cv2.imshow('Imagem apos filtro Gaussiano', bird_img_blur)
+#     cv2.imshow('Imagem Binarizada', img_bin)
+#     cv2.imshow('Imagem Esqueletizada', skel_img)
+#     cv2.imshow('Todas as Linhas', img_bin_rgb)
+#     cv2.imshow('Esquerda, Direita e Medias', bird_img_rgb)
+#     ##cv2.imwrite('4_centro.png',roi_img_rgb)
+
+    bird_img_rgb = cv2.cvtColor(bird_img,cv2.COLOR_GRAY2RGB)
+    bird_img_rgb_orig = np.copy(bird_img_rgb) # preserva copia
+
+    return bird_img_rgb_orig, left_line_shift, right_line_shift, center_line_shift, psi, del_x
 
 
 
