@@ -526,19 +526,16 @@ def control_monitor(data):
         display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
         display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
-        # linhas (em verde)
+        # faixas e centro
         display_lines(frame, data.left_line, line_color = (0,0,255))
         display_lines(frame, data.right_line, line_color = (255,0,0))
         display_lines(frame, data.mid_line)
-        # triangulo (em magenta)
-        #display_lines_2pts(frame, bisec_pt, intersec, line_color = (255,0,255), line_width=1)
-        #display_lines_2pts(frame, [intersec[0],bisec_pt[1]], intersec, line_color = (255,0,255), line_width=1)
-        #display_lines_2pts(frame, [360, bisec_pt[1]-1], [intersec[0], bisec_pt[1]-1], line_color = (255,0,255), line_width=1)
-        write_on_screen(frame, ('Psi: '+str(round(data.psi,3))+' degree'), [360, 360], (0,255,0), size = 0.5, thick = 2)
+
+        write_on_screen(frame, ('psi: '+str(round(data.psi,3))+' degree'), [370, 360], (0,255,0), size = 0.5, thick = 2)
 
         # del_x
         display_lines_2pts(frame, [data.dx/0.002084 + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
-        write_on_screen(frame, ('D_x: '+str(round(data.dx,3))+' m'), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
+        write_on_screen(frame, ('dx: '+str(round(data.dx,3))+' m'), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
     write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
     if  data.steering > 0:
