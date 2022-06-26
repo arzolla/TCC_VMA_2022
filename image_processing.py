@@ -402,7 +402,7 @@ def image_processing4(rgb_frame):
     
     psi, del_x = compute_error(center_line_shift)
 
-
+    bird_img_orig = np.copy(bird_img)
 
     # Volta para origem antiga
     #left_line_shift = return_origin(left_line_shift)
@@ -418,56 +418,52 @@ def image_processing4(rgb_frame):
     ################################################
     # converte para rgb
     
-#     bird_img_rgb = cv2.cvtColor(bird_img,cv2.COLOR_GRAY2RGB)
-#     bird_img_rgb_orig = np.copy(bird_img_rgb) # preserva copia 
-#     img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
-#     gray_img_rgb = cv2.cvtColor(gray_img, cv2.COLOR_GRAY2RGB)
+    # bird_img_rgb = cv2.cvtColor(bird_img,cv2.COLOR_GRAY2RGB)
+    # img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
+    # gray_img_rgb = cv2.cvtColor(gray_img, cv2.COLOR_GRAY2RGB)
 
-#     display_lines(img_bin_rgb, lines, line_color = (255,0,255), line_width=1)
+    # display_lines(img_bin_rgb, lines, line_color = (255,0,255), line_width=1)
 
-#     tl = [60, 113]
-#     tr = [660, 113]
-#     br = [1065, 270]
-#     bl = [-345, 270]
+    # tl = [60, 113]
+    # tr = [660, 113]
+    # br = [1065, 270]
+    # bl = [-345, 270]
 
-#     display_lines_2pts(gray_img_rgb, tl, tr, line_color = (0,21,200), line_width=1)
-#     display_lines_2pts(gray_img_rgb, tr, br, line_color = (0,21,200), line_width=1)
-#     display_lines_2pts(gray_img_rgb, br, bl, line_color = (0,21,200), line_width=1)
-#     display_lines_2pts(gray_img_rgb, bl, tl, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(gray_img_rgb, tl, tr, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(gray_img_rgb, tr, br, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(gray_img_rgb, br, bl, line_color = (0,21,200), line_width=1)
+    # display_lines_2pts(gray_img_rgb, bl, tl, line_color = (0,21,200), line_width=1)
 
-#     # mostra as linhas
-#     display_lines(bird_img_rgb, left_lines_shift, line_color = (0,0,255), line_width=1)
-#     display_lines(bird_img_rgb, right_lines_shift, line_color = (255,0,0), line_width=1)
-#     ########## Mostrar as faixas ######
-#     display_lines(bird_img_rgb, left_line_shift, line_color = (180,180,255))
-#     display_lines(bird_img_rgb, right_line_shift, line_color = (255,180,180))
-#     display_lines(bird_img_rgb, center_line_shift)
+    # # mostra as linhas
+    # display_lines(bird_img_rgb, left_lines_shift, line_color = (0,0,255), line_width=1)
+    # display_lines(bird_img_rgb, right_lines_shift, line_color = (255,0,0), line_width=1)
+    # ########## Mostrar as faixas ######
+    # display_lines(bird_img_rgb, left_line_shift, line_color = (180,180,255))
+    # display_lines(bird_img_rgb, right_line_shift, line_color = (255,180,180))
+    # display_lines(bird_img_rgb, center_line_shift)
 
-#     rgb_frame = cv2.resize(rgb_frame, (380,380))
-#     gray_img_rgb = cv2.resize(gray_img_rgb, (380,380))
-#     bird_img = cv2.resize(bird_img, (380,380))
-#     bird_img_blur = cv2.resize(bird_img_blur, (380,380))
-#     img_bin = cv2.resize(img_bin, (380,380))
-#     skel_img = cv2.resize(skel_img, (380,380))
-#     img_bin_rgb = cv2.resize(img_bin_rgb, (380,380))
-#     bird_img_rgb = cv2.resize(bird_img_rgb, (380,380))
+    # rgb_frame = cv2.resize(rgb_frame, (380,380))
+    # gray_img_rgb = cv2.resize(gray_img_rgb, (380,380))
+    # bird_img = cv2.resize(bird_img, (380,380))
+    # bird_img_blur = cv2.resize(bird_img_blur, (380,380))
+    # img_bin = cv2.resize(img_bin, (380,380))
+    # skel_img = cv2.resize(skel_img, (380,380))
+    # img_bin_rgb = cv2.resize(img_bin_rgb, (380,380))
+    # bird_img_rgb = cv2.resize(bird_img_rgb, (380,380))
 
-# #    cv2.hconcat()
 
-#     cv2.imshow('Camera', rgb_frame)
-#     cv2.imshow('Imagem grayscale e ROI', gray_img_rgb)
-#     cv2.imshow('Transformacao de Perspectiva', bird_img)
-#     cv2.imshow('Imagem apos filtro Gaussiano', bird_img_blur)
-#     cv2.imshow('Imagem Binarizada', img_bin)
-#     cv2.imshow('Imagem Esqueletizada', skel_img)
-#     cv2.imshow('Todas as Linhas', img_bin_rgb)
-#     cv2.imshow('Esquerda, Direita e Medias', bird_img_rgb)
-#     ##cv2.imwrite('4_centro.png',roi_img_rgb)
+    # cv2.imshow('Camera', rgb_frame)
+    # cv2.imshow('Imagem grayscale e ROI', gray_img_rgb)
+    # cv2.imshow('Transformacao de Perspectiva', bird_img)
+    # cv2.imshow('Imagem apos filtro Gaussiano', bird_img_blur)
+    # cv2.imshow('Imagem Binarizada', img_bin)
+    # cv2.imshow('Imagem Esqueletizada', skel_img)
+    # cv2.imshow('Todas as Linhas', img_bin_rgb)
+    # cv2.imshow('Esquerda, Direita e Medias', bird_img_rgb)
+    # ##cv2.imwrite('4_centro.png',roi_img_rgb)
 
-    bird_img_rgb = cv2.cvtColor(bird_img,cv2.COLOR_GRAY2RGB)
-    bird_img_rgb_orig = np.copy(bird_img_rgb) # preserva copia
 
-    return bird_img_rgb_orig, left_line_shift, right_line_shift, center_line_shift, psi, del_x
+    return bird_img_orig, left_line_shift, right_line_shift, center_line_shift, psi, del_x
 
 
 
@@ -521,8 +517,9 @@ def control_monitor(data):
 
 
     if frame is None:
-        frame = np.zeros((720,720,3))
-    
+        frame = np.zeros((720,720))
+
+    frame = cv2.cvtColor(frame,cv2.COLOR_GRAY2RGB)
     
     if not(isinstance(data.left_line, int)):
 
