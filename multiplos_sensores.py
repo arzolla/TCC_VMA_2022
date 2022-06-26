@@ -38,31 +38,21 @@ from controller import Controller
 # Função para executar o controle
 def control_main(vehicle, control, velocidade, psi, dx):
 
-    #print(left_line, right_line)   
-
 
     steering = control.update(psi, dx, velocidade)
-
-    # log_data(steering, 'steering')
-    # log_data(psi, 'psi')
-    # log_data(dx, 'dx')
-    # log_data(dx_filt, 'dx_filt')
-    # log_data(psi_filt, 'psi_filt')
-    # log_data(time.time(),'time')
-
-    steering_norm = steering*0.018
+    steering_norm = steering*0.018 # normalizando steering pro simulador
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = round(float(steering_norm), 4))) # aplicando steering
-    rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+
+    #rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
     #print('psi:', psi,'  -   rodas:',rodas)
     #print('velocidade',vehicle.get_velocity())
     
-    #print('steering', steering, theta, dx)
-    #print('steering:', vehicle.get_control().steer)           # lendo steering
-    #print('posicao', vehicle.get_transform())
+
 
 
 def log_data(data, data_name):
+    
     data_f = open(data_name+".txt", "a")
     data_f.write(str(data)+", ")
 
@@ -146,36 +136,35 @@ def run_simulation(args, client):
 
 
 
-        #Simulation loop
+        ################################################
+        ############## LOOP DE SIMULAÇÃO ###############
+        ################################################
 
-        #Configurando controlador
-        # steer: 0.01   =>   rodas: 0.5687311887741089
+        ########### Configurando controlador ###########
         velocidade = 20
-        #wn = 0.5625/velocidade
         control = Controller(K_psi=0.237, K_dx=2.85)
  
         #control.setFilter(n=1, wn=0.8)
         control.setSampleTime(0.033)
         #control.setOutputLimit(0.5, -0.5)
 
-
         # classe para gestão dos dados
         data = SimulationData()
 
+
+
+        ############# Configurações gerais #############
+        call_exit = False # flag de exit
+
+        # piloto automatico
         #vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
         #vehicle.set_autopilot(True)
 
-        call_exit = False
-        time_init_sim = timer.time()
+        dx_offset = 0 # offset pra mudança de faixa
 
-        frame = np.zeros((720,720,3))
-        rgb_frame = np.zeros((720,720,3))
-
-        dx_offset = 0
-
-
-        log_enable = 1
-        disable_log_button = 0
+        # logs
+        # log_enable = 1 # flag para habilitar log
+        disable_log_button = 0 # flag do botão para habiltiar log
         if(log_enable) : print('Log habilitado!')
 
 
