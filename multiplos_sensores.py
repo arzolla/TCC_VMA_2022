@@ -52,7 +52,7 @@ def control_main(vehicle, control, velocidade, psi, dx):
 
 
 def log_data(data, data_name):
-    
+
     data_f = open(data_name+".txt", "a")
     data_f.write(str(data)+", ")
 
@@ -101,7 +101,7 @@ def run_simulation(args, client):
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
         ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
-        ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 2)
+        #ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.1), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção (faixa 2)
@@ -141,7 +141,7 @@ def run_simulation(args, client):
         ################################################
 
         ########### Configurando controlador ###########
-        velocidade = 20
+        velocidade = 15
         control = Controller(K_psi=0.237, K_dx=2.85)
  
         #control.setFilter(n=1, wn=0.8)
@@ -163,7 +163,7 @@ def run_simulation(args, client):
         dx_offset = 0 # offset pra mudança de faixa
 
         # logs
-        # log_enable = 1 # flag para habilitar log
+        log_enable = 1 # flag para habilitar log
         disable_log_button = 0 # flag do botão para habiltiar log
         if(log_enable) : print('Log habilitado!')
 
@@ -186,14 +186,13 @@ def run_simulation(args, client):
             ####################################################
            
            
-            # Envia frame para a função de visão computacional
-
             rgb_frame = RGBCamera.rgb_frame
             
 
             computer_vision_rgb(rgb_frame, data)
 
             #data.dx = data.dx + dx_offset # para adicionar offset de mudança de faixa
+
             control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
             data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
@@ -220,8 +219,8 @@ def run_simulation(args, client):
                 log_data(control.dx, vel_str+'_dx')
                 log_data(control.last_output, vel_str+'_steer')
                 log_data(time.time(),vel_str+'_time')
-                #log_data(wp_location.x, 'ideal_x')
-                #log_data(-wp_location.y,'ideal_y')
+                #log_data(wp_location.x, 'logs\\ideal_x')
+                #log_data(-wp_location.y,'logs\\ideal_y')
 
             if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
                 log_enable = 0
