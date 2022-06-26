@@ -67,9 +67,6 @@ def plot_map(map_x,map_y, figure = 'Figura'):
  # Obtendo dados dos arquivos
 
 
-
-
-
     # Trajeto
     fig = plt.figure(figure, frameon=False)
     ax = fig.add_subplot(1, 1, 1)
@@ -122,7 +119,7 @@ def plot_error(time, psi, dx, steer, figure = None):
     time = np.array(time)
     time = time - time[0]
 
-    fig, (axes) = plt.subplots(3, sharex=True)
+    fig, (axes) = plt.subplots(3, sharex=True, num=figure)
  
     #fig, ax1 = plt.subplots()
     #fig.subplots_adjust(right=0.75)
@@ -138,9 +135,9 @@ def plot_error(time, psi, dx, steer, figure = None):
     axes[0].plot(time, dx, 'r-', linewidth=0.5)
 
 
-    align_yaxis_np([axes[0], axes[1], axes[2]])
-    ranges = [(0.5, 3.5), (25.5,30.5), (33,43.5), (46.0,57.5),  (70,78),  (80,87.5)]
-    ratio = 92.13668966293335/time[len(time)-1]
+    align_yaxis_np([ axes[1], axes[2]])
+    ranges = [(5, 7.5), (27.5,32.5), (35.5,45.0), (47.5,58.0),  (70.0,76.5),  (78.5,85)]
+    ratio = 85.63046646118164/time[len(time)-1]
     ranges = [(range[0] / ratio, range[1] / ratio) for range in ranges]
 
     index = ['A', 'B', 'C', 'D', 'E', 'F']
@@ -213,25 +210,17 @@ def get_arc_length(x, y):
 
 
 if __name__ == '__main__':
+    
+    vels = [15, 20, 25]
+    for vel in vels:
+        vel_time = eval(open("logs\\vel_"+str(vel)+"_time.txt").read())
+        vel_psi = eval(open("logs\\vel_"+str(vel)+"_psi.txt").read())
+        vel_dx = eval(open("logs\\vel_"+str(vel)+"_dx.txt").read())
+        vel_steer = eval(open("logs\\vel_"+str(vel)+"_steer.txt").read())
 
-    # vel25_time = eval(open("logs\\vel_25_time.txt").read())
-    # vel25_psi = eval(open("logs\\vel_25_psi.txt").read())
-    # vel25_dx = eval(open("logs\\vel_25_dx.txt").read())
-    # vel25_steer = eval(open("logs\\vel_25_steer.txt").read())
+        plot_error(vel_time, vel_psi, vel_dx, vel_steer, figure=('vel_'+str(vel)))
 
-    # vel20_time = eval(open("logs\\vel_20_time.txt").read())
-    # vel20_psi = eval(open("logs\\vel_20_psi.txt").read())
-    # vel20_dx = eval(open("logs\\vel_20_dx.txt").read())
-    # vel20_steer = eval(open("logs\\vel_20_steer.txt").read())
-
-    # vel15_time = eval(open("logs\\vel_15_time.txt").read())
-    # vel15_psi = eval(open("logs\\vel_15_psi.txt").read())
-    # vel15_dx = eval(open("logs\\vel_15_dx.txt").read())
-    # vel15_steer = eval(open("logs\\vel_15_steer.txt").read())
-
-    #plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
-
-    ###plt.savefig('4_todos_dados.pdf', bbox_inches='tight')
+        #plt.savefig('4_todos_dados_'+str(vel)+'.pdf', bbox_inches='tight')
 
 
     ######## mapa #############
@@ -248,9 +237,9 @@ if __name__ == '__main__':
 
     plot_map(new_map_x,new_map_y , 'mais um')
 
-    plt.savefig('4_percurso.pdf', bbox_inches='tight')
+    #plt.savefig('4_percurso.pdf', bbox_inches='tight')
 
-
+    print(get_arc_length(new_map_x, new_map_y))
     
     plt.show()
 
