@@ -141,7 +141,7 @@ def run_simulation(args, client):
         ################################################
 
         ########### Configurando controlador ###########
-        velocidade = 15
+        velocidade = 25
         control = Controller(K_psi=0.237, K_dx=2.85)
  
         #control.setFilter(n=1, wn=0.8)
@@ -163,7 +163,7 @@ def run_simulation(args, client):
         dx_offset = 0 # offset pra mudança de faixa
 
         # logs
-        log_enable = 1 # flag para habilitar log
+        log_enable = 0 # flag para habilitar log
         disable_log_button = 0 # flag do botão para habiltiar log
         if(log_enable) : print('Log habilitado!')
 
@@ -185,7 +185,7 @@ def run_simulation(args, client):
             ####################################################
             ####################################################
            
-           
+
             rgb_frame = RGBCamera.rgb_frame
             
 
