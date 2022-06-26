@@ -113,7 +113,7 @@ def plot_map(map_x,map_y, figure = 'Figura'):
 
     plt.legend(loc='upper left')
 
-    #plt.savefig('4_percurso.pdf', bbox_inches='tight')  
+
 
 
 
@@ -140,6 +140,9 @@ def plot_error(time, psi, dx, steer, figure = None):
 
     align_yaxis_np([axes[0], axes[1], axes[2]])
     ranges = [(0.5, 3.5), (25.5,30.5), (33,43.5), (46.0,57.5),  (70,78),  (80,87.5)]
+    ratio = 92.13668966293335/time[len(time)-1]
+    ranges = [(range[0] / ratio, range[1] / ratio) for range in ranges]
+
     index = ['A', 'B', 'C', 'D', 'E', 'F']
     for n, range in enumerate(ranges):
         for ax in axes:
@@ -156,7 +159,7 @@ def plot_error(time, psi, dx, steer, figure = None):
 
     fig.set_figwidth(10)
     fig.set_figheight(10)
-    
+    print(time[len(time)-1])
     plt.xlim(0,time[len(time)-1])
     plt.xticks(np.arange(0, time[len(time)-1], step=5))
     axes[0].grid()
@@ -211,24 +214,27 @@ def get_arc_length(x, y):
 
 if __name__ == '__main__':
 
-    vel25_time = eval(open("logs\\vel_25_time.txt").read())
-    vel25_psi = eval(open("logs\\vel_25_psi.txt").read())
-    vel25_dx = eval(open("logs\\vel_25_dx.txt").read())
-    vel25_steer = eval(open("logs\\vel_25_steer.txt").read())
+    # vel25_time = eval(open("logs\\vel_25_time.txt").read())
+    # vel25_psi = eval(open("logs\\vel_25_psi.txt").read())
+    # vel25_dx = eval(open("logs\\vel_25_dx.txt").read())
+    # vel25_steer = eval(open("logs\\vel_25_steer.txt").read())
 
-    vel20_time = eval(open("logs\\vel_20_time.txt").read())
-    vel20_psi = eval(open("logs\\vel_20_psi.txt").read())
-    vel20_dx = eval(open("logs\\vel_20_dx.txt").read())
-    vel20_steer = eval(open("logs\\vel_20_steer.txt").read())
+    # vel20_time = eval(open("logs\\vel_20_time.txt").read())
+    # vel20_psi = eval(open("logs\\vel_20_psi.txt").read())
+    # vel20_dx = eval(open("logs\\vel_20_dx.txt").read())
+    # vel20_steer = eval(open("logs\\vel_20_steer.txt").read())
 
-    vel15_time = eval(open("logs\\vel_15_time.txt").read())
-    vel15_psi = eval(open("logs\\vel_15_psi.txt").read())
-    vel15_dx = eval(open("logs\\vel_15_dx.txt").read())
-    vel15_steer = eval(open("logs\\vel_15_steer.txt").read())
+    # vel15_time = eval(open("logs\\vel_15_time.txt").read())
+    # vel15_psi = eval(open("logs\\vel_15_psi.txt").read())
+    # vel15_dx = eval(open("logs\\vel_15_dx.txt").read())
+    # vel15_steer = eval(open("logs\\vel_15_steer.txt").read())
 
-    plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
+    #plot_error(vel25_time, vel25_psi, vel25_dx, vel25_steer)
 
-    plt.savefig('4_todos_dados.pdf', bbox_inches='tight')
+    ###plt.savefig('4_todos_dados.pdf', bbox_inches='tight')
+
+
+    ######## mapa #############
 
     ideal_x = eval(open("logs\\ideal_x.txt").read())
     ideal_y = eval(open("logs\\ideal_y.txt").read())
@@ -242,7 +248,7 @@ if __name__ == '__main__':
 
     plot_map(new_map_x,new_map_y , 'mais um')
 
-    #plt.savefig('4_percurso.pdf', bbox_inches='tight')
+    plt.savefig('4_percurso.pdf', bbox_inches='tight')
 
 
     
