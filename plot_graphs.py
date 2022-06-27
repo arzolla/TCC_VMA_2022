@@ -135,7 +135,7 @@ def plot_error(time, psi, dx, steer, figure = None):
     axes[0].plot(time, dx, 'r-', linewidth=0.5)
 
 
-    align_yaxis_np([ axes[1], axes[2]])
+    align_yaxis_np([axes[0], axes[1], axes[2]])
     ranges = [(5, 7.5), (27.5,32.5), (35.5,45.0), (47.5,58.0),  (70.0,76.5),  (78.5,85)]
     ratio = 85.63046646118164/time[len(time)-1]
     ranges = [(range[0] / ratio, range[1] / ratio) for range in ranges]
@@ -145,7 +145,7 @@ def plot_error(time, psi, dx, steer, figure = None):
         for ax in axes:
             ax.axvspan(*range, color='k', alpha=0.2)
 
-        plt.text(((range[1]+range[0])/2),-3.6,  index[n], c='gray', ha='center', size='large', weight='roman')
+        plt.text(((range[1]+range[0])/2),0.8*min(axes[2].get_ylim()),  index[n], c='gray', ha='center', size='large', weight='roman')
 
 
     axes[2].set_xlabel('Tempo [s]')
@@ -211,14 +211,22 @@ def get_arc_length(x, y):
 
 if __name__ == '__main__':
     
+    print('------------------------------------------')
+    from statistics import stdev
     vels = [15, 20, 25]
     for vel in vels:
         vel_time = eval(open("logs\\vel_"+str(vel)+"_time.txt").read())
         vel_psi = eval(open("logs\\vel_"+str(vel)+"_psi.txt").read())
         vel_dx = eval(open("logs\\vel_"+str(vel)+"_dx.txt").read())
         vel_steer = eval(open("logs\\vel_"+str(vel)+"_steer.txt").read())
+        #print(vel_dx)
+        #plot_error(vel_time, vel_psi, vel_dx, vel_steer, figure=('vel_'+str(vel)))
+        print('rms dx '+str(vel)+':',np.sqrt(np.mean(np.array(vel_dx)**2)))
+        #print('rms psi '+str(vel),np.sqrt(np.mean(np.array(vel_psi)**2)))
+        #print('stdev dx '+str(vel)+':',stdev(vel_dx))
+        print('max, min dx '+str(vel)+':',np.round(min(vel_dx),3)," \\ ; \\ ", np.round(max(vel_dx),3) )
+        print('------------------------------------------')
 
-        plot_error(vel_time, vel_psi, vel_dx, vel_steer, figure=('vel_'+str(vel)))
 
         #plt.savefig('4_todos_dados_'+str(vel)+'.pdf', bbox_inches='tight')
 
@@ -235,7 +243,7 @@ if __name__ == '__main__':
     new_map_x = interp1d(i, ideal_x, kind='cubic')(interp_i)
     new_map_y = interp1d(i, ideal_y, kind='cubic')(interp_i)
 
-    plot_map(new_map_x,new_map_y , 'mais um')
+    #plot_map(new_map_x,new_map_y , 'mais um')
 
     #plt.savefig('4_percurso.pdf', bbox_inches='tight')
 
