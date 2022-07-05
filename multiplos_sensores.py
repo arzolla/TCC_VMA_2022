@@ -203,9 +203,9 @@ def run_simulation(args, client):
   
 
 
-            pos_x = vehicle.get_location().x
-            pos_y = vehicle.get_location().y
-            vel_str = 'logs\\vel_'+str(velocidade)
+            #pos_x = vehicle.get_location().x
+            #pos_y = vehicle.get_location().y
+            #vel_str = 'logs\\vel_'+str(velocidade)
 
             #waypoint = world.get_map().get_waypoint(vehicle.get_location())
             
@@ -213,18 +213,18 @@ def run_simulation(args, client):
 
             #print('waypoint',wp_location)
             #print('vehicle',vehicle.get_location())
-            if(log_enable):
+            # if(log_enable):
 
-                log_data(control.psi, vel_str+'_psi')
-                log_data(control.dx, vel_str+'_dx')
-                log_data(control.last_output, vel_str+'_steer')
-                log_data(time.time(),vel_str+'_time')
-                #log_data(wp_location.x, 'logs\\ideal_x')
-                #log_data(-wp_location.y,'logs\\ideal_y')
+            #     log_data(control.psi, vel_str+'_psi')
+            #     log_data(control.dx, vel_str+'_dx')
+            #     log_data(control.last_output, vel_str+'_steer')
+            #     log_data(time.time(),vel_str+'_time')
+            #     #log_data(wp_location.x, 'logs\\ideal_x')
+            #     #log_data(-wp_location.y,'logs\\ideal_y')
 
-            if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
-                log_enable = 0
-                print('Log desabilitado!')
+            # if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
+            #     log_enable = 0
+            #     print('Log desabilitado!')
 
 
             ####################################################
