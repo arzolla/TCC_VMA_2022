@@ -362,6 +362,7 @@ def image_processing4(rgb_frame):
 
     lines = hough_transform(skel_img) # todas as linhas detectadas 
 
+    # Desloca origem em 360 pixels no eixo x
     shift_origin(lines)
 
     filter_by_angle(lines) # descarta linhas com angulo muito horizontal
@@ -372,8 +373,6 @@ def image_processing4(rgb_frame):
         lines_shift = None
 
     normalize_hough(lines_shift)
-
-    # Desloca origem em 360 pixels no eixo x
 
 
     left_lines_shift = filter_out_of_roi(lines_shift, 360+80, 720-60)
