@@ -38,31 +38,21 @@ from controller import Controller
 # Função para executar o controle
 def control_main(vehicle, control, velocidade, psi, dx):
 
-    #print(left_line, right_line)   
-
 
     steering = control.update(psi, dx, velocidade)
-
-    # log_data(steering, 'steering')
-    # log_data(psi, 'psi')
-    # log_data(dx, 'dx')
-    # log_data(dx_filt, 'dx_filt')
-    # log_data(psi_filt, 'psi_filt')
-    # log_data(time.time(),'time')
-
-    steering_norm = steering*0.018
+    steering_norm = steering*0.018 # normalizando steering pro simulador
     vehicle.enable_constant_velocity(carla.Vector3D(velocidade, 0, 0)) # aplicando velocidade constante
     vehicle.apply_control(carla.VehicleControl(steer = round(float(steering_norm), 4))) # aplicando steering
-    rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+
+    #rodas = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
     #print('psi:', psi,'  -   rodas:',rodas)
     #print('velocidade',vehicle.get_velocity())
     
-    #print('steering', steering, theta, dx)
-    #print('steering:', vehicle.get_control().steer)           # lendo steering
-    #print('posicao', vehicle.get_transform())
+
 
 
 def log_data(data, data_name):
+
     data_f = open(data_name+".txt", "a")
     data_f.write(str(data)+", ")
 
@@ -110,9 +100,9 @@ def run_simulation(args, client):
 
         bp = world.get_blueprint_library().find('vehicle.lincoln.mkz_2020')
         #bp = veiculo_escolhido
-        #ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
-        ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 3)
-        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.2), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
+        ponto_spawn = carla.Transform(carla.Location(x=385.923126, y=-210.901535, z=0.090814), carla.Rotation(pitch=-0.531341, yaw=90.562447, roll=0.008176)) # proximo da curva acentuada (faixa 3)
+        #ponto_spawn = carla.Transform(carla.Location(x=387.919342, y=-61.492611, z=0.1), carla.Rotation(pitch=0.306040, yaw=90.445984, roll=-0.000031)) # mais proximo ainda (faixa 2)
+        #ponto_spawn = carla.Transform(carla.Location(x=-510.374115, y=120.728378, z=0.1), carla.Rotation(pitch=0.713365, yaw=90.380745, roll=0.003147)) # reto (melhor trajeto completo) (faixa 3)
         #ponto_spawn = carla.Transform(carla.Location(x=-325.457489, y=12.516907, z=0.3), carla.Rotation(pitch=-0.763000, yaw=-179.927246, roll=0.002572)) # proximo da intersecção dificil (faixa 2)
         #ponto_spawn = carla.Transform(carla.Location(x=-397.941681, y=12.788073, z=0.1), carla.Rotation(pitch=-0.007445, yaw=179.632889, roll=0.005279)) # apos intersecção (faixa 2)
         #ponto_spawn = random.choice(world.get_map().get_spawn_points())
@@ -146,32 +136,37 @@ def run_simulation(args, client):
 
 
 
-        #Simulation loop
+        ################################################
+        ############## LOOP DE SIMULAÇÃO ###############
+        ################################################
 
-        #Configurando controlador
-        # steer: 0.01   =>   rodas: 0.5687311887741089
+        ########### Configurando controlador ###########
         velocidade = 25
-        #wn = 0.5625/velocidade
         control = Controller(K_psi=0.237, K_dx=2.85)
  
         #control.setFilter(n=1, wn=0.8)
         control.setSampleTime(0.033)
         #control.setOutputLimit(0.5, -0.5)
 
-
         # classe para gestão dos dados
         data = SimulationData()
 
+
+
+        ############# Configurações gerais #############
+        call_exit = False # flag de exit
+
+        # piloto automatico
         #vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
         #vehicle.set_autopilot(True)
 
-        call_exit = False
-        time_init_sim = timer.time()
+        dx_offset = 0 # offset pra mudança de faixa
 
-        frame = np.zeros((720,720,3))
-        rgb_frame = np.zeros((720,720,3))
-        log_enable = 1
-        disable_log_button = 0
+        # logs
+        log_enable = 0 # flag para habilitar log
+        disable_log_button = 0 # flag do botão para habiltiar log
+        if(log_enable) : print('Log habilitado!')
+
 
         while True:
             # Carla Tick
@@ -190,13 +185,14 @@ def run_simulation(args, client):
             ####################################################
             ####################################################
            
-           
-            # Envia frame para a função de visão computacional
 
             rgb_frame = RGBCamera.rgb_frame
             
 
             computer_vision_rgb(rgb_frame, data)
+
+            #data.dx = data.dx + dx_offset # para adicionar offset de mudança de faixa
+
             control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
 
             data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
@@ -206,21 +202,29 @@ def run_simulation(args, client):
 
   
 
-            #print('x y', vehicle.get_location().x, vehicle.get_location().y)
-            # pos_x = vehicle.get_location().x
-            # pos_y = vehicle.get_location().y
 
+            #pos_x = vehicle.get_location().x
+            #pos_y = vehicle.get_location().y
+            #vel_str = 'logs\\vel_'+str(velocidade)
 
+            #waypoint = world.get_map().get_waypoint(vehicle.get_location())
+            
+            #wp_location = waypoint.transform.location
 
+            #print('waypoint',wp_location)
+            #print('vehicle',vehicle.get_location())
             # if(log_enable):
-            #     #log_data(pos_x,'ideal_map_x')
-            #     #log_data(pos_y,'ideal_map_y')
 
-            #     log_data(pos_x,'path_vel_'+str(velocidade)+'_x')
-            #     log_data(-pos_y,'path_vel_'+str(velocidade)+'_y')
+            #     log_data(control.psi, vel_str+'_psi')
+            #     log_data(control.dx, vel_str+'_dx')
+            #     log_data(control.last_output, vel_str+'_steer')
+            #     log_data(time.time(),vel_str+'_time')
+            #     #log_data(wp_location.x, 'logs\\ideal_x')
+            #     #log_data(-wp_location.y,'logs\\ideal_y')
 
             # if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
             #     log_enable = 0
+            #     print('Log desabilitado!')
 
 
             ####################################################
@@ -236,17 +240,26 @@ def run_simulation(args, client):
                     if event.key == K_a:
                         disable_log_button = 1
                         print('Log desabilitará no fim da volta!')
+                    if event.key == K_d:
+                        if dx_offset == 0: dx_offset = -0.4
+                        else : dx_offset = 0
+                    if event.key == K_f:
+                        if dx_offset == 0: dx_offset = 0.4
+                        else : dx_offset = 0
+                    if event.key == K_s:
+                        new_vel = 0
+                        velocidade = new_vel
+                        print('Diminuindo velocidade para:',velocidade)
                     if event.key == K_z:
                         new_vel =  velocidade-0.5
-                        if new_vel > 0:
-                            velocidade = new_vel
-                            print('Diminuindo velocidade para:',velocidade)
+                        velocidade = new_vel
+                        print('Diminuindo velocidade para:',velocidade)
                     if event.key == K_x: 
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)  
                     if event.key == K_p: 
-                        while(event.key != K_p): pass                                           
-
+                        cv2.imwrite('print.png',rgb_frame)                                           
+                        #print('waypoint location',wp_location)
                     if event.key == K_i: 
                         
                         print('Info:')
