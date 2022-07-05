@@ -649,57 +649,31 @@ def teste(rgb_frame):
 
 if __name__ == '__main__':
 
-    #path = 'D:\CARLA_0.9.12_win\TCC\static_road_color.png'
-    #path = 'static_road_angle.png'
-    #path = 'static_road.png'
-    #path = 'perfeito.png'
-    #path = 'D:\CARLA_0.9.12_win\TCC\static_road_left_only.png'
-    #path = 'line2.png'
-    #path = 'color_curva_suave.png'
-    #path = 'color_curva.png'
-    #path = 'static_road_color.png'
+
     path = 'test_img\ideal_fov30_2.png'
     #path = 'test_img\curva_fov30_left.png'
     #path = 'test_img\curva_fov30_right_brusca.png'
-    #path = 'line4.png'
-    #path = 'line3.png'
-    #path = 'curva_fov30_right.png'
-    #path = 'D:\CARLA_0.9.12_win\TCC\imglank.png'
-    #path = 'D:\CARLA_0.9.12_win\TCC\svanish.png'
-    #path = 'test_img\sombra.png'
 
-    img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    #img_BGR = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
-    
+    #path = 'test_img\sombra.png'
+    #path = 'test_img\sombra2.png'
+
+
     img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
-    #image_processing(img_gray)
-    #cv2.waitKey(0)
+
     data = SimulationData()
     for n in range(1):
 
         
-        #gray_img = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2GRAY)
-        #gray_img_blur = cv2.GaussianBlur(gray_img,(21,21),0)
-        #cv2.imwrite('moqueca_gray.jpg', gray_img)
-        #cv2.imwrite('moqueca_gray_blur.jpg', gray_img_blur)
-        #image_processing_kmeans(img_gray)
+
         computer_vision_rgb(img_BGR, data)
-        #control_monitor(img_BGR, 1, 2, 1, 3, 4, 5, 6, 7)
-        #adaptive_threshold(img_BGR)
-        #bird_eyes(img_BGR)
-        #teste(img_BGR)
+
         cv2.waitKey(0)
-        print('arctan',np.arctan(-10000000))
+
         cv2.destroyAllWindows()
 
 
 
-
-
-    #img = get_roi(img_gray)
-    #img = cv2.cvtColor(img,  cv2.COLOR_GRAY2BGR)
-    #cv2.imshow('image',img)
  
     cv2.waitKey(0)
     cv2.destroyAllWindows()

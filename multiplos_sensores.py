@@ -258,8 +258,8 @@ def run_simulation(args, client):
                         velocidade = velocidade + 0.5
                         print('Aumentando velocidade para:',velocidade)  
                     if event.key == K_p: 
-                        while(event.key != K_p): pass                                           
-
+                        cv2.imwrite('print.png',rgb_frame)                                           
+                        #print('waypoint location',wp_location)
                     if event.key == K_i: 
                         
                         print('Info:')
