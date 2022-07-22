@@ -350,9 +350,7 @@ def image_processing4(rgb_frame):
     bird_img = bird_eyes(gray_img)
 
     bird_img_blur = cv2.GaussianBlur(bird_img,(15,15),0)
-    #bird_img_blur2 = cv2.bilateralFilter(bird_img,4,75,75)
-    #cv2.imshow('Imagem apos filtro Gaussiano', bird_img_blur)
-    #cv2.imshow('Imagem apos filtro bialteral', bird_img_blur2)
+
     img_bin = adaptive_threshold(bird_img_blur, 11, -1)
 
     skel_img = skeletize_image(img_bin, 3) # esqueletiza a imagem
