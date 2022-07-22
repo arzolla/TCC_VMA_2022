@@ -375,8 +375,8 @@ def image_processing4(rgb_frame):
     normalize_hough(lines_shift)
 
 
-    left_lines_shift = filter_out_of_roi(lines_shift, 360+80, 720-60)
-    right_lines_shift = filter_out_of_roi(lines_shift, 720+60, 1080-80)
+    left_lines_shift = filter_out_of_roi(lines_shift, 360, 720-60)
+    right_lines_shift = filter_out_of_roi(lines_shift, 720+60, 1080)
 
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
