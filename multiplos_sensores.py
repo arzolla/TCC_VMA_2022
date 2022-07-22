@@ -137,7 +137,7 @@ def run_simulation(args, client):
 
 
         ################################################
-        ############## LOOP DE SIMULAÇÃO ###############
+        ################ CONFIGURAÇÕES #################
         ################################################
 
         ########### Configurando controlador ###########
@@ -177,6 +177,11 @@ def run_simulation(args, client):
         #    video_out = cv2.VideoWriter('recordMJ2C.avi', fourcc, 24, (720,  720))
 
         
+
+        ################################################
+        ############## LOOP DE SIMULAÇÃO ###############
+        ################################################
+
         while True:
             # Carla Tick
             if args.sync:
