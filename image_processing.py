@@ -420,7 +420,7 @@ def image_processing4(rgb_frame):
     # img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
     # gray_img_rgb = cv2.cvtColor(gray_img, cv2.COLOR_GRAY2RGB)
 
-    skel_rgb = cv2.cvtColor(skel_img, cv2.COLOR_GRAY2RGB)
+    #skel_rgb = cv2.cvtColor(skel_img, cv2.COLOR_GRAY2RGB)
     #display_lines(skel_rgb, lines, line_color = (255,0,255), line_width=1)
 
     # tl = [60, 113]
@@ -468,7 +468,7 @@ def image_processing4(rgb_frame):
     #cv2.imwrite('gray_camera_view.png',gray_img)
 
 
-    return skel_rgb, bird_img, left_line_shift, right_line_shift, center_line_shift, psi, del_x
+    return  bird_img, left_line_shift, right_line_shift, center_line_shift, psi, del_x
 
 
 
@@ -481,7 +481,7 @@ def computer_vision_rgb(rgb_frame, data):
     #frame = np.zeros((720,720,3))
     #show_image_rgb(frame) # Mostra imagem RGB
 
-    aaa, data.frame, data.left_line, data.right_line, data.mid_line, data.psi, data.dx = image_processing4(rgb_frame)
+    data.frame, data.left_line, data.right_line, data.mid_line, data.psi, data.dx = image_processing4(rgb_frame)
     #rec_frame = control_monitor(data)
     #rec_frame = cv2.resize(rec_frame, (380,380))
     #image_processing_kmeans(mask)
