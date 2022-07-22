@@ -213,7 +213,7 @@ def run_simulation(args, client):
             #data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
             #data.velocidade = velocidade
             #data.control_output = control.last_output
-            #control_monitor(data)
+            control_monitor(data)
 
   
             #if record_flag == 1:
