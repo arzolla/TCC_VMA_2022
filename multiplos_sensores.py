@@ -62,7 +62,7 @@ def log_data(data, data_name):
 try:
     import pygame
     from pygame.locals import K_ESCAPE
-    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x, K_i, K_p
+    from pygame.locals import K_q, K_a, K_s, K_d, K_f, K_z, K_x, K_i, K_p, K_r
 except ImportError:
     raise RuntimeError('cannot import pygame, make sure pygame package is installed')
 
@@ -124,7 +124,7 @@ def run_simulation(args, client):
         # Then, SensorManager can be used to spawn RGBCamera, LiDARs and SemanticLiDARs as needed
         # and assign each of them to a grid position, 
         RGBCamera = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=1.2, z=1.4), carla.Rotation(pitch=-15, yaw=0)), 
-                      vehicle, {'fov' : '30'}, display_pos=[0, 0])
+                      vehicle, {'fov' : '30', 'sensor_tick' : '0.01667'}, display_pos=[0, 0])
 
         RGBCamera2 = SensorManager(world, display_manager, 'RGBCamera', carla.Transform(carla.Location(x=-10, z=6), carla.Rotation(pitch=-20, yaw=0)), 
                       vehicle, {'fov' : '60'}, display_pos=[0, 1])
@@ -148,7 +148,8 @@ def run_simulation(args, client):
         control.setSampleTime(0.033)
         #control.setOutputLimit(0.5, -0.5)
 
-        # classe para gestão dos dados
+
+        ######### classe para gestão dos dados
         data = SimulationData()
 
 
@@ -156,18 +157,26 @@ def run_simulation(args, client):
         ############# Configurações gerais #############
         call_exit = False # flag de exit
 
-        # piloto automatico
+        ######### piloto automatico
         #vehicle.enable_constant_velocity(carla.Vector3D(10, 0, 0))
         #vehicle.set_autopilot(True)
 
-        dx_offset = 0 # offset pra mudança de faixa
+        # dx_offset = 0 # offset pra mudança de faixa
 
-        # logs
-        log_enable = 0 # flag para habilitar log
-        disable_log_button = 0 # flag do botão para habiltiar log
-        if(log_enable) : print('Log habilitado!')
+        ######### logs
+        #log_enable = 1 # flag para habilitar log
+        #disable_log_button = 0 # flag do botão para habiltiar log
+        #if(log_enable) : print('Log habilitado!')
+        
+        
+        
+        ######### gravar video
+        #record_flag = 0 # 1 = gravar
+        #if record_flag == 1:
+        #    fourcc = cv2.VideoWriter_fourcc(*'MJ2C')
+        #    video_out = cv2.VideoWriter('recordMJ2C.avi', fourcc, 24, (720,  720))
 
-
+        
         while True:
             # Carla Tick
             if args.sync:
@@ -187,44 +196,53 @@ def run_simulation(args, client):
            
 
             rgb_frame = RGBCamera.rgb_frame
-            
-
             computer_vision_rgb(rgb_frame, data)
+            
 
             #data.dx = data.dx + dx_offset # para adicionar offset de mudança de faixa
 
-            control_main(vehicle, control, velocidade, data.psi, data.dx) #precisa retornar erro e steering
+            # aplicad controle
+            control_main(vehicle, control, velocidade, data.psi, data.dx) 
 
-            data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
-            data.velocidade = velocidade
-            data.control_output = control.last_output
-            control_monitor(data)
+            # dados do monitor
+            #data.steering = (vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FL_Wheel)+vehicle.get_wheel_steer_angle(carla.VehicleWheelLocation.FR_Wheel))/2
+            #data.velocidade = velocidade
+            #data.control_output = control.last_output
+            #control_monitor(data)
 
   
+            #if record_flag == 1:
+            #    video_out.write(rgb_frame)
+            #else:
+            #    video_out.release()
 
-
-            #pos_x = vehicle.get_location().x
-            #pos_y = vehicle.get_location().y
+            # pos_x = vehicle.get_location().x
+            # pos_y = vehicle.get_location().y
             #vel_str = 'logs\\vel_'+str(velocidade)
 
-            #waypoint = world.get_map().get_waypoint(vehicle.get_location())
-            
-            #wp_location = waypoint.transform.location
 
-            #print('waypoint',wp_location)
-            #print('vehicle',vehicle.get_location())
             # if(log_enable):
-
-            #     log_data(control.psi, vel_str+'_psi')
-            #     log_data(control.dx, vel_str+'_dx')
-            #     log_data(control.last_output, vel_str+'_steer')
-            #     log_data(time.time(),vel_str+'_time')
-            #     #log_data(wp_location.x, 'logs\\ideal_x')
-            #     #log_data(-wp_location.y,'logs\\ideal_y')
+            #     log_data(time.time(), 'time_processing_only')
+            # #   log_data(control.psi, vel_str+'_psi')
+            # #     log_data(control.dx, vel_str+'_dx')
+            # #     log_data(control.last_output, vel_str+'_steer')
+            # #     log_data(time.time(),vel_str+'_time')
+            # #     #log_data(wp_location.x, 'logs\\ideal_x')
+            # #     #log_data(-wp_location.y,'logs\\ideal_y')
 
             # if( (abs(pos_x - ponto_spawn.location.x)) < 0.5 and (abs(pos_y - ponto_spawn.location.y ) < 0.5) and disable_log_button == 1):
             #     log_enable = 0
             #     print('Log desabilitado!')
+
+
+
+
+            # waypoint = world.get_map().get_waypoint(vehicle.get_location())
+            
+            # wp_location = waypoint.transform.location
+
+            # print('waypoint',wp_location)
+            # print('vehicle',vehicle.get_location())
 
 
             ####################################################
@@ -266,6 +284,9 @@ def run_simulation(args, client):
                         print('Esquerda:', data.left_line)
                         print('Direita:', data.right_line)
                         print('Local do carro:', vehicle.get_transform())
+                    if event.key == K_r: 
+                        record_flag = 0
+                        print('Gravação finalizada!!!')  
 
                     if event.key == K_ESCAPE or event.key == K_q:
                         call_exit = True
