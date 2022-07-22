@@ -262,7 +262,7 @@ class DifferenceFilter:
         else: # se for muito diferente da linha antiga
             left_ok = self.left_antiga # Pega a faixa antiga
             self.l_count = self.l_count + 1 # incrementa contador quando utilizar linha antiga
-            print('pegou LEFT antiga, count',self.l_count, left_line, self.left_antiga)
+            #print('pegou LEFT antiga, count',self.l_count, left_line, self.left_antiga)
 
 
         # if right_antiga is None:
@@ -281,7 +281,7 @@ class DifferenceFilter:
         else: # se for muito diferente da linha antiga
             right_ok = self.right_antiga # Pega a faixa antiga
             self.r_count = self.r_count + 1  # incrementa contador quando utilizar linha antiga
-            print('pegou RIGHT antiga, count',self.r_count, right_line, self.right_antiga)    
+            #print('pegou RIGHT antiga, count',self.r_count, right_line, self.right_antiga)    
 
 
         return left_ok, right_ok
@@ -360,12 +360,12 @@ def image_processing4(rgb_frame):
     ########### PARA DETECTAR AS FAIXAS ############
     ################################################
 
-    lines = hough_transform(skel_img) # todas as linhas detectadas 
+    lines_in = hough_transform(skel_img) # todas as linhas detectadas 
 
     # Desloca origem em 360 pixels no eixo x
-    shift_origin(lines)
+    shift_origin(lines_in)
 
-    filter_by_angle(lines) # descarta linhas com angulo muito horizontal
+    lines = filter_by_angle(lines_in) # descarta linhas com angulo muito horizontal
 
     if lines is not None:
         lines_shift = lines.copy()
@@ -375,8 +375,8 @@ def image_processing4(rgb_frame):
     normalize_hough(lines_shift)
 
 
-    left_lines_shift = filter_out_of_roi(lines_shift, 360+80, 720-60)
-    right_lines_shift = filter_out_of_roi(lines_shift, 720+60, 1080-80)
+    left_lines_shift = filter_out_of_roi(lines_shift, 360, 720-60)
+    right_lines_shift = filter_out_of_roi(lines_shift, 720+60, 1080)
 
     left_line_shift = get_average_line(left_lines_shift)
     right_line_shift = get_average_line(right_lines_shift)
@@ -420,7 +420,8 @@ def image_processing4(rgb_frame):
     # img_bin_rgb = cv2.cvtColor(img_bin, cv2.COLOR_GRAY2RGB)
     # gray_img_rgb = cv2.cvtColor(gray_img, cv2.COLOR_GRAY2RGB)
 
-    # display_lines(img_bin_rgb, lines, line_color = (255,0,255), line_width=1)
+    #skel_rgb = cv2.cvtColor(skel_img, cv2.COLOR_GRAY2RGB)
+    #display_lines(skel_rgb, lines, line_color = (255,0,255), line_width=1)
 
     # tl = [60, 113]
     # tr = [660, 113]
@@ -433,24 +434,30 @@ def image_processing4(rgb_frame):
     # display_lines_2pts(gray_img_rgb, bl, tl, line_color = (0,21,200), line_width=1)
 
     # # mostra as linhas
-    # display_lines(bird_img_rgb, left_lines_shift, line_color = (0,0,255), line_width=1)
-    # display_lines(bird_img_rgb, right_lines_shift, line_color = (255,0,0), line_width=1)
+    #display_lines(skel_rgb, left_lines_shift, line_color = (0,0,255), line_width=1)
+    #display_lines(skel_rgb, right_lines_shift, line_color = (255,0,0), line_width=1)
     # ########## Mostrar as faixas ######
-    # display_lines(bird_img_rgb, left_line_shift, line_color = (180,180,255))
-    # display_lines(bird_img_rgb, right_line_shift, line_color = (255,180,180))
-    # display_lines(bird_img_rgb, center_line_shift)
+    # display_lines(skel_rgb, left_line_shift, line_color = (0,0,255))
+    # display_lines(skel_rgb, right_line_shift, line_color = (255,0,0))
+    # display_lines(skel_rgb, center_line_shift)
+    # write_on_screen(skel_rgb, ('psi: '+str(round(psi,3))+' degree'), [370, 360], (0,255,0), size = 0.5, thick = 2)
 
-    # rgb_frame = cv2.resize(rgb_frame, (380,380))
+    #     # del_x
+    # display_lines_2pts(skel_rgb, [del_x/0.002084 + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
+    # write_on_screen(skel_rgb, ('dx: '+str(round(del_x,3))+' m'), [int(round(del_x,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
+    #rgb_frame = cv2.resize(rgb_frame, (380,380))
     # gray_img_rgb = cv2.resize(gray_img_rgb, (380,380))
-    # bird_img_resize = cv2.resize(bird_img, (380,380))
-    # bird_img_blur = cv2.resize(bird_img_blur, (380,380))
-    # img_bin = cv2.resize(img_bin, (380,380))
-    # skel_img = cv2.resize(skel_img, (380,380))
+    #gray_img_res = cv2.resize(gray_img, (380,380))
+    #bird_img_resize = cv2.resize(bird_img, (380,380))
+    #bird_img_blur = cv2.resize(bird_img_blur, (380,380))
+    #img_bin = cv2.resize(img_bin, (380,380))
+    # skel_rgb = cv2.resize(skel_rgb, (380,380))
     # img_bin_rgb = cv2.resize(img_bin_rgb, (380,380))
     # bird_img_rgb = cv2.resize(bird_img_rgb, (380,380))
 
 
     # cv2.imshow('Camera', rgb_frame)
+    #cv2.imshow('Imagem grayscale', gray_img)
     # cv2.imshow('Imagem grayscale e ROI', gray_img_rgb)
     # cv2.imshow('Transformacao de Perspectiva', bird_img_resize)
     # cv2.imshow('Imagem apos filtro Gaussiano', bird_img_blur)
@@ -458,10 +465,10 @@ def image_processing4(rgb_frame):
     # cv2.imshow('Imagem Esqueletizada', skel_img)
     # cv2.imshow('Todas as Linhas', img_bin_rgb)
     # cv2.imshow('Esquerda, Direita e Medias', bird_img_rgb)
-    # ##cv2.imwrite('4_centro.png',roi_img_rgb)
+    #cv2.imwrite('gray_camera_view.png',gray_img)
 
 
-    return bird_img, left_line_shift, right_line_shift, center_line_shift, psi, del_x
+    return  bird_img, left_line_shift, right_line_shift, center_line_shift, psi, del_x
 
 
 
@@ -475,10 +482,11 @@ def computer_vision_rgb(rgb_frame, data):
     #show_image_rgb(frame) # Mostra imagem RGB
 
     data.frame, data.left_line, data.right_line, data.mid_line, data.psi, data.dx = image_processing4(rgb_frame)
-    control_monitor(data)
+    #rec_frame = control_monitor(data)
+    #rec_frame = cv2.resize(rec_frame, (380,380))
     #image_processing_kmeans(mask)
     #print('asdasd',left_line, right_line)
-
+    #return rec_frame
 # classe para armazenar os dados da simulação e visão
 class SimulationData:
     def __init__(   
@@ -522,8 +530,8 @@ def control_monitor(data):
     if not(isinstance(data.left_line, int)):
 
         # centro da camera (em azul)
-        display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
-        display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
+        #display_lines_2pts(frame, [360,0], [360,720], line_color = (200,21,21), line_width=1)
+        #display_lines_2pts(frame, [0,360], [720,360], line_color = (200,21,21), line_width=1)
 
         # faixas e centro
         display_lines(frame, data.left_line, line_color = (0,0,255))
@@ -536,17 +544,17 @@ def control_monitor(data):
         display_lines_2pts(frame, [data.dx/0.002084 + 360, 720], [360, 720], line_color = (51,251,255), line_width=3)
         write_on_screen(frame, ('dx: '+str(round(data.dx,3))+' m'), [int(round(data.dx,0)) + 360,710], (51,251,255), size = 0.5, thick = 2) 
 
-    write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
-    if  data.steering > 0:
-        write_on_screen(frame, ('Direita'), (500,50), (255,0,0))
-    else:
-        write_on_screen(frame, ('Esquerda'), (500,50), (0,255,255))
-    write_on_screen(frame, ('Controle:'+str(np.round(data.control_output,4))), (10,100), (255,255,255))
-    # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,150), (255,255,255)) 
-    # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,200), (50,50,255))  
-    # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,250), (50,50,255))    
-    # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,300), (50,50,255))
-    write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,350), (50,255,50))
+    # write_on_screen(frame, ('Steering:'+str(round(data.steering,4))), (10,50), (255,255,255))
+    # if  data.steering > 0:
+    #     write_on_screen(frame, ('Direita'), (500,50), (255,0,0))
+    # else:
+    #     write_on_screen(frame, ('Esquerda'), (500,50), (0,255,255))
+    # write_on_screen(frame, ('Controle:'+str(np.round(data.control_output,4))), (10,100), (255,255,255))
+    # # write_on_screen(frame, ('Estado:'+str(data.estado)), (10,150), (255,255,255)) 
+    # # write_on_screen(frame, ('Kp:'+str(data.Kp)), (10,200), (50,50,255))  
+    # # write_on_screen(frame, ('Kd:'+str(data.Kd)), (10,250), (50,50,255))    
+    # # write_on_screen(frame, ('Ki:'+str(data.Ki)), (10,300), (50,50,255))
+    # write_on_screen(frame, ('Vel:'+str(data.velocidade)), (10,350), (50,255,50))
       
     cv2.imshow('Lane Monitor', frame)
 
@@ -554,34 +562,14 @@ def control_monitor(data):
     
     cv2.waitKey(1)
     #data.frame = frame
+    return frame
     
 
 def write_on_screen(frame, text, pos, color, size = 1, thick = 1):
     cv2.putText(frame, (text), pos, cv2.FONT_HERSHEY_SIMPLEX, size, color, thick, 2)  
 
 
-def moving_threshold(gray_img, n=20, b=0.5):
 
-    #gray_img = cv2.GaussianBlur(gray_img,(7,7),0)
-
-    gray_img[1:-1:2, :] = np.fliplr(gray_img[1:-1:2, :])  #  Vector flip 
-    f = gray_img.flatten()  #  Flatten to one dimension 
-    ret = np.cumsum(f)
-    ret[n:] = ret[n:] - ret[:-n]
-    m = ret / n  #  Moving average 
-    g = np.array(f>=b*m).astype(int)  #  Threshold judgment ,g=1 if f>=b*m
-    g = g.reshape(gray_img.shape)  #  Restore to 2D 
-    g[1:-1:2, :] = np.fliplr(g[1:-1:2, :])  #  Flip alternately
-    g = np.ascontiguousarray(g, dtype=np.uint8)
-    g = g*255
-    
-    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4,4))
-    #print(element)
-
-    close_img = cv2.morphologyEx(g, cv2.MORPH_CLOSE, element)
-
-  
-    return close_img
 
 
 
@@ -628,28 +616,13 @@ def bird_eyes(image):
     return img_transformed
 
 
-def teste(rgb_frame):
-    bird_img = bird_eyes(rgb_frame)
-
-    cv2.imshow('birds', bird_img)
-
-    img_thresh = moving_threshold(bird_img, n = 50, b = 1.2)
-
-    cv2.imshow('tresh', img_thresh)
-
-    element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6,6))
-    print(element)
-
-    open = cv2.morphologyEx(img_thresh, cv2.MORPH_CLOSE, element)
-
-    cv2.imshow('open', open)
 
 
 
 if __name__ == '__main__':
 
 
-    path = 'test_img\ideal_fov30_2.png'
+    path = 'test_img\camera_view.png'
     #path = 'test_img\curva_fov30_left.png'
     #path = 'test_img\curva_fov30_right_brusca.png'
 
@@ -659,8 +632,33 @@ if __name__ == '__main__':
 
     img_BGR = cv2.imread(path, cv2.IMREAD_COLOR)
 
+    # video = cv2.VideoCapture('recordFFV1.avi')
+
+    # fourcc = cv2.VideoWriter_fourcc(*'FFV1')
+    # video_out = cv2.VideoWriter("videos2\\10_result.avi", fourcc, 24, (380,  380), isColor = True)
+
 
     data = SimulationData()
+
+    # while True:
+    #     # Capture frame-by-frame
+    #     ret, frame = video.read()
+    #     # if frame is read correctly ret is True
+    #     if not ret:
+    #         print("Can't receive frame (stream end?). Exiting ...")
+    #         break
+    #     # Our operations on the frame come here
+    #     # Display the resulting frame
+    #     rec_frame = computer_vision_rgb(frame, data)
+    #     cv2.imshow('tresh', rec_frame)
+    #     video_out.write(rec_frame)
+
+    #     if cv2.waitKey(1) == ord('q'):
+    #         break
+
+    # video_out.release()
+
+
     for n in range(1):
 
         

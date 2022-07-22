@@ -213,41 +213,59 @@ if __name__ == '__main__':
     
     print('------------------------------------------')
     from statistics import stdev
-    vels = [15, 20, 25]
-    for vel in vels:
-        vel_time = eval(open("logs\\vel_"+str(vel)+"_time.txt").read())
-        vel_psi = eval(open("logs\\vel_"+str(vel)+"_psi.txt").read())
-        vel_dx = eval(open("logs\\vel_"+str(vel)+"_dx.txt").read())
-        vel_steer = eval(open("logs\\vel_"+str(vel)+"_steer.txt").read())
-        #print(vel_dx)
-        #plot_error(vel_time, vel_psi, vel_dx, vel_steer, figure=('vel_'+str(vel)))
-        print('rms dx '+str(vel)+':',np.sqrt(np.mean(np.array(vel_dx)**2)))
-        #print('rms psi '+str(vel),np.sqrt(np.mean(np.array(vel_psi)**2)))
-        #print('stdev dx '+str(vel)+':',stdev(vel_dx))
-        print('max, min dx '+str(vel)+':',np.round(min(vel_dx),3)," \\ ; \\ ", np.round(max(vel_dx),3) )
-        print('------------------------------------------')
+    # vels = [15, 20, 25]
+    # for vel in vels:
+    #     vel_time = eval(open("logs\\vel_"+str(vel)+"_time.txt").read())
+    #     vel_psi = eval(open("logs\\vel_"+str(vel)+"_psi.txt").read())
+    #     vel_dx = eval(open("logs\\vel_"+str(vel)+"_dx.txt").read())
+    #     vel_steer = eval(open("logs\\vel_"+str(vel)+"_steer.txt").read())
+    #     #print(vel_dx)
+    #     plot_error(vel_time, vel_psi, vel_dx, vel_steer, figure=('vel_'+str(vel)))
+    #     print('rms dx '+str(vel)+':',np.sqrt(np.mean(np.array(vel_dx)**2)))
+    #     #print('rms psi '+str(vel),np.sqrt(np.mean(np.array(vel_psi)**2)))
+    #     #print('stdev dx '+str(vel)+':',stdev(vel_dx))
+    #     print('max, min dx '+str(vel)+':',np.round(min(vel_dx),3)," \\ ; \\ ", np.round(max(vel_dx),3) )
+    #     print('------------------------------------------')
 
-
-        #plt.savefig('4_todos_dados_'+str(vel)+'.pdf', bbox_inches='tight')
+    
+        #plt.savefig('4_todos_dados_'+str(vel)+'.png', bbox_inches='tight')
 
 
     ######## mapa #############
 
-    ideal_x = eval(open("logs\\ideal_x.txt").read())
-    ideal_y = eval(open("logs\\ideal_y.txt").read())
+    # ideal_x = eval(open("logs\\ideal_x.txt").read())
+    # ideal_y = eval(open("logs\\ideal_y.txt").read())
 
 
-    i = np.arange(len(ideal_x))
-    interp_i = np.linspace(0, i.max(),   i.max())
+    # i = np.arange(len(ideal_x))
+    # interp_i = np.linspace(0, i.max(),   i.max())
 
-    new_map_x = interp1d(i, ideal_x, kind='cubic')(interp_i)
-    new_map_y = interp1d(i, ideal_y, kind='cubic')(interp_i)
+    # new_map_x = interp1d(i, ideal_x, kind='cubic')(interp_i)
+    # new_map_y = interp1d(i, ideal_y, kind='cubic')(interp_i)
 
     #plot_map(new_map_x,new_map_y , 'mais um')
 
-    #plt.savefig('4_percurso.pdf', bbox_inches='tight')
+    #plt.savefig('4_percurso.png', bbox_inches='tight')
 
-    print(get_arc_length(new_map_x, new_map_y))
+    # print(get_arc_length(new_map_x, new_map_y))
     
-    plt.show()
+        
+
+    #plt.show()
+
+    vel_time = eval(open("logs\\time_processing_only.txt").read())
+    vel_time = np.array(vel_time)
+
+    periodo = []
+    for n in range(len(vel_time)-1):
+        print(n)
+        print(vel_time[0])
+        print(vel_time[1])
+        periodo.append(vel_time[n+1] - vel_time[n])
+
+    print('periodo lista',periodo)
+    print('media:',np.mean(periodo))
+
+
+    #print(periodo[0])
 
